@@ -1,17 +1,37 @@
-import express from "express";
-import morgan from "morgan";
+import express, { Express } from "express";
+import session from "express-session";
 import cors from "cors";
+import passport from "passport";
+import "./services/passport";
+import dotenv from "dotenv";
+import authRouter from "./routes/auth";
+import publishRouter from "./routes/publish";
+dotenv.config();
 
-const app = express();
-const port = 8080; // default port to listen
+const app: Express = express();
+const port: number = parseInt(<string>process.env.PORT) || 8080;
+app.use(
+    session({
+        name: "session",
+        secret: "cat",
+    })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+// app.use(cors());
+const corsConfig = {
+    origin: true,
+    credentials: true,
+};
 
-// define a route handler for the default home page
-app.get("/", (req, res) => {
-    res.send("Hello world!");
-});
+app.use(cors(corsConfig));
+app.options("*", cors(corsConfig));
 
-// start the Express server
+app.use(express.json());
+
+app.use(`/auth`, authRouter);
+app.use(`/publish`, publishRouter);
+
 app.listen(port, () => {
-    // tslint:disable-next-line:no-console
-    console.log(`server started at http://localhost:${port}`);
+    console.log(`listening on port: ${port}`);
 });
