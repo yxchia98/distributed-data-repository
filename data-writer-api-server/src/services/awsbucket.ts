@@ -6,6 +6,10 @@ import {
     CreateBucketRequest,
     CreateBucketCommand,
     CreateBucketOutput,
+    GetObjectCommand,
+    GetObjectCommandOutput,
+    GetObjectCommandInput,
+    HeadBucketCommandInput,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import dotenv from "dotenv";
@@ -18,20 +22,55 @@ dotenv.config();
 export const checkBucket = async (s3: S3Client, bucket: string) => {
     try {
         // const res = await s3.headBucket({ Bucket: bucket }).promise();
+        const input: HeadBucketCommandInput = {
+            Bucket: bucket,
+        };
         const res: HeadBucketCommandOutput = await s3.send(
-            new HeadBucketCommand({ Bucket: bucket })
+            new HeadBucketCommand(input)
         );
 
-        // console.log("Bucket already Exist", res.$metadata);
-        console.log("Bucket already Exist");
+        console.log("Bucket already Exist", res.$metadata);
+        // console.log("Bucket already Exist");
 
         return { success: true, message: "Bucket already Exist", data: {} };
     } catch (error) {
-        console.log("Error bucket don't exsit", error);
+        console.log("Error bucket don't exist", error);
 
         return {
             success: false,
-            message: "Error bucket don't exsit",
+            message: "Error bucket don't exist",
+            data: error,
+        };
+    }
+};
+
+/**
+ * @name checkBucketFolder
+ * @param {S3Client} s3
+ * @returns {Promise<{success:boolean; message: string; data:string;}>}
+ */
+export const checkBucketFolder = async (
+    s3: S3Client,
+    bucket: string,
+    folder: string
+) => {
+    try {
+        const input: GetObjectCommandInput = {
+            Bucket: bucket,
+            Key: folder,
+        };
+        const res: GetObjectCommandOutput = await s3.send(
+            new GetObjectCommand(input)
+        );
+
+        console.log("Folder already Exist", res.$metadata);
+
+        return { success: true, message: "Folder already Exist", data: {} };
+    } catch (error) {
+        console.log("Error folder don't exist", error);
+        return {
+            success: false,
+            message: "Error folder don't exist",
             data: error,
         };
     }

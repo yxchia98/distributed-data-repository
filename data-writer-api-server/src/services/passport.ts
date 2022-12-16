@@ -4,9 +4,8 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const GoogleStrategy = Strategy;
-const GOOGLE_CLIENT_ID: string =
-    "651799795398-vkt8j3uhben60etk2c215585po2lmqrl.apps.googleusercontent.com";
-const GOOGLE_CLIENT_SECRET: string = "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";
+const GOOGLE_CLIENT_ID: string = process.env.GOOGLE_CLIENT_ID;
+const GOOGLE_CLIENT_SECRET: string = process.env.GOOGLE_CLIENT_SECRET;
 passport.use(
     new GoogleStrategy(
         {
