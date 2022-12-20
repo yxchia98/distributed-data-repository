@@ -2,7 +2,11 @@ import express, { Request, Response } from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import { S3Client } from "@aws-sdk/client-s3";
-import { initBucket, checkBucketFolder } from "../services/awsbucket";
+import {
+    initBucket,
+    checkBucketFolder,
+    createBucketFolder,
+} from "../services/awsbucket";
 import dotenv from "dotenv";
 dotenv.config();
 
@@ -24,6 +28,8 @@ const s3 = new S3Client({
         secretAccessKey: process.env.AWS_S3_ACCESS_SECRET,
     },
 });
+
+const upload = multer();
 
 const uploadS3 = multer({
     storage: multerS3({
@@ -120,5 +126,39 @@ router.get("/checktopic", async (req: Request, res: Response) => {
     }
     return;
 });
+
+router.post(
+    "/createtopic",
+    upload.none(),
+    async (req: Request, res: Response) => {
+        if (!req.body.topicname) {
+            res.send({
+                error: true,
+                message: "no topic specified",
+            });
+            return;
+        }
+
+        const folder = "topics/" + req.body.topicname + "/";
+        console.log(folder);
+        const result = await createBucketFolder(
+            s3,
+            process.env.AWS_S3_BUCKET_NAME,
+            folder
+        );
+        if (result.success) {
+            res.status(200).send({
+                error: false,
+                message: "Folder created!",
+            });
+        } else {
+            res.send({
+                error: true,
+                message: "Error creating folder",
+            });
+        }
+        return;
+    }
+);
 
 export default router;

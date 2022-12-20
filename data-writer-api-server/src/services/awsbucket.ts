@@ -10,6 +10,9 @@ import {
     GetObjectCommandOutput,
     GetObjectCommandInput,
     HeadBucketCommandInput,
+    PutObjectCommandInput,
+    PutObjectCommandOutput,
+    PutObjectCommand,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import dotenv from "dotenv";
@@ -73,6 +76,40 @@ export const checkBucketFolder = async (
         return {
             success: false,
             message: "Error folder don't exist",
+            data: error,
+        };
+    }
+};
+
+/**
+ * @name createBucketFolder
+ * @param {S3Client} s3
+ * @param {string} bucket
+ * @param {string} folder
+ * @returns {Promise<{success:boolean; message: string; data:string;}>}
+ */
+export const createBucketFolder = async (
+    s3: S3Client,
+    bucket: string,
+    folder: string
+) => {
+    try {
+        const input: PutObjectCommandInput = {
+            Bucket: bucket,
+            Key: folder,
+        };
+        const res: PutObjectCommandOutput = await s3.send(
+            new PutObjectCommand(input)
+        );
+
+        console.log("Folder created!", res.$metadata);
+
+        return { success: true, message: "Folder created", data: {} };
+    } catch (error) {
+        console.log("Error creating folder", error);
+        return {
+            success: false,
+            message: "error creating folder",
             data: error,
         };
     }
