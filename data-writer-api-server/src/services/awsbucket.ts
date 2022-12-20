@@ -47,6 +47,8 @@ export const checkBucket = async (s3: S3Client, bucket: string) => {
 /**
  * @name checkBucketFolder
  * @param {S3Client} s3
+ * @param {string} bucket
+ * @param {string} folder
  * @returns {Promise<{success:boolean; message: string; data:string;}>}
  */
 export const checkBucketFolder = async (

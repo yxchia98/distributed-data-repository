@@ -5,7 +5,7 @@ import passport from "passport";
 import "./services/passport";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth";
-import publishRouter from "./routes/publish";
+import writerRouter from "./routes/writer";
 dotenv.config();
 
 const app: Express = express();
@@ -30,7 +30,7 @@ app.options("*", cors(corsConfig));
 app.use(express.json());
 
 app.use(`/auth`, authRouter);
-app.use(`/publish`, publishRouter);
+app.use(`/writer`, writerRouter);
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
