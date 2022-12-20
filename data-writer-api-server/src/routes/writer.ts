@@ -141,22 +141,37 @@ router.post(
 
         const folder = "topics/" + req.body.topicname + "/";
         console.log(folder);
-        const result = await createBucketFolder(
+        // check if topic folder already exists in S3
+        const topicExistResponse = await checkBucketFolder(
             s3,
             process.env.AWS_S3_BUCKET_NAME,
             folder
         );
-        if (result.success) {
-            res.status(200).send({
-                error: false,
-                message: "Folder created!",
-            });
+        if (!topicExistResponse.success) {
+            // create folder in S3
+            const result = await createBucketFolder(
+                s3,
+                process.env.AWS_S3_BUCKET_NAME,
+                folder
+            );
+            if (result.success) {
+                res.status(200).send({
+                    error: false,
+                    message: "Folder created!",
+                });
+            } else {
+                res.send({
+                    error: true,
+                    message: "Error creating folder",
+                });
+            }
         } else {
-            res.send({
+            res.status(200).send({
                 error: true,
-                message: "Error creating folder",
+                message: "Topic already exists",
             });
         }
+
         return;
     }
 );
