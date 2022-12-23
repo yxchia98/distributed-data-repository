@@ -8,6 +8,7 @@ import {
     createBucketFolder,
 } from "../services/awsbucket";
 import dotenv from "dotenv";
+import { sequelize } from "../services/database";
 dotenv.config();
 
 interface TypeMap {
@@ -41,27 +42,26 @@ const uploadS3 = multer({
             file: Express.Multer.File,
             cb: any
         ) {
-            try {
-                await initBucket(s3);
-                const topicFolder = "topics/" + req.body.topic + "/";
-                const topicExist = await checkBucketFolder(
-                    s3,
-                    process.env.AWS_S3_BUCKET_NAME,
-                    topicFolder
-                );
-                let uploadError = new Error("invalid file type");
+            await initBucket(s3);
+            const topicFolder = "topics/" + req.body.topic + "/";
+            const topicExist = await checkBucketFolder(
+                s3,
+                process.env.AWS_S3_BUCKET_NAME,
+                topicFolder
+            );
+            let uploadError = new Error("topic not found");
 
-                if (topicExist.success) {
-                    // upload file into that folder
-                    const isValid = FILE_TYPE_MAP[file.mimetype];
-                    if (isValid) {
-                        uploadError = null;
-                    }
-                    cb(uploadError, { fieldname: file.fieldname });
-                } else {
-                    cb(uploadError.message, { fieldname: null });
+            if (topicExist.success) {
+                // upload file into that folder
+                uploadError.message = "invalid file type";
+                const isValid = FILE_TYPE_MAP[file.mimetype];
+                if (isValid) {
+                    uploadError = null;
                 }
-            } catch (error) {}
+                cb(uploadError, { fieldname: file.fieldname });
+            } else {
+                cb(uploadError.message, { fieldname: null });
+            }
         },
         key: function (req: Request, file: Express.Multer.File, cb: any) {
             const topicFolder = "topics/" + req.body.topic + "/";
@@ -173,6 +173,17 @@ router.post(
         }
 
         return;
+    }
+);
+
+router.delete(
+    "/deletetopic",
+    upload.none(),
+    async (req: Request, res: Response) => {
+        console.log("deleting topic!");
+        console.log(`query: ${JSON.stringify(req.query)}`);
+        console.log(`body: ${JSON.stringify(req.body)}`);
+        res.status(200).send("ok!");
     }
 );
 

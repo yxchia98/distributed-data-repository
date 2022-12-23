@@ -81,9 +81,9 @@ router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
 router.get("/logout", (req: Request, res: Response) => {
     req.logout((err: any) => {
         if (err) {
-            res.status(200).send({ error: true, message: "logout error" });
+            res.status(400).send({ error: true, message: "logout error" });
         }
-        req.session?.destroy((err: any) => {});
+        // req.session?.destroy((err: any) => {});
     });
     res.redirect(process.env.CLIENT_URL);
 });
