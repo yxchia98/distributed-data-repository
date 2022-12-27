@@ -13,6 +13,9 @@ import {
     PutObjectCommandInput,
     PutObjectCommandOutput,
     PutObjectCommand,
+    DeleteObjectCommandOutput,
+    DeleteObjectCommandInput,
+    DeleteObjectCommand,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import dotenv from "dotenv";
@@ -110,6 +113,40 @@ export const createBucketFolder = async (
         return {
             success: false,
             message: "error creating folder",
+            data: error,
+        };
+    }
+};
+
+/**
+ * @name deleteBucketFolder
+ * @param {S3Client} s3
+ * @param {string} bucket
+ * @param {string} folder
+ * @returns {Promise<{success:boolean; message: string; data:string;}>}
+ */
+export const deleteBucketFolder = async (
+    s3: S3Client,
+    bucket: string,
+    folder: string
+) => {
+    try {
+        const input: DeleteObjectCommandInput = {
+            Bucket: bucket,
+            Key: folder,
+        };
+        const res: DeleteObjectCommandOutput = await s3.send(
+            new DeleteObjectCommand(input)
+        );
+
+        console.log("Folder deleted!", res.$metadata);
+
+        return { success: true, message: "Folder deleted", data: {} };
+    } catch (error) {
+        console.log("Error deleting folder", error);
+        return {
+            success: false,
+            message: "error deleting folder",
             data: error,
         };
     }

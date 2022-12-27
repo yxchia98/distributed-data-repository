@@ -6,6 +6,7 @@ import {
     initBucket,
     checkBucketFolder,
     createBucketFolder,
+    deleteBucketFolder,
 } from "../services/awsbucket";
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
@@ -73,6 +74,8 @@ const uploadS3 = multer({
     }),
 });
 
+/*-------------------- TOPIC API START ---------------*/
+
 router.post(
     "/publish",
     uploadS3.single("uploaded_file"),
@@ -97,7 +100,7 @@ router.post(
     }
 );
 
-router.get("/checktopic", async (req: Request, res: Response) => {
+router.get("/check", async (req: Request, res: Response) => {
     if (!req.query.topicname) {
         res.send({
             error: true,
@@ -127,18 +130,14 @@ router.get("/checktopic", async (req: Request, res: Response) => {
     return;
 });
 
-router.post(
-    "/createtopic",
-    upload.none(),
-    async (req: Request, res: Response) => {
-        if (!req.body.topicname) {
-            res.send({
-                error: true,
-                message: "no topic specified",
-            });
-            return;
-        }
-
+router.post("/create", upload.none(), async (req: Request, res: Response) => {
+    if (!req.body.topicname) {
+        res.send({
+            error: true,
+            message: "no topic specified",
+        });
+    }
+    try {
         const folder = "topics/" + req.body.topicname + "/";
         console.log(folder);
         // check if topic folder already exists in S3
@@ -157,12 +156,12 @@ router.post(
             if (result.success) {
                 res.status(200).send({
                     error: false,
-                    message: "Folder created!",
+                    message: "Topic created!",
                 });
             } else {
                 res.send({
                     error: true,
-                    message: "Error creating folder",
+                    message: "Error creating topic",
                 });
             }
         } else {
@@ -171,20 +170,63 @@ router.post(
                 message: "Topic already exists",
             });
         }
-
-        return;
+    } catch (error: any) {
+        res.status(400).send({
+            error: true,
+            message: "Error deleting topic",
+        });
     }
-);
+});
 
-router.delete(
-    "/deletetopic",
-    upload.none(),
-    async (req: Request, res: Response) => {
-        console.log("deleting topic!");
-        console.log(`query: ${JSON.stringify(req.query)}`);
-        console.log(`body: ${JSON.stringify(req.body)}`);
-        res.status(200).send("ok!");
+router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
+    console.log("deleting topic!");
+    console.log(`query: ${JSON.stringify(req.query)}`);
+    console.log(`body: ${JSON.stringify(req.body)}`);
+    if (!req.body.topicname) {
+        res.send({
+            error: true,
+            message: "no topic specified",
+        });
     }
-);
+    try {
+        const folder = "topics/" + req.body.topicname + "/";
+        console.log(folder);
+        // check if topic folder already exists in S3
+        const topicExistResponse = await checkBucketFolder(
+            s3,
+            process.env.AWS_S3_BUCKET_NAME,
+            folder
+        );
+        if (topicExistResponse.success) {
+            // create folder in S3
+            const result = await deleteBucketFolder(
+                s3,
+                process.env.AWS_S3_BUCKET_NAME,
+                folder
+            );
+            if (result.success) {
+                res.status(200).send({
+                    error: false,
+                    message: "Topic deleted!",
+                });
+            } else {
+                res.send({
+                    error: true,
+                    message: "Error deleting topic",
+                });
+            }
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Topic does not exist",
+            });
+        }
+    } catch (error: any) {
+        res.status(400).send({
+            error: true,
+            message: "Error deleting topic",
+        });
+    }
+});
 
 export default router;

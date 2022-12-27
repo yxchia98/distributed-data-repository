@@ -20,6 +20,8 @@ const isHighestPrivilege = (
         : res.sendStatus(401);
 };
 
+/*-------------------- AUTH API START ---------------*/
+
 router.get("/login/success", (req: Request, res: Response) => {
     if (req.user) {
         res.status(200).json({

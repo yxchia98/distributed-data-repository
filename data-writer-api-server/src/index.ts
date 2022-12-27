@@ -6,7 +6,8 @@ import cookieSession from "cookie-session";
 import "./services/passport";
 import dotenv from "dotenv";
 import authRouter from "./routes/auth";
-import writerRouter from "./routes/writer";
+import topicRouter from "./routes/topic";
+import profileRouter from "./routes/profile";
 // import { setup } from "./services/database";
 import "./services/database";
 dotenv.config();
@@ -63,7 +64,8 @@ app.options("*", cors(corsConfig));
 app.use(express.json());
 
 app.use(`/auth`, authRouter);
-app.use(`/writer`, writerRouter);
+app.use(`/topic`, topicRouter);
+app.use(`/profile`, profileRouter);
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
