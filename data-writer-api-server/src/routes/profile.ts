@@ -135,12 +135,17 @@ router.put("/agency", upload.none(), async (req: Request, res: Response) => {
     console.log("updating agency!");
     console.log(`query: ${JSON.stringify(req.query)}`);
     console.log(`body: ${JSON.stringify(req.body)}`);
-
+    // return if no fields set to be updated
+    if (!(req.body.short_name || req.body.long_name)) {
+        res.status(404).send({
+            error: true,
+            message: "No fields specified",
+        });
+        return;
+    }
     try {
         // query record
-        const queryResult = await Agency.findByPk(req.body.agency_id, {
-            rejectOnEmpty: true,
-        });
+        const queryResult = await Agency.findByPk(req.body.agency_id);
         if (queryResult) {
             console.log(queryResult);
             // update record
@@ -150,36 +155,34 @@ router.put("/agency", upload.none(), async (req: Request, res: Response) => {
             const longName = req.body.long_name
                 ? req.body.long_name
                 : queryResult.long_name;
-            // const updateResult = await Agency.update(
-            //     {},
-            //     {
-            //         where: {
-            //             agency_id: req.body.agency_id,
-            //         },
-            //     }
-            // );
-            // if (updateResult) {
-            //     console.log(
-            //         `Successfully deleted agency: ${JSON.stringify(
-            //             updateResult
-            //         )}`
-            //     );
-            //     res.status(200).send({
-            //         error: false,
-            //         message: "Successfully deleted agency!",
-            //     });
-            // } else {
-            //     res.status(404).send({
-            //         error: true,
-            //         message: "Error deleting agency",
-            //     });
-            // }
-            res.status(200).send({
-                error: false,
-                message: `Successfully updated agency! ${queryResult.agency_id}`,
-            });
+            const updateResult = await Agency.update(
+                { short_name: shortName, long_name: longName },
+                {
+                    where: {
+                        agency_id: queryResult.agency_id,
+                    },
+                }
+            );
+            if (updateResult![0]) {
+                console.log(updateResult[0]);
+                res.status(200).send({
+                    error: false,
+                    message: `Successfully updated agency! ${JSON.stringify(
+                        queryResult!.agency_id
+                    )}`,
+                });
+            } else {
+                res.status(404).send({
+                    error: true,
+                    message: "Error updating agency",
+                });
+            }
         } else {
             // no record found
+            res.status(404).send({
+                error: true,
+                message: "Error updating agency, no record found",
+            });
         }
     } catch (error) {
         console.log(error);
