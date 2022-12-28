@@ -1,7 +1,23 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+} from "sequelize";
 import { sequelize } from "../services/database";
 
-export const Request = sequelize.define(
+interface Request
+    extends Model<InferAttributes<Request>, InferCreationAttributes<Request>> {
+    request_id: string;
+    requester_id: string;
+    approver_id: string;
+    topic_id: string;
+    access_type: string;
+    status: string;
+    description: string;
+}
+
+export const Request = sequelize.define<Request>(
     "request",
     {
         // Model attributes are defined here
@@ -28,12 +44,10 @@ export const Request = sequelize.define(
         status: {
             type: DataTypes.STRING,
             allowNull: false,
-            defaultValue: DataTypes.NOW,
         },
         description: {
             type: DataTypes.TEXT,
             allowNull: true,
-            defaultValue: DataTypes.NOW,
         },
     },
     {

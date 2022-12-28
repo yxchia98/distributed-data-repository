@@ -1,5 +1,20 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+} from "sequelize";
 import { sequelize } from "../services/database";
+
+interface Topic
+    extends Model<InferAttributes<Topic>, InferCreationAttributes<Topic>> {
+    topic_id: string;
+    user_id: string;
+    agency_id: string;
+    topic_url: string;
+    description: string;
+    last_update: Date;
+}
 
 export const Topic = sequelize.define(
     "topic",

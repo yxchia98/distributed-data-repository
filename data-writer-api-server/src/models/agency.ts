@@ -1,13 +1,21 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    ModelDefined,
+    Optional,
+    Model,
+    InferCreationAttributes,
+} from "sequelize";
 import { sequelize } from "../services/database";
 
-export interface AgencyType {
+interface Agency
+    extends Model<InferAttributes<Agency>, InferCreationAttributes<Agency>> {
     agency_id: string;
     short_name: string;
     long_name: string;
 }
 
-export const Agency = sequelize.define(
+export const Agency = sequelize.define<Agency>(
     "agency",
     {
         // Model attributes are defined here
@@ -29,5 +37,6 @@ export const Agency = sequelize.define(
     {
         // Other model options go here
         timestamps: false,
+        tableName: "agency",
     }
 );

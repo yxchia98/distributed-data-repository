@@ -1,5 +1,20 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+} from "sequelize";
 import { sequelize } from "../services/database";
+
+interface WriteAccess
+    extends Model<
+        InferAttributes<WriteAccess>,
+        InferCreationAttributes<WriteAccess>
+    > {
+    user_id: string;
+    topic_id: string;
+    last_access: string;
+}
 
 export const WriteAccess = sequelize.define(
     "write_access",

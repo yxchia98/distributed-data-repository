@@ -1,7 +1,22 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+} from "sequelize";
 import { sequelize } from "../services/database";
 
-export const AppUser = sequelize.define(
+interface AppUser
+    extends Model<InferAttributes<AppUser>, InferCreationAttributes<AppUser>> {
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    contact: string;
+    agency_id: string;
+}
+
+export const AppUser = sequelize.define<AppUser>(
     "app_user",
     {
         // Model attributes are defined here

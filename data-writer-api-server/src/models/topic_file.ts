@@ -1,5 +1,22 @@
-import { DataTypes } from "sequelize";
+import {
+    DataTypes,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+} from "sequelize";
 import { sequelize } from "../services/database";
+
+interface TopicFile
+    extends Model<
+        InferAttributes<TopicFile>,
+        InferCreationAttributes<TopicFile>
+    > {
+    file_id: string;
+    topic_id: string;
+    agency_id: string;
+    file_url: string;
+    file_date: Date;
+}
 
 export const TopicFile = sequelize.define(
     "topic_file",
