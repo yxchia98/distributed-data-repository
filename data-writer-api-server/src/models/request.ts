@@ -24,13 +24,14 @@ export const Request = sequelize.define<Request>(
         request_id: {
             type: DataTypes.UUIDV4,
             allowNull: false,
+            primaryKey: true,
         },
         requester_id: {
-            type: DataTypes.UUIDV4,
+            type: DataTypes.DECIMAL,
             allowNull: false,
         },
         approver_id: {
-            type: DataTypes.UUIDV4,
+            type: DataTypes.DECIMAL,
             allowNull: false,
         },
         topic_id: {

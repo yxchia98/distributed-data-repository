@@ -21,8 +21,9 @@ export const AppUser = sequelize.define<AppUser>(
     {
         // Model attributes are defined here
         user_id: {
-            type: DataTypes.UUIDV4,
+            type: DataTypes.DECIMAL,
             allowNull: false,
+            primaryKey: true,
         },
         first_name: {
             type: DataTypes.STRING,

@@ -4,7 +4,8 @@ import multerS3 from "multer-s3";
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
 import { Agency } from "../models/agency";
-import { Model, Op } from "sequelize";
+import { AppUser } from "../models/app_user";
+import { json, Model, Op } from "sequelize";
 dotenv.config();
 
 const router = express.Router();
@@ -14,37 +15,105 @@ const upload = multer();
 /*-------------------- PROFILE API START ---------------*/
 
 router.post("/user", upload.none(), async (req: Request, res: Response) => {
-    let fileName: string = "";
-    const file: any = req.file;
-    if (file) {
-        // used to be file.location but got ts error
-        fileName = file.location;
-    } else {
-        res.status(400).send({
+    console.log("creating user!");
+    console.log(`query: ${JSON.stringify(req.query)}`);
+    console.log(`body: ${JSON.stringify(req.body)}`);
+    // check if compulsory fields are passed
+    if (
+        !(
+            req.body.user_id &&
+            req.body.first_name &&
+            req.body.last_name &&
+            req.body.email &&
+            req.body.contact &&
+            req.body.agency_id
+        )
+    ) {
+        res.status(404).send({
             error: true,
-            message: `error uploading file to ${req.body.topic} topic`,
+            message: "Error registering user, missing fields",
+        });
+        return;
+    }
+    // check if agency_id exists in db, and if current user_id already exists
+    const queryAgency = await Agency.findByPk(req.body.agency_id);
+    const queryUser = await AppUser.findByPk(req.body.user_id);
+
+    if (queryAgency.agency_id && !queryUser) {
+        // proceed to register user
+        const createUser = await AppUser.create({
+            user_id: req.body.user_id,
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            email: req.body.email,
+            contact: req.body.contact,
+            agency_id: queryAgency.agency_id,
+        });
+        if (createUser) {
+            console.log(createUser);
+            res.status(200).send({
+                error: false,
+                message: "Successfully registered user",
+            });
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Error registering user",
+            });
+        }
+    } else {
+        // error registering user as agency does not exist
+        res.status(404).send({
+            error: true,
+            message:
+                "Error registering user, agency specified does not exist or user is already registered",
         });
     }
-    console.log("s3 file path: " + fileName);
-    console.log("topic: " + req.body.topic);
-    res.status(200).send({
-        error: false,
-        message: `Successfully uploaded file to ${req.body.topic} topic, ${fileName}`,
-    });
 });
 
 router.delete("/user", upload.none(), async (req: Request, res: Response) => {
-    if (!req.query.topicname) {
+    console.log("deleting user!");
+    console.log(`query: ${JSON.stringify(req.query)}`);
+    console.log(`body: ${JSON.stringify(req.body)}`);
+    if (!req.body.user_id) {
         res.status(404).send({
             error: true,
-            message: "folder not found",
+            message: "No user specified",
         });
         return;
+    }
+    try {
+        const deleteUser = await AppUser.destroy({
+            where: {
+                user_id: req.body.user_id,
+            },
+        });
+        if (deleteUser) {
+            console.log(
+                `Successfully deleted user: ${JSON.stringify(deleteUser)}`
+            );
+            res.status(200).send({
+                error: false,
+                message: "Successfully deleted user",
+            });
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Error deleting user",
+            });
+        }
+    } catch (error) {
+        res.status(404).send({
+            error: true,
+            message: "Error deleting user",
+        });
     }
 });
 
 router.post("/agency", upload.none(), async (req: Request, res: Response) => {
-    console.log(req.body);
+    console.log("creating agency!");
+    console.log(`query: ${JSON.stringify(req.query)}`);
+    console.log(`body: ${JSON.stringify(req.body)}`);
     if (!req.body.long_name) {
         res.status(404).send({
             error: true,

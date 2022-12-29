@@ -21,12 +21,14 @@ export const ReadAccess = sequelize.define<ReadAccess>(
     {
         // Model attributes are defined here
         user_id: {
-            type: DataTypes.UUIDV4,
+            type: DataTypes.DECIMAL,
             allowNull: false,
+            primaryKey: true,
         },
         topic_id: {
             type: DataTypes.UUIDV4,
             allowNull: false,
+            primaryKey: true,
         },
         last_access: {
             type: DataTypes.DATE,

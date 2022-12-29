@@ -23,9 +23,10 @@ export const Topic = sequelize.define(
         topic_id: {
             type: DataTypes.UUIDV4,
             allowNull: false,
+            primaryKey: true,
         },
         user_id: {
-            type: DataTypes.UUIDV4,
+            type: DataTypes.DECIMAL,
             allowNull: false,
         },
         agency_id: {
