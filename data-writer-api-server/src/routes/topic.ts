@@ -10,6 +10,7 @@ import {
 } from "../services/awsbucket";
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
+import { Topic } from "../models/topic";
 dotenv.config();
 
 interface TypeMap {
@@ -130,15 +131,24 @@ router.get("/check", async (req: Request, res: Response) => {
     return;
 });
 
+/**
+ * Create new topic endpoint
+ * @param {Object} req.body - The form object parsed into the API
+ * @param {string} req.body.topic_name - The name of the topic
+ * @param {string} req.body.user_id - The owner of the topic (user creating the topic)
+ * @param {string} req.body.agency_id - The agency which the topic belongs to
+ * @param {string} req.body.topic_description - The long description for the topic
+ */
 router.post("/create", upload.none(), async (req: Request, res: Response) => {
-    if (!req.body.topicname) {
+    // check for compulsory fields
+    if (!(req.body.topic_name || req.body.user_id || req.body.agency_id)) {
         res.send({
             error: true,
             message: "no topic specified",
         });
     }
+    const folder = `topics${req.body.topic_name}/`;
     try {
-        const folder = "topics/" + req.body.topicname + "/";
         console.log(folder);
         // check if topic folder already exists in S3
         const topicExistResponse = await checkBucketFolder(
@@ -146,7 +156,13 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
             process.env.AWS_S3_BUCKET_NAME,
             folder
         );
-        if (!topicExistResponse.success) {
+        // check if record already exists
+        const queryTopic = await Topic.findAll({
+            where: {
+                topic_name: req.body.topic_name,
+            },
+        });
+        if (!queryTopic.length && !topicExistResponse.success) {
             // create folder in S3
             const result = await createBucketFolder(
                 s3,
@@ -154,10 +170,36 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
                 folder
             );
             if (result.success) {
-                res.status(200).send({
-                    error: false,
-                    message: "Topic created!",
+                // create topic record after creating s3 topic folder
+                // const topicURI = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_BUCKET_REGION}.amazonaws.com/${folder}`;
+                const topicURI = `${folder}`;
+                const topicDesc = req.body.topic_description
+                    ? req.body.topic_description
+                    : "";
+                const insertTopic = await Topic.create({
+                    user_id: req.body.user_id,
+                    agency_id: req.body.agency_id,
+                    topic_name: req.body.topic_name,
+                    topic_url: topicURI,
+                    description: topicDesc,
                 });
+                if (insertTopic) {
+                    res.status(200).send({
+                        error: false,
+                        message: "Topic created!",
+                    });
+                } else {
+                    // if cant insert into db, delete the previously created s3 topic folder
+                    await deleteBucketFolder(
+                        s3,
+                        process.env.AWS_S3_BUCKET_NAME,
+                        folder
+                    );
+                    res.send({
+                        error: true,
+                        message: "Error creating topic",
+                    });
+                }
             } else {
                 res.send({
                     error: true,
@@ -165,60 +207,111 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
                 });
             }
         } else {
-            res.status(200).send({
-                error: true,
-                message: "Topic already exists",
+            res.status(404).send({
+                error: false,
+                message: "Error, topic already exists",
             });
         }
+
+        // if (!topicExistResponse.success) {
+        // } else {
+        //     res.status(200).send({
+        //         error: true,
+        //         message: "Topic already exists",
+        //     });
+        // }
     } catch (error: any) {
+        // delete record and created s3 topic folders, if error
+        console.log(error);
+        try {
+            await deleteBucketFolder(
+                s3,
+                process.env.AWS_S3_BUCKET_NAME,
+                folder
+            );
+            await Topic.destroy({
+                where: {
+                    user_id: req.body.user_id,
+                    agency_id: req.body.agency_id,
+                    topic_name: req.body.topic_name,
+                },
+            });
+        } catch (error) {
+            console.log(error);
+            res.status(400).send({
+                error: true,
+                message: "Error creating topic",
+            });
+            return;
+        }
         res.status(400).send({
             error: true,
-            message: "Error deleting topic",
+            message: "Error creating topic",
         });
     }
 });
 
+/**
+ * Delete topic endpoint
+ * @param {Object} req.body - The form object parsed into the API
+ * @param {string} req.body.topic_id - The id of the topic
+ */
 router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
     console.log("deleting topic!");
     console.log(`query: ${JSON.stringify(req.query)}`);
     console.log(`body: ${JSON.stringify(req.body)}`);
-    if (!req.body.topicname) {
+    if (!req.body.topic_id) {
         res.send({
             error: true,
             message: "no topic specified",
         });
     }
     try {
-        const folder = "topics/" + req.body.topicname + "/";
-        console.log(folder);
-        // check if topic folder already exists in S3
-        const topicExistResponse = await checkBucketFolder(
-            s3,
-            process.env.AWS_S3_BUCKET_NAME,
-            folder
-        );
-        if (topicExistResponse.success) {
-            // create folder in S3
-            const result = await deleteBucketFolder(
+        // check if record exists in db
+        const queryTopic = await Topic.findByPk(req.body.topic_id);
+        let folder = "";
+        if (queryTopic) {
+            folder = queryTopic.topic_url;
+            console.log(folder);
+
+            // check if topic folder already exists in S3
+            const topicExistResponse = await checkBucketFolder(
                 s3,
                 process.env.AWS_S3_BUCKET_NAME,
                 folder
             );
-            if (result.success) {
-                res.status(200).send({
-                    error: false,
-                    message: "Topic deleted!",
-                });
+            if (topicExistResponse.success) {
+                // delete folder in S3
+                const result = await deleteBucketFolder(
+                    s3,
+                    process.env.AWS_S3_BUCKET_NAME,
+                    folder
+                );
+                if (result.success) {
+                    res.status(200).send({
+                        error: false,
+                        message: "Successfully deleted topic!",
+                    });
+                    // delete the record in db
+                    await queryTopic.destroy();
+                } else {
+                    res.send({
+                        error: true,
+                        message: "Error deleting topic",
+                    });
+                }
             } else {
-                res.send({
+                // delete record in db
+                await queryTopic.destroy();
+                res.status(404).send({
                     error: true,
-                    message: "Error deleting topic",
+                    message: "Successfully deleted topic",
                 });
             }
         } else {
-            res.status(404).send({
+            res.status(400).send({
                 error: true,
-                message: "Topic does not exist",
+                message: "Error, topic not found",
             });
         }
     } catch (error: any) {

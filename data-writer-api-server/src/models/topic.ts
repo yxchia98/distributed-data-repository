@@ -11,17 +11,19 @@ interface Topic
     topic_id: string;
     user_id: string;
     agency_id: string;
+    topic_name: string;
     topic_url: string;
     description: string;
     last_update: Date;
 }
 
-export const Topic = sequelize.define(
+export const Topic = sequelize.define<Topic>(
     "topic",
     {
         // Model attributes are defined here
         topic_id: {
             type: DataTypes.UUIDV4,
+            defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
         },
@@ -32,6 +34,9 @@ export const Topic = sequelize.define(
         agency_id: {
             type: DataTypes.UUIDV4,
             allowNull: false,
+        },
+        topic_name: {
+            type: DataTypes.STRING,
         },
         topic_url: {
             type: DataTypes.TEXT,

@@ -97,7 +97,7 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
     const queryAgency = await Agency.findByPk(req.body.agency_id);
     const queryUser = await AppUser.findByPk(req.body.user_id);
 
-    if (queryAgency.agency_id && !queryUser) {
+    if (queryAgency && !queryUser) {
         // proceed to register user
         const createUser = await AppUser.create({
             user_id: req.body.user_id,

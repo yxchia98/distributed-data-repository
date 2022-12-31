@@ -75,10 +75,10 @@ export const checkBucketFolder = async (
 
         return { success: true, message: "Folder already Exist", data: {} };
     } catch (error) {
-        console.log("Error folder don't exist", error);
+        console.log("Error folder does not exist", error);
         return {
             success: false,
-            message: "Error folder don't exist",
+            message: "Error folder does not exist",
             data: error,
         };
     }

@@ -18,7 +18,7 @@ interface TopicFile
     file_date: Date;
 }
 
-export const TopicFile = sequelize.define(
+export const TopicFile = sequelize.define<TopicFile>(
     "topic_file",
     {
         // Model attributes are defined here
