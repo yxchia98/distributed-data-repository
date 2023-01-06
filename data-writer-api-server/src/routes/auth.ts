@@ -121,14 +121,23 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
     }
     try {
         // check if access already exists
-        const queryRead = await ReadAccess.findByPk(
-            req.body.user_id + req.body.topic_id
-        );
+        // cannot use findByPk for composite keys, must use findOne instead
+        const queryRead = await ReadAccess.findOne({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
         if (!queryRead) {
+            console.log("found!");
             // insert access record
             const insertRead = await ReadAccess.create({
                 user_id: req.body.user_id,
                 topic_id: req.body.topic_id,
+            });
+            res.status(200).send({
+                error: false,
+                message: "successfully created!",
             });
         } else {
             res.status(404).send({
@@ -137,6 +146,7 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
             });
         }
     } catch (error) {
+        console.log(error);
         res.status(404).send({
             error: true,
             message: "Error in granting read access",
