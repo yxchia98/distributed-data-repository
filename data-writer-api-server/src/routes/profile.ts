@@ -21,7 +21,7 @@ router.put("/user", upload.none(), async (req: Request, res: Response) => {
 
     // check if fields are valid
     if (!req.body.user_id) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "Error, user not specified.",
         });
@@ -59,13 +59,13 @@ router.put("/user", upload.none(), async (req: Request, res: Response) => {
                 message: `Successfully updated user.`,
             });
         } else {
-            res.status(404).send({
+            res.status(400).send({
                 error: true,
                 message: "Error updating user.",
             });
         }
     } catch (error) {
-        res.status(404).send({
+        res.status(500).send({
             error: true,
             message: "Error updating user.",
         });
@@ -87,7 +87,7 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
             req.body.agency_id
         )
     ) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "Error registering user, missing fields.",
         });
@@ -107,7 +107,7 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
             contact: req.body.contact,
             agency_id: queryAgency.agency_id,
         });
-        // return 200 if user record successfully created, else 404
+        // return 200 if user record successfully created, else 400
         if (createUser) {
             console.log(createUser);
             res.status(200).send({
@@ -115,14 +115,14 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
                 message: "Successfully registered user.",
             });
         } else {
-            res.status(404).send({
+            res.status(500).send({
                 error: true,
                 message: "Error registering user.",
             });
         }
     } else {
         // error registering user as agency does not exist
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message:
                 "Error registering user, agency specified does not exist or user is already registered.",
@@ -136,7 +136,7 @@ router.delete("/user", upload.none(), async (req: Request, res: Response) => {
     console.log(`body: ${JSON.stringify(req.body)}`);
     // check for field values
     if (!req.body.user_id) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "No user specified.",
         });
@@ -149,7 +149,7 @@ router.delete("/user", upload.none(), async (req: Request, res: Response) => {
                 user_id: req.body.user_id,
             },
         });
-        // return 200 if deleted, else 404
+        // return 200 if deleted, else 500
         if (deleteUser) {
             console.log(
                 `Successfully deleted user: ${JSON.stringify(deleteUser)}.`
@@ -159,13 +159,13 @@ router.delete("/user", upload.none(), async (req: Request, res: Response) => {
                 message: "Successfully deleted user.",
             });
         } else {
-            res.status(404).send({
+            res.status(500).send({
                 error: true,
                 message: "Error deleting user.",
             });
         }
     } catch (error) {
-        res.status(404).send({
+        res.status(500).send({
             error: true,
             message: "Error deleting user.",
         });
@@ -177,7 +177,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
     console.log(`query: ${JSON.stringify(req.query)}`);
     console.log(`body: ${JSON.stringify(req.body)}`);
     if (!req.body.long_name) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "no agency specified.",
         });
@@ -195,7 +195,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
         });
         console.log(exists);
         if (exists.length > 0) {
-            res.status(400).send({
+            res.status(200).send({
                 error: true,
                 message: "Error creating agency, agency already exists.",
             });
@@ -213,7 +213,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
                     message: "Successfully created agency.",
                 });
             } else {
-                res.status(404).send({
+                res.status(500).send({
                     error: true,
                     message: "Error creating agency.",
                 });
@@ -221,7 +221,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
         }
     } catch (error: any) {
         console.log(error);
-        res.status(400).send({
+        res.status(500).send({
             error: true,
             message: "Error creating agency.",
         });
@@ -248,14 +248,14 @@ router.delete("/agency", upload.none(), async (req: Request, res: Response) => {
                 message: "Successfully deleted agency!",
             });
         } else {
-            res.status(404).send({
+            res.status(500).send({
                 error: true,
                 message: "Error deleting agency.",
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(400).send({
+        res.status(500).send({
             error: true,
             message: "Error deleting agency.",
         });
@@ -268,7 +268,7 @@ router.put("/agency", upload.none(), async (req: Request, res: Response) => {
     console.log(`body: ${JSON.stringify(req.body)}`);
     // return if no fields set to be updated
     if (!(req.body.short_name || req.body.long_name)) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "No fields specified",
         });
@@ -303,21 +303,21 @@ router.put("/agency", upload.none(), async (req: Request, res: Response) => {
                     )}.`,
                 });
             } else {
-                res.status(404).send({
+                res.status(500).send({
                     error: true,
                     message: "Error updating agency.",
                 });
             }
         } else {
             // no record found
-            res.status(404).send({
+            res.status(400).send({
                 error: true,
                 message: "Error updating agency, no record found.",
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(400).send({
+        res.status(500).send({
             error: true,
             message: "Error deleting agency.",
         });

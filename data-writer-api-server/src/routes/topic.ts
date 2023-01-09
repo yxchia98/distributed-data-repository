@@ -87,7 +87,7 @@ router.post(
             // used to be file.location but got ts error
             fileName = file.location;
         } else {
-            res.status(400).send({
+            res.status(500).send({
                 error: true,
                 message: `error uploading file to ${req.body.topic} topic`,
             });
@@ -238,13 +238,13 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
             });
         } catch (error) {
             console.log(error);
-            res.status(400).send({
+            res.status(500).send({
                 error: true,
                 message: "Error creating topic",
             });
             return;
         }
-        res.status(400).send({
+        res.status(500).send({
             error: true,
             message: "Error creating topic",
         });
@@ -303,7 +303,7 @@ router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
             } else {
                 // delete record in db
                 await queryTopic.destroy();
-                res.status(404).send({
+                res.status(500).send({
                     error: true,
                     message: "Successfully deleted topic",
                 });
@@ -315,7 +315,7 @@ router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
             });
         }
     } catch (error: any) {
-        res.status(400).send({
+        res.status(500).send({
             error: true,
             message: "Error deleting topic",
         });

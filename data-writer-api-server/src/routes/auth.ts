@@ -4,6 +4,7 @@ import "../services/passport";
 import dotenv from "dotenv";
 import multer from "multer";
 import { ReadAccess } from "../models/read_access";
+import { WriteAccess } from "../models/write_access";
 dotenv.config();
 
 const router = express.Router();
@@ -100,7 +101,7 @@ router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
 router.get("/logout", (req: Request, res: Response) => {
     req.logout((err: any) => {
         if (err) {
-            res.status(400).send({ error: true, message: "Logout error" });
+            res.status(500).send({ error: true, message: "Logout error" });
         }
         // req.session?.destroy((err: any) => {});
     });
@@ -113,7 +114,7 @@ router.get("/logout", (req: Request, res: Response) => {
 router.post("/read", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
     if (!(req.body.user_id && req.body.topic_id)) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "Error, compulsory fields not set",
         });
@@ -131,23 +132,23 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
         if (!queryRead) {
             console.log("found!");
             // insert access record
-            const insertRead = await ReadAccess.create({
+            await ReadAccess.create({
                 user_id: req.body.user_id,
                 topic_id: req.body.topic_id,
             });
             res.status(200).send({
                 error: false,
-                message: "successfully created!",
+                message: "successfully granted write access!",
             });
         } else {
-            res.status(404).send({
+            res.status(200).send({
                 error: true,
                 message: `Error, ${req.body.user_id} already has the requested access`,
             });
         }
     } catch (error) {
         console.log(error);
-        res.status(404).send({
+        res.status(500).send({
             error: true,
             message: "Error in granting read access",
         });
@@ -157,24 +158,130 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
 /**
  * Delete read access endpoint
  */
-router.delete(
-    "/read",
-    upload.none(),
-    async (req: Request, res: Response) => {}
-);
+router.delete("/read", upload.none(), async (req: Request, res: Response) => {
+    // Check for required fields
+    if (!(req.body.user_id && req.body.topic_id)) {
+        res.status(400).send({
+            error: true,
+            message: "Error, compulsory fields not set",
+        });
+        return;
+    }
+    // Search for access record, use findOne for composite key
+    try {
+        const queryRead = await ReadAccess.findOne({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
+        // delete if record match, else show error
+        if (queryRead) {
+            await queryRead.destroy();
+            res.status(200).send({
+                error: false,
+                message: "Successfully deleted access",
+            });
+        } else {
+            res.status(200).send({
+                error: true,
+                message: "Read access does not exist",
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error deleting read access",
+        });
+    }
+});
 
 /**
  * Add new write access endpoint
  */
-router.post("/write", upload.none(), async (req: Request, res: Response) => {});
+router.post("/write", upload.none(), async (req: Request, res: Response) => {
+    // check for required fields
+    if (!(req.body.user_id && req.body.topic_id)) {
+        res.status(400).send({
+            error: true,
+            message: "Error, compulsory fields not set",
+        });
+        return;
+    }
+    try {
+        // check if access already exists
+        // cannot use findByPk for composite keys, must use findOne instead
+        const queryRead = await WriteAccess.findOne({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
+        if (!queryRead) {
+            console.log("found!");
+            // insert access record
+            await WriteAccess.create({
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            });
+            res.status(200).send({
+                error: false,
+                message: "successfully granted write access!",
+            });
+        } else {
+            res.status(200).send({
+                error: true,
+                message: `Error, ${req.body.user_id} already has the requested access`,
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error in granting write access",
+        });
+    }
+});
 
 /**
  * Delete write access endpoint
  */
-router.delete(
-    "/write",
-    upload.none(),
-    async (req: Request, res: Response) => {}
-);
+router.delete("/write", upload.none(), async (req: Request, res: Response) => {
+    // Check for required fields
+    if (!(req.body.user_id && req.body.topic_id)) {
+        res.status(400).send({
+            error: true,
+            message: "Error, compulsory fields not set",
+        });
+        return;
+    }
+    // Search for access record, use findOne for composite key
+    try {
+        const queryRead = await WriteAccess.findOne({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
+        // delete if record match, else show error
+        if (queryRead) {
+            await queryRead.destroy();
+            res.status(200).send({
+                error: false,
+                message: "Successfully deleted  write access",
+            });
+        } else {
+            res.status(200).send({
+                error: true,
+                message: "Write access does not exist",
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error deleting read access",
+        });
+    }
+});
 
 export default router;
