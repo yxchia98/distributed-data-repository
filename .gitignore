@@ -1,7 +1,9 @@
 /data-writer-api-server/node_modules
+/data-reader-api-server/node_modules
 /datasg-react-frontend/node_modules
-/secrets
 /data-writer-api-server/.env
 /data-reader-api-server/.env
 /datasg-react-frontend/.env
+/secrets
+
 
