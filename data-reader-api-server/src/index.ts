@@ -6,6 +6,7 @@ import cookieSession from "cookie-session";
 import "./services/passport";
 import dotenv from "dotenv";
 import "./services/database";
+import profileRouter from "./routes/profile";
 dotenv.config();
 
 const app: Express = express();
@@ -59,7 +60,7 @@ app.options("*", cors(corsConfig));
 
 app.use(express.json());
 
-app.use(`/topic`);
+app.use(`/profile`, profileRouter);
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
