@@ -24,6 +24,7 @@ export const TopicFile = sequelize.define<TopicFile>(
         // Model attributes are defined here
         file_id: {
             type: DataTypes.UUIDV4,
+            defaultValue: DataTypes.UUIDV4,
             allowNull: false,
             primaryKey: true,
         },

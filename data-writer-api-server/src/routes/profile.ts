@@ -33,19 +33,11 @@ router.put("/user", upload.none(), async (req: Request, res: Response) => {
 
         if (queryUser) {
             // update found record
-            const firstName = req.body.first_name
-                ? req.body.first_name
-                : queryUser.first_name;
-            const lastName = req.body.last_name
-                ? req.body.last_name
-                : queryUser.last_name;
+            const firstName = req.body.first_name ? req.body.first_name : queryUser.first_name;
+            const lastName = req.body.last_name ? req.body.last_name : queryUser.last_name;
             const email = req.body.email ? req.body.email : queryUser.email;
-            const contact = req.body.contact
-                ? req.body.contact
-                : queryUser.contact;
-            const agency_id = req.body.agency_id
-                ? req.body.agency_id
-                : queryUser.agency_id;
+            const contact = req.body.contact ? req.body.contact : queryUser.contact;
+            const agency_id = req.body.agency_id ? req.body.agency_id : queryUser.agency_id;
 
             await queryUser.update({
                 first_name: firstName,
@@ -151,9 +143,7 @@ router.delete("/user", upload.none(), async (req: Request, res: Response) => {
         });
         // return 200 if deleted, else 500
         if (deleteUser) {
-            console.log(
-                `Successfully deleted user: ${JSON.stringify(deleteUser)}.`
-            );
+            console.log(`Successfully deleted user: ${JSON.stringify(deleteUser)}.`);
             res.status(200).send({
                 error: false,
                 message: "Successfully deleted user.",
@@ -187,10 +177,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
     try {
         const exists = await Agency.findAll({
             where: {
-                [Op.or]: [
-                    { short_name: req.body.short_name },
-                    { long_name: req.body.long_name },
-                ],
+                [Op.or]: [{ short_name: req.body.short_name }, { long_name: req.body.long_name }],
             },
         });
         console.log(exists);
@@ -205,9 +192,7 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
                 long_name: req.body.long_name,
             });
             if (queryResult) {
-                console.log(
-                    `Successfully inserted ${JSON.stringify(queryResult)}.`
-                );
+                console.log(`Successfully inserted ${JSON.stringify(queryResult)}.`);
                 res.status(200).send({
                     error: true,
                     message: "Successfully created agency.",
@@ -240,9 +225,7 @@ router.delete("/agency", upload.none(), async (req: Request, res: Response) => {
             },
         });
         if (queryResult) {
-            console.log(
-                `Successfully deleted agency: ${JSON.stringify(queryResult)}.`
-            );
+            console.log(`Successfully deleted agency: ${JSON.stringify(queryResult)}.`);
             res.status(200).send({
                 error: false,
                 message: "Successfully deleted agency!",
@@ -263,9 +246,6 @@ router.delete("/agency", upload.none(), async (req: Request, res: Response) => {
 });
 
 router.put("/agency", upload.none(), async (req: Request, res: Response) => {
-    console.log("updating agency!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
     // return if no fields set to be updated
     if (!(req.body.short_name || req.body.long_name)) {
         res.status(400).send({
@@ -280,12 +260,8 @@ router.put("/agency", upload.none(), async (req: Request, res: Response) => {
         if (queryResult) {
             console.log(queryResult);
             // update record
-            const shortName = req.body.short_name
-                ? req.body.short_name
-                : queryResult.short_name;
-            const longName = req.body.long_name
-                ? req.body.long_name
-                : queryResult.long_name;
+            const shortName = req.body.short_name ? req.body.short_name : queryResult.short_name;
+            const longName = req.body.long_name ? req.body.long_name : queryResult.long_name;
             const updateResult = await Agency.update(
                 { short_name: shortName, long_name: longName },
                 {

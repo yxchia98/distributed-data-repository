@@ -1,13 +1,7 @@
-import {
-    DataTypes,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-} from "sequelize";
+import { DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { sequelize } from "../services/database";
 
-interface Topic
-    extends Model<InferAttributes<Topic>, InferCreationAttributes<Topic>> {
+interface Topic extends Model<InferAttributes<Topic>, InferCreationAttributes<Topic>> {
     topic_id: string;
     user_id: string;
     agency_id: string;
