@@ -39,11 +39,7 @@ const uploadS3 = multer({
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME,
         acl: "public-read",
-        metadata: async function (
-            req: Request,
-            file: Express.Multer.File,
-            cb: any
-        ) {
+        metadata: async function (req: Request, file: Express.Multer.File, cb: any) {
             await initBucket(s3);
             const topicFolder = "topics/" + req.body.topic + "/";
             const topicExist = await checkBucketFolder(
@@ -67,39 +63,32 @@ const uploadS3 = multer({
         },
         key: function (req: Request, file: Express.Multer.File, cb: any) {
             const topicFolder = "topics/" + req.body.topic + "/";
-            cb(
-                null,
-                topicFolder + Date.now().toString() + "-" + file.originalname
-            );
+            cb(null, topicFolder + Date.now().toString() + "-" + file.originalname);
         },
     }),
 });
 
 /*-------------------- TOPIC API START ---------------*/
 
-router.post(
-    "/publish",
-    uploadS3.single("uploaded_file"),
-    async (req: Request, res: Response) => {
-        let fileName: string = "";
-        const file: any = req.file;
-        if (file) {
-            // used to be file.location but got ts error
-            fileName = file.location;
-        } else {
-            res.status(500).send({
-                error: true,
-                message: `error uploading file to ${req.body.topic} topic`,
-            });
-        }
-        console.log("s3 file path: " + fileName);
-        console.log("topic: " + req.body.topic);
-        res.status(200).send({
-            error: false,
-            message: `Successfully uploaded file to ${req.body.topic} topic, ${fileName}`,
+router.post("/publish", uploadS3.single("uploaded_file"), async (req: Request, res: Response) => {
+    let fileName: string = "";
+    const file: any = req.file;
+    if (file) {
+        // used to be file.location but got ts error
+        fileName = file.location;
+    } else {
+        res.status(500).send({
+            error: true,
+            message: `error uploading file to ${req.body.topic} topic`,
         });
     }
-);
+    console.log("s3 file path: " + fileName);
+    console.log("topic: " + req.body.topic);
+    res.status(200).send({
+        error: false,
+        message: `Successfully uploaded file to ${req.body.topic} topic, ${fileName}`,
+    });
+});
 
 router.get("/check", async (req: Request, res: Response) => {
     if (!req.query.topicname) {
@@ -112,11 +101,7 @@ router.get("/check", async (req: Request, res: Response) => {
 
     const folder = "topics/" + req.query.topicname + "/";
     console.log(folder);
-    const result = await checkBucketFolder(
-        s3,
-        process.env.AWS_S3_BUCKET_NAME,
-        folder
-    );
+    const result = await checkBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
     if (result.success) {
         res.status(200).send({
             error: false,
@@ -164,18 +149,12 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
         });
         if (!queryTopic.length && !topicExistResponse.success) {
             // create folder in S3
-            const result = await createBucketFolder(
-                s3,
-                process.env.AWS_S3_BUCKET_NAME,
-                folder
-            );
+            const result = await createBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
             if (result.success) {
                 // create topic record after creating s3 topic folder
                 // const topicURI = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_BUCKET_REGION}.amazonaws.com/${folder}`;
                 const topicURI = `${folder}`;
-                const topicDesc = req.body.topic_description
-                    ? req.body.topic_description
-                    : "";
+                const topicDesc = req.body.topic_description ? req.body.topic_description : "";
                 const insertTopic = await Topic.create({
                     user_id: req.body.user_id,
                     agency_id: req.body.agency_id,
@@ -190,11 +169,7 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
                     });
                 } else {
                     // if cant insert into db, delete the previously created s3 topic folder
-                    await deleteBucketFolder(
-                        s3,
-                        process.env.AWS_S3_BUCKET_NAME,
-                        folder
-                    );
+                    await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
                     res.send({
                         error: true,
                         message: "Error creating topic",
@@ -224,11 +199,7 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
         // delete record and created s3 topic folders, if error
         console.log(error);
         try {
-            await deleteBucketFolder(
-                s3,
-                process.env.AWS_S3_BUCKET_NAME,
-                folder
-            );
+            await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
             await Topic.destroy({
                 where: {
                     user_id: req.body.user_id,
@@ -282,11 +253,7 @@ router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
             );
             if (topicExistResponse.success) {
                 // delete folder in S3
-                const result = await deleteBucketFolder(
-                    s3,
-                    process.env.AWS_S3_BUCKET_NAME,
-                    folder
-                );
+                const result = await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
                 if (result.success) {
                     res.status(200).send({
                         error: false,

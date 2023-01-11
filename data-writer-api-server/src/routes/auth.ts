@@ -111,7 +111,7 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
     if (!(req.body.user_id && req.body.topic_id)) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -157,7 +157,7 @@ router.delete("/read", upload.none(), async (req: Request, res: Response) => {
     if (!(req.body.user_id && req.body.topic_id)) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -198,7 +198,7 @@ router.post("/write", upload.none(), async (req: Request, res: Response) => {
     if (!(req.body.user_id && req.body.topic_id)) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -244,7 +244,7 @@ router.delete("/write", upload.none(), async (req: Request, res: Response) => {
     if (!(req.body.user_id && req.body.topic_id)) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -287,7 +287,7 @@ router.post("/accessrequest", upload.none(), async (req: Request, res: Response)
     if (!(req.body.requestor_id && req.body.topic_id && req.body.access_type)) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -353,7 +353,7 @@ router.put("/accessrequest", upload.none(), async (req: Request, res: Response) 
     if (!req.body.request_id) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }
@@ -401,7 +401,7 @@ router.delete("/accessrequest", upload.none(), async (req: Request, res: Respons
     if (!req.body.request_id) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
         });
         return;
     }

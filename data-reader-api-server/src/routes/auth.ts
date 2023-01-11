@@ -104,42 +104,149 @@ router.get("/logout", (req: Request, res: Response) => {
 });
 
 /**
- * Add new read access endpoint
+ * Get specific user's read accesses
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
  */
-router.post("/read", upload.none(), async (req: Request, res: Response) => {
+router.get("/read", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
-    if (!(req.body.user_id && req.body.topic_id)) {
+    if (!req.query.user_id) {
         res.status(400).send({
             error: true,
-            message: "Error, compulsory fields not set",
+            message: "Error, mandatory fields not set",
+            data: {},
         });
         return;
     }
+    const userId: string = <string>req.query.user_id;
     try {
-        // check if access already exists
-        // cannot use findByPk for composite keys, must use findOne instead
-        const queryRead = await ReadAccess.findOne({
+        const queryReadAccess = await ReadAccess.findAll({
             where: {
-                user_id: req.body.user_id,
-                topic_id: req.body.topic_id,
+                user_id: userId,
             },
         });
-        if (!queryRead) {
-            // insert access record
-            await ReadAccess.create({
-                user_id: req.body.user_id,
-                topic_id: req.body.topic_id,
-            });
-            res.status(200).send({
-                error: false,
-                message: "successfully granted write access",
-            });
-        } else {
-            res.status(200).send({
-                error: true,
-                message: `Error, ${req.body.user_id} already has the requested access`,
-            });
-        }
+        console.log(queryReadAccess);
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved read access for user",
+            data: queryReadAccess,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error in granting read access",
+        });
+    }
+});
+
+/**
+ * Get specific user's write accesses
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/write", upload.none(), async (req: Request, res: Response) => {
+    // check for required fields
+    if (!req.query.user_id) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+            data: {},
+        });
+        return;
+    }
+    const userId: string = <string>req.query.user_id;
+    try {
+        const queryReadAccess = await WriteAccess.findAll({
+            where: {
+                user_id: userId,
+            },
+        });
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved read access for user",
+            data: queryReadAccess,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error in granting read access",
+        });
+    }
+});
+
+/**
+ * Get all access requests approvable by specific user
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/requestapproval", upload.none(), async (req: Request, res: Response) => {
+    // check for required fields
+    if (!req.query.user_id) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+            data: {},
+        });
+        return;
+    }
+    const userId: string = <string>req.query.user_id;
+    try {
+        const queryReadAccess = await AccessRequest.findAll({
+            where: {
+                approver_id: userId,
+            },
+        });
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved access requests for user",
+            data: queryReadAccess,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error in granting read access",
+        });
+    }
+});
+
+/**
+ * Get all access requests submitted by specific user
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/submittedrequest", upload.none(), async (req: Request, res: Response) => {
+    // check for required fields
+    if (!req.query.user_id) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+            data: {},
+        });
+        return;
+    }
+    const userId: string = <string>req.query.user_id;
+    try {
+        const queryReadAccess = await AccessRequest.findAll({
+            where: {
+                requestor_id: userId,
+            },
+        });
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved access requests for user",
+            data: queryReadAccess,
+        });
     } catch (error) {
         console.log(error);
         res.status(500).send({

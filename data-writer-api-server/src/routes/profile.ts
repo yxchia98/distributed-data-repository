@@ -68,7 +68,7 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
     console.log("creating user!");
     console.log(`query: ${JSON.stringify(req.query)}`);
     console.log(`body: ${JSON.stringify(req.body)}`);
-    // check if compulsory fields are passed
+    // check if mandatory fields are passed
     if (
         !(
             req.body.user_id &&

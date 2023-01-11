@@ -7,6 +7,7 @@ import "./services/passport";
 import dotenv from "dotenv";
 import "./services/database";
 import profileRouter from "./routes/profile";
+import authRouter from "./routes/auth";
 dotenv.config();
 
 const app: Express = express();
@@ -61,6 +62,7 @@ app.options("*", cors(corsConfig));
 app.use(express.json());
 
 app.use(`/profile`, profileRouter);
+app.use(`/auth`, authRouter);
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
