@@ -256,4 +256,14 @@ router.get("/submittedrequest", upload.none(), async (req: Request, res: Respons
     }
 });
 
+router.get("/test", upload.none(), async (req: Request, res: Response) => {
+    // check for required fields
+    console.log(req.user);
+    res.status(200).send({
+        error: false,
+        message: "Successfully retrieved access requests for user",
+        data: req.user ? req.user : {},
+    });
+});
+
 export default router;

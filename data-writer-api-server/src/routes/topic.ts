@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import multer from "multer";
 import multerS3 from "multer-s3";
 import { S3Client } from "@aws-sdk/client-s3";
@@ -11,10 +11,17 @@ import {
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
 import { Topic } from "../models/topic";
+import { TopicFile, TopicFileType } from "../models/topic_file";
 dotenv.config();
 
 interface TypeMap {
     [key: string]: string;
+}
+
+// interface that adds required parameters for a topic file upload request
+interface TopicFileRequest extends Request {
+    topicFolder: string;
+    file_id: string;
 }
 
 const router = express.Router();
@@ -39,56 +46,92 @@ const uploadS3 = multer({
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME,
         acl: "public-read",
-        metadata: async function (req: Request, file: Express.Multer.File, cb: any) {
-            await initBucket(s3);
-            const topicFolder = "topics/" + req.body.topic + "/";
-            const topicExist = await checkBucketFolder(
-                s3,
-                process.env.AWS_S3_BUCKET_NAME,
-                topicFolder
-            );
-            let uploadError = new Error("topic not found");
+        metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
+            try {
+                // check and insert into database
+                // const queryTopic = await Topic.findByPk(req.body.topic_id);
+                let uploadError = new Error("topic not found");
+                // insert into database
+                // upload file into s3
+                await initBucket(s3);
+                // const topicFolder = "topics/" + req.body.topic + "/";
+                const topicExist = await checkBucketFolder(
+                    s3,
+                    process.env.AWS_S3_BUCKET_NAME,
+                    req.topicFolder
+                );
 
-            if (topicExist.success) {
-                // upload file into that folder
-                uploadError.message = "invalid file type";
-                const isValid = FILE_TYPE_MAP[file.mimetype];
-                if (isValid) {
-                    uploadError = null;
+                if (topicExist.success) {
+                    // upload file into that folder
+                    uploadError.message = "invalid file type";
+                    const isValid = FILE_TYPE_MAP[file.mimetype];
+                    if (isValid) {
+                        uploadError = null;
+                    }
+                    cb(uploadError, { fieldname: file.fieldname });
+                } else {
+                    cb(uploadError.message, { fieldname: null });
                 }
-                cb(uploadError, { fieldname: file.fieldname });
-            } else {
-                cb(uploadError.message, { fieldname: null });
+            } catch (error: any) {
+                cb(error.message, { fieldname: null });
             }
         },
-        key: function (req: Request, file: Express.Multer.File, cb: any) {
-            const topicFolder = "topics/" + req.body.topic + "/";
-            cb(null, topicFolder + Date.now().toString() + "-" + file.originalname);
+        key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
+            // const topicFolder = "topics/" + req.body.topic + "/";
+            try {
+                const queryTopic = await Topic.findByPk(req.body.topic_id);
+                if (queryTopic) {
+                    // set found topic uri into req object
+                    req.topicFolder = queryTopic.dataValues.topic_url;
+
+                    // insert incoming topic file record into database
+                    const record: TopicFileType = {
+                        topic_id: queryTopic.topic_id,
+                        agency_id: queryTopic.agency_id,
+                        file_url: "pending",
+                    };
+                    const insertedRecord = await TopicFile.create(record);
+                    req.file_id = insertedRecord.dataValues.file_id;
+                    cb(null, req.topicFolder + Date.now().toString() + "-" + file.originalname);
+                } else {
+                    cb("error", { fieldname: null });
+                }
+            } catch (error) {
+                cb("error", { fieldname: null });
+            }
         },
     }),
 });
 
 /*-------------------- TOPIC API START ---------------*/
 
-router.post("/publish", uploadS3.single("uploaded_file"), async (req: Request, res: Response) => {
-    let fileName: string = "";
-    const file: any = req.file;
-    if (file) {
-        // used to be file.location but got ts error
-        fileName = file.location;
-    } else {
-        res.status(500).send({
-            error: true,
-            message: `error uploading file to ${req.body.topic} topic`,
-        });
+router.post(
+    "/publish",
+    uploadS3.single("uploaded_file"),
+    async (req: TopicFileRequest, res: Response) => {
+        let fileName: string = "";
+        const file: any = req.file;
+        if (file) {
+            // get file URI
+            fileName = file.location;
+            try {
+                const queryTopicFile = await TopicFile.findByPk(req.file_id);
+                queryTopicFile.update({
+                    file_url: fileName,
+                });
+            } catch (error) {}
+            res.status(200).send({
+                error: false,
+                message: `Successfully uploaded file. URI: ${fileName}`,
+            });
+        } else {
+            res.status(500).send({
+                error: true,
+                message: `error uploading file to ${req.body.topic} topic`,
+            });
+        }
     }
-    console.log("s3 file path: " + fileName);
-    console.log("topic: " + req.body.topic);
-    res.status(200).send({
-        error: false,
-        message: `Successfully uploaded file to ${req.body.topic} topic, ${fileName}`,
-    });
-});
+);
 
 router.get("/check", async (req: Request, res: Response) => {
     if (!req.query.topicname) {
@@ -118,11 +161,16 @@ router.get("/check", async (req: Request, res: Response) => {
 
 /**
  * Create new topic endpoint
- * @param {Object} req.body - The form object parsed into the API
- * @param {string} req.body.topic_name - The name of the topic
- * @param {string} req.body.user_id - The owner of the topic (user creating the topic)
- * @param {string} req.body.agency_id - The agency which the topic belongs to
- * @param {string} req.body.topic_description - The long description for the topic
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      topic_name - The name of the topic
+ *      user_id - The owner of the topic (user creating the topic)
+ *      agency_id - The agency which the topic belongs to
+ *      topic_description - The long description for the topic
+ *
+ * Returns: boolean error, string message, obj data
  */
 router.post("/create", upload.none(), async (req: Request, res: Response) => {
     // check for compulsory fields
@@ -132,7 +180,7 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
             message: "no topic specified",
         });
     }
-    const folder = `topics${req.body.topic_name}/`;
+    const folder = `topics/${req.body.topic_name}/`;
     try {
         console.log(folder);
         // check if topic folder already exists in S3
@@ -187,14 +235,6 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
                 message: "Error, topic already exists",
             });
         }
-
-        // if (!topicExistResponse.success) {
-        // } else {
-        //     res.status(200).send({
-        //         error: true,
-        //         message: "Topic already exists",
-        //     });
-        // }
     } catch (error: any) {
         // delete record and created s3 topic folders, if error
         console.log(error);
