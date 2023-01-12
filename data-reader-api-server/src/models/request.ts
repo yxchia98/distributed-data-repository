@@ -50,7 +50,7 @@ export const AccessRequest = sequelize.define<AccessRequest>(
         },
         status: {
             type: DataTypes.STRING,
-            defaultValue: "Pending",
+            defaultValue: "PENDING",
             allowNull: false,
         },
         description: {

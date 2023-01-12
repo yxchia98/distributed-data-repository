@@ -25,28 +25,39 @@ const isHighestPrivilege = (req: Request, res: Response, next: NextFunction) => 
 /*-------------------- AUTH API START ---------------*/
 
 /**
- * Endpoint to check if current session is logged in
+ * Check if current session has a logged in User endpoint
+ * Type: GET
+ * InputType: Query
+ *
+ * Input:
+ *      user - session information for the current user
+ *
+ * Returns: boolean error, string message, string userid
  */
 router.get("/login/success", (req: Request, res: Response) => {
     if (req.user) {
         res.status(200).json({
             error: false,
-            message: "Successfully Loged In",
+            message: "Successfully Logged In",
             // @ts-ignore
-            user: req.user.id,
+            userid: req.user.id,
         });
     } else {
-        res.status(403).json({ error: true, message: "Not Authorized" });
+        res.status(403).json({ error: true, message: "Not Authorized", userid: "" });
     }
 });
 
 /**
- *
+ * PassportJS Authentication endpoint
+ * Type: GET
+ * InputType: Query
  */
 router.get("/google", passport.authenticate("google", { scope: ["email", "profile"] }));
 
 /**
  * OAuth2 callback endpoint
+ * Type: GET
+ * InputType: Query
  */
 router.get(
     "/google/callback",
@@ -59,6 +70,7 @@ router.get(
 
 /**
  * OAuth2 failure callback
+ * Type: GET
  */
 router.get("/failure", (req, res) => {
     res.status(401).send({
@@ -91,7 +103,8 @@ router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
     }
 });
 /**
- * logout endpoint
+ * Logout endpoint
+ * Type: GET
  */
 router.get("/logout", (req: Request, res: Response) => {
     req.logout((err: any) => {
@@ -105,6 +118,14 @@ router.get("/logout", (req: Request, res: Response) => {
 
 /**
  * Add new read access endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier to be granted access
+ *      topic_id - Topic identifier to be granted access to
+ *
+ * Returns: boolean error, string message
  */
 router.post("/read", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
@@ -150,7 +171,15 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Delete read access endpoint
+ * Delete / Revoke Read Access endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier to be revoked access
+ *      topic_id - Topic identifier to be revoked access from
+ *
+ * Returns: boolean error, string message
  */
 router.delete("/read", upload.none(), async (req: Request, res: Response) => {
     // Check for required fields
@@ -191,7 +220,15 @@ router.delete("/read", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Add new write access endpoint
+ * Add new Write Access endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier to be granted access
+ *      topic_id - Topic identifier to be granted access to
+ *
+ * Returns: boolean error, string message
  */
 router.post("/write", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
@@ -237,7 +274,15 @@ router.post("/write", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Delete write access endpoint
+ * Delete / Revoke Write Access endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier to be revoked access
+ *      topic_id - Topic identifier to be revoked access from
+ *
+ * Returns: boolean error, string message
  */
 router.delete("/write", upload.none(), async (req: Request, res: Response) => {
     // Check for required fields
@@ -278,8 +323,17 @@ router.delete("/write", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Add new access request endpoint
- * Requests will be added as pending under the Request table
+ * Add new Access Request endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      requestor_id - User identifier that is requesting the access
+ *      topic_id - Topic identifier to be requesting access to
+ *      access_type - Type of access. READ/WRITE
+ *      description - Brief description for requesting access (optional)
+ *
+ * Returns: boolean error, string message
  */
 router.post("/accessrequest", upload.none(), async (req: Request, res: Response) => {
     // Takes in the user and the topic requested to
@@ -301,9 +355,9 @@ router.post("/accessrequest", upload.none(), async (req: Request, res: Response)
                 access_type: req.body.access_type,
                 [Op.or]: [
                     {
-                        status: "Pending",
+                        status: "PENDING",
                     },
-                    { status: "Approved" },
+                    { status: "APPROVED" },
                 ],
             },
         });
@@ -346,7 +400,17 @@ router.post("/accessrequest", upload.none(), async (req: Request, res: Response)
 });
 
 /**
- * Update status of specific access request
+ * Update status of specific access request endpoint
+ * Type: PUT
+ * InputType: form-body
+ *
+ * Input:
+ *      request_id - Identifier of the request to be updated
+ *      access_type - Type of access. READ/WRITE (optional)
+ *      status - Status of request. PENDING/APPROVED/REJECTED (optional)
+ *      description - Brief description for requesting access (optional)
+ *
+ * Returns: boolean error, string message
  */
 router.put("/accessrequest", upload.none(), async (req: Request, res: Response) => {
     // Check if required fields are present
@@ -395,6 +459,13 @@ router.put("/accessrequest", upload.none(), async (req: Request, res: Response) 
 
 /**
  * Delete pending access request endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      request_id - Identifier of the request to be deleted
+ *
+ * Returns: boolean error, string message
  */
 router.delete("/accessrequest", upload.none(), async (req: Request, res: Response) => {
     // Check if required fields are present
