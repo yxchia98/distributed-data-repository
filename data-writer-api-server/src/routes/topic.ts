@@ -46,58 +46,44 @@ const uploadS3 = multer({
         s3: s3,
         bucket: process.env.AWS_S3_BUCKET_NAME,
         acl: "public-read",
-        metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
+        // metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {},
+        key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
+            // const topicFolder = "topics/" + req.body.topic + "/";
+            let uploadError = new Error("topic not found or invalid file type");
             try {
-                // check and insert into database
-                // const queryTopic = await Topic.findByPk(req.body.topic_id);
-                let uploadError = new Error("topic not found");
-                // insert into database
-                // upload file into s3
-                await initBucket(s3);
-                // const topicFolder = "topics/" + req.body.topic + "/";
-                const topicExist = await checkBucketFolder(
-                    s3,
-                    process.env.AWS_S3_BUCKET_NAME,
-                    req.topicFolder
-                );
+                const isValid = FILE_TYPE_MAP[file.mimetype];
+                const queryTopic = await Topic.findByPk(req.body.topic_id);
+                if (queryTopic && isValid) {
+                    uploadError = null;
+                    // set found topic uri into req object
+                    req.topicFolder = queryTopic.dataValues.topic_url;
+                    await initBucket(s3);
+                    // insert incoming topic file record into database
 
-                if (topicExist.success) {
-                    // upload file into that folder
-                    uploadError.message = "invalid file type";
-                    const isValid = FILE_TYPE_MAP[file.mimetype];
-                    if (isValid) {
-                        uploadError = null;
+                    // check if topic folder exists in s3
+                    const topicExist = await checkBucketFolder(
+                        s3,
+                        process.env.AWS_S3_BUCKET_NAME,
+                        req.topicFolder
+                    );
+                    // if topic exists, insert record into DB before uploading
+                    if (topicExist.success) {
+                        const record: TopicFileType = {
+                            topic_id: queryTopic.topic_id,
+                            agency_id: queryTopic.agency_id,
+                            file_url: "pending",
+                        };
+                        const insertedRecord = await TopicFile.create(record);
+                        req.file_id = insertedRecord.dataValues.file_id;
+                        cb(null, req.topicFolder + Date.now().toString() + "-" + file.originalname);
+                    } else {
+                        cb(uploadError.message, { fieldname: null });
                     }
-                    cb(uploadError, { fieldname: file.fieldname });
                 } else {
                     cb(uploadError.message, { fieldname: null });
                 }
-            } catch (error: any) {
-                cb(error.message, { fieldname: null });
-            }
-        },
-        key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
-            // const topicFolder = "topics/" + req.body.topic + "/";
-            try {
-                const queryTopic = await Topic.findByPk(req.body.topic_id);
-                if (queryTopic) {
-                    // set found topic uri into req object
-                    req.topicFolder = queryTopic.dataValues.topic_url;
-
-                    // insert incoming topic file record into database
-                    const record: TopicFileType = {
-                        topic_id: queryTopic.topic_id,
-                        agency_id: queryTopic.agency_id,
-                        file_url: "pending",
-                    };
-                    const insertedRecord = await TopicFile.create(record);
-                    req.file_id = insertedRecord.dataValues.file_id;
-                    cb(null, req.topicFolder + Date.now().toString() + "-" + file.originalname);
-                } else {
-                    cb("error", { fieldname: null });
-                }
             } catch (error) {
-                cb("error", { fieldname: null });
+                cb(uploadError.message, { fieldname: null });
             }
         },
     }),
