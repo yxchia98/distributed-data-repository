@@ -14,11 +14,22 @@ const upload = multer();
 
 /*-------------------- PROFILE API START ---------------*/
 
+/**
+ * Update a User endpoint
+ * Type: PUT
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - The user ID of user to be updated
+ *      first_name - User's first name (optional)
+ *      last_name - User's last name (optional)
+ *      email - User's email
+ *      contact - User's contact information
+ *      agency_id - User's agency identifier
+ *
+ * Returns: boolean error, string message
+ */
 router.put("/user", upload.none(), async (req: Request, res: Response) => {
-    console.log("updating user!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
-
     // check if fields are valid
     if (!req.body.user_id) {
         res.status(400).send({
@@ -64,10 +75,22 @@ router.put("/user", upload.none(), async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * Register User endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - The user ID parsed from OAuth2.0 or SSO (Google/Azure)
+ *      first_name - The first name of the user
+ *      last_name - The last name of the user
+ *      email - The email address of the user
+ *      contact - contact number of the user
+ *      agency_id - Agency Identifier of the user's agency
+ *
+ * Returns: boolean error, string message
+ */
 router.post("/user", upload.none(), async (req: Request, res: Response) => {
-    console.log("creating user!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
     // check if mandatory fields are passed
     if (
         !(
@@ -122,6 +145,16 @@ router.post("/user", upload.none(), async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * De-register a User endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - The user ID of user to be de-registered
+ *
+ * Returns: boolean error, string message
+ */
 router.delete("/user", upload.none(), async (req: Request, res: Response) => {
     console.log("deleting user!");
     console.log(`query: ${JSON.stringify(req.query)}`);
@@ -162,14 +195,22 @@ router.delete("/user", upload.none(), async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * Register / Add a new Agency endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      short_name - Agency's abbreviated name
+ *      long_name - Agency's full name
+ *
+ * Returns: boolean error, string message
+ */
 router.post("/agency", upload.none(), async (req: Request, res: Response) => {
-    console.log("creating agency!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
-    if (!req.body.long_name) {
+    if (!(req.body.long_name && req.body.short_name)) {
         res.status(400).send({
             error: true,
-            message: "no agency specified.",
+            message: "Mandatory fields not set",
         });
         return;
     }
@@ -213,10 +254,24 @@ router.post("/agency", upload.none(), async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * De-register / Delete an existing Agency
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      agency_id - The agency ID of agency to be de-registered
+ *
+ * Returns: boolean error, string message
+ */
 router.delete("/agency", upload.none(), async (req: Request, res: Response) => {
-    console.log("deleting agency!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
+    if (!req.body.agency_id) {
+        res.status(404).send({
+            error: true,
+            message: "Mandatory fields not set",
+        });
+        return;
+    }
 
     try {
         const queryResult = await Agency.destroy({
@@ -245,12 +300,24 @@ router.delete("/agency", upload.none(), async (req: Request, res: Response) => {
     }
 });
 
+/**
+ * Update an existing Agency
+ * Type: PUT
+ * InputType: form-body
+ *
+ * Input:
+ *      agency_id - The user ID of user to be de-registered
+ *      short_name - The abbreviated name of the Agency (optional)
+ *      long_name - Full name of Agency (optional)
+ *
+ * Returns: boolean error, string message
+ */
 router.put("/agency", upload.none(), async (req: Request, res: Response) => {
     // return if no fields set to be updated
-    if (!(req.body.short_name || req.body.long_name)) {
-        res.status(400).send({
+    if (!(req.body.short_name || req.body.long_name) && !req.body.agency_id) {
+        res.status(404).send({
             error: true,
-            message: "No fields specified",
+            message: "No fields specified to be updated",
         });
         return;
     }
