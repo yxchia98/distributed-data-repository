@@ -6,7 +6,7 @@ import {
     initBucket,
     checkBucketFolder,
     createBucketFolder,
-    deleteBucketFolder,
+    deleteBucketItem,
 } from "../services/awsbucket";
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
@@ -91,6 +91,18 @@ const uploadS3 = multer({
 
 /*-------------------- TOPIC API START ---------------*/
 
+/**
+ * Publish Topic File endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - The user ID of the current user uploading the file
+ *      topic_id - The identifier of the Topic
+ *      uploaded_file - .csv file to be uploaded into that topic
+ *
+ * Returns: boolean error, string message
+ */
 router.post(
     "/publish",
     uploadS3.single("uploaded_file"),
@@ -119,32 +131,6 @@ router.post(
     }
 );
 
-router.get("/check", async (req: Request, res: Response) => {
-    if (!req.query.topicname) {
-        res.send({
-            error: true,
-            message: "folder not found",
-        });
-        return;
-    }
-
-    const folder = "topics/" + req.query.topicname + "/";
-    console.log(folder);
-    const result = await checkBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
-    if (result.success) {
-        res.status(200).send({
-            error: false,
-            message: "folder found!",
-        });
-    } else {
-        res.send({
-            error: true,
-            message: "folder not found",
-        });
-    }
-    return;
-});
-
 /**
  * Create new topic endpoint
  * Type: POST
@@ -156,7 +142,7 @@ router.get("/check", async (req: Request, res: Response) => {
  *      agency_id - The agency which the topic belongs to
  *      topic_description - The long description for the topic
  *
- * Returns: boolean error, string message, obj data
+ * Returns: boolean error, string message
  */
 router.post("/create", upload.none(), async (req: Request, res: Response) => {
     // check for compulsory fields
@@ -203,7 +189,7 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
                     });
                 } else {
                     // if cant insert into db, delete the previously created s3 topic folder
-                    await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+                    await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
                     res.send({
                         error: true,
                         message: "Error creating topic",
@@ -225,7 +211,7 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
         // delete record and created s3 topic folders, if error
         console.log(error);
         try {
-            await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+            await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
             await Topic.destroy({
                 where: {
                     user_id: req.body.user_id,
@@ -250,13 +236,15 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
 
 /**
  * Delete topic endpoint
- * @param {Object} req.body - The form object parsed into the API
- * @param {string} req.body.topic_id - The id of the topic
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      topic_id - The id of the topic
+ *
+ * Returns: boolean error, string message
  */
 router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
-    console.log("deleting topic!");
-    console.log(`query: ${JSON.stringify(req.query)}`);
-    console.log(`body: ${JSON.stringify(req.body)}`);
     if (!req.body.topic_id) {
         res.send({
             error: true,
@@ -279,7 +267,7 @@ router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
             );
             if (topicExistResponse.success) {
                 // delete folder in S3
-                const result = await deleteBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+                const result = await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
                 if (result.success) {
                     res.status(200).send({
                         error: false,
@@ -311,6 +299,59 @@ router.delete("/delete", upload.none(), async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error deleting topic",
+        });
+    }
+});
+
+/**
+ * Delete topic file endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      file_id - The identifier of the topic file
+ *
+ * Returns: boolean error, string message
+ */
+router.delete("/deletefile", upload.none(), async (req: Request, res: Response) => {
+    // check for mandatory fields
+    if (!req.body.file_id) {
+        res.status(404).send({
+            error: true,
+            message: "Missing mandatory fields",
+        });
+        return;
+    }
+    try {
+        const queryTopicFile = await TopicFile.findByPk(req.body.file_id);
+        if (queryTopicFile) {
+            // get relative path of specified file from s3
+            const fileURI = queryTopicFile.dataValues.file_url.split("/").slice(3).join("/");
+            console.log(fileURI);
+            const deleteFile = await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, fileURI);
+            // delete record from database if s3 deletion successful
+            if (deleteFile.success) {
+                await queryTopicFile.destroy();
+                res.status(200).send({
+                    error: false,
+                    message: "Successfully deleted file",
+                });
+            } else {
+                res.status(500).send({
+                    error: false,
+                    message: "Error deleting file",
+                });
+            }
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Error, file not found",
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error deleting file",
         });
     }
 });

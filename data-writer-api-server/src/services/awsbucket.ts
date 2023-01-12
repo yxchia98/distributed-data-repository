@@ -31,9 +31,7 @@ export const checkBucket = async (s3: S3Client, bucket: string) => {
         const input: HeadBucketCommandInput = {
             Bucket: bucket,
         };
-        const res: HeadBucketCommandOutput = await s3.send(
-            new HeadBucketCommand(input)
-        );
+        const res: HeadBucketCommandOutput = await s3.send(new HeadBucketCommand(input));
 
         console.log("Bucket already Exist", res.$metadata);
         // console.log("Bucket already Exist");
@@ -57,19 +55,13 @@ export const checkBucket = async (s3: S3Client, bucket: string) => {
  * @param {string} folder
  * @returns {Promise<{success:boolean; message: string; data:string;}>}
  */
-export const checkBucketFolder = async (
-    s3: S3Client,
-    bucket: string,
-    folder: string
-) => {
+export const checkBucketFolder = async (s3: S3Client, bucket: string, folder: string) => {
     try {
         const input: GetObjectCommandInput = {
             Bucket: bucket,
             Key: folder,
         };
-        const res: GetObjectCommandOutput = await s3.send(
-            new GetObjectCommand(input)
-        );
+        const res: GetObjectCommandOutput = await s3.send(new GetObjectCommand(input));
 
         console.log("Folder already Exist", res.$metadata);
 
@@ -91,19 +83,13 @@ export const checkBucketFolder = async (
  * @param {string} folder
  * @returns {Promise<{success:boolean; message: string; data:string;}>}
  */
-export const createBucketFolder = async (
-    s3: S3Client,
-    bucket: string,
-    folder: string
-) => {
+export const createBucketFolder = async (s3: S3Client, bucket: string, folder: string) => {
     try {
         const input: PutObjectCommandInput = {
             Bucket: bucket,
             Key: folder,
         };
-        const res: PutObjectCommandOutput = await s3.send(
-            new PutObjectCommand(input)
-        );
+        const res: PutObjectCommandOutput = await s3.send(new PutObjectCommand(input));
 
         console.log("Folder created!", res.$metadata);
 
@@ -125,25 +111,19 @@ export const createBucketFolder = async (
  * @param {string} folder
  * @returns {Promise<{success:boolean; message: string; data:string;}>}
  */
-export const deleteBucketFolder = async (
-    s3: S3Client,
-    bucket: string,
-    folder: string
-) => {
+export const deleteBucketItem = async (s3: S3Client, bucket: string, item: string) => {
     try {
         const input: DeleteObjectCommandInput = {
             Bucket: bucket,
-            Key: folder,
+            Key: item,
         };
-        const res: DeleteObjectCommandOutput = await s3.send(
-            new DeleteObjectCommand(input)
-        );
+        const res: DeleteObjectCommandOutput = await s3.send(new DeleteObjectCommand(input));
 
         console.log("Folder deleted!", res.$metadata);
 
         return { success: true, message: "Folder deleted", data: {} };
     } catch (error) {
-        console.log("Error deleting folder", error);
+        console.log("Error deleting item", error);
         return {
             success: false,
             message: "error deleting folder",
@@ -168,9 +148,7 @@ export const createBucket = async (s3: S3Client) => {
 
     try {
         // const res = await s3.createBucket(params).promise();
-        const res: CreateBucketOutput = await s3.send(
-            new CreateBucketCommand(params)
-        );
+        const res: CreateBucketOutput = await s3.send(new CreateBucketCommand(params));
 
         console.log("Bucket Created Successfully", res.Location);
 
