@@ -10,8 +10,10 @@ import {
 } from "../services/awsbucket";
 import dotenv from "dotenv";
 import { sequelize } from "../services/database";
-import { Topic } from "../models/topic";
+import { Topic, TopicType } from "../models/topic";
 import { TopicFile, TopicFileType } from "../models/topic_file";
+import { AppUser } from "../models/app_user";
+import { Agency } from "../models/agency";
 dotenv.config();
 
 interface TypeMap {
@@ -230,6 +232,85 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error creating topic",
+        });
+    }
+});
+
+/**
+ * Update Topic details endpoint
+ * Type: PUT
+ * InputType: form-body
+ *
+ * Input:
+ *      topic_id - The id of the topic
+ *      user_id - The user identifier for the owner of the topic (optional)
+ *      agency_id - The agency identifier for the associated agency (optional)
+ *      topic_name - The name of the topic (optional)
+ *      description - Brief description of the topic (optional)
+ *      last_update - Last updated date of the topic (optional)
+ *
+ * Returns: boolean error, string message
+ */
+router.put("/update", upload.none(), async (req: Request, res: Response) => {
+    // check if mandatory fields are sent
+    if (!req.body.topic_id) {
+        res.status(404).send({
+            error: true,
+            message: "Mandatory fields not set",
+        });
+        return;
+    }
+    try {
+        // search db for the given topic_id record
+        const topicId = <string>req.body.topic_id;
+        const queryTopic = await Topic.findByPk(topicId);
+        if (queryTopic.dataValues) {
+            // set updated values in object
+            const topicItem: TopicType = {
+                user_id: req.body.user_id ? req.body.user_id : queryTopic.dataValues.user_id,
+                agency_id: req.body.agency_id
+                    ? req.body.agency_id
+                    : queryTopic.dataValues.agency_id,
+                topic_name: req.body.topic_name
+                    ? req.body.topic_name
+                    : queryTopic.dataValues.topic_name,
+                description: req.body.description
+                    ? req.body.description
+                    : queryTopic.dataValues.description,
+            };
+            const queryUser = await AppUser.findByPk(topicItem.user_id);
+            const queryAgency = await Agency.findByPk(topicItem.agency_id);
+            // check if user_id corresponds to a User
+            if (!queryUser.dataValues) {
+                res.status(404).send({
+                    error: true,
+                    message: "Error, specified User does not exist",
+                });
+                return;
+            }
+            // check if agency_id corresponds to a Agency
+            if (!queryAgency.dataValues) {
+                res.status(404).send({
+                    error: true,
+                    message: "Error, specified User does not exist",
+                });
+                return;
+            }
+            await queryTopic.update(topicItem);
+            res.status(200).send({
+                error: false,
+                message: "Successfully updated topic",
+            });
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Error, topic not found",
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error updating topic",
         });
     }
 });

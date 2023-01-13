@@ -11,6 +11,16 @@ interface Topic extends Model<InferAttributes<Topic>, InferCreationAttributes<To
     last_update: Date;
 }
 
+export interface TopicType {
+    topic_id?: string;
+    user_id: string;
+    agency_id: string;
+    topic_name: string;
+    topic_url?: string;
+    description: string;
+    last_update?: Date;
+}
+
 export const Topic = sequelize.define<Topic>(
     "topic",
     {
