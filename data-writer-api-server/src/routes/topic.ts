@@ -247,7 +247,6 @@ router.post("/create", upload.none(), async (req: Request, res: Response) => {
  *      agency_id - The agency identifier for the associated agency (optional)
  *      topic_name - The name of the topic (optional)
  *      description - Brief description of the topic (optional)
- *      last_update - Last updated date of the topic (optional)
  *
  * Returns: boolean error, string message
  */
