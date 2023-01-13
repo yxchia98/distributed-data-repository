@@ -18,7 +18,8 @@ const upload = multer();
  * Get single user details endpoint
  * Type: GET
  * InputType: Params
- * Input: user_id
+ * Input:
+ *      user_id - The identifier for the current user
  * Returns: boolean error, string message, obj data
  */
 router.get("/user", upload.none(), async (req: Request, res: Response) => {
@@ -59,7 +60,11 @@ router.get("/user", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Get all user details endpoint
+ * Get information of all Users endpoint
+ * Type: GET
+ * InputType: Params
+ * Input: -
+ * Returns: boolean error, string message, obj data
  */
 router.get("/users", upload.none(), async (req: Request, res: Response) => {
     console.log(`Params: ${JSON.stringify(req.params)}`);
@@ -125,7 +130,11 @@ router.get("/agency", upload.none(), async (req: Request, res: Response) => {
 });
 
 /**
- * Get all agencies details endpoint
+ * Get information of all Agencies endpoint
+ * Type: GET
+ * InputType: Params
+ * Input: -
+ * Returns: boolean error, string message, obj data
  */
 router.get("/agencies", upload.none(), async (req: Request, res: Response) => {
     console.log(`Params: ${JSON.stringify(req.params)}`);
