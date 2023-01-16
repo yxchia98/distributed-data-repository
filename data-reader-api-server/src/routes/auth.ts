@@ -8,41 +8,20 @@ import { ReadAccess } from "../models/read_access";
 import { WriteAccess } from "../models/write_access";
 import { AccessRequest, AccessRequestType } from "../models/request";
 import { Topic } from "../models/topic";
+import authController from "../controllers/authController";
 
 dotenv.config();
 
 const router = express.Router();
 const upload = multer();
-const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
-    req.user ? next() : res.sendStatus(401);
-};
-
-const isHighestPrivilege = (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    req.user && req.user.email == "yxchia98@gmail.com" ? next() : res.sendStatus(401);
-};
 
 /*-------------------- AUTH API START ---------------*/
 
 /**
  * Endpoint to check if current session is logged in
  */
-router.get("/login/success", (req: Request, res: Response) => {
-    if (req.user) {
-        res.status(200).json({
-            error: false,
-            message: "Successfully Loged In",
-            // @ts-ignore
-            user: req.user.id,
-        });
-    } else {
-        res.status(403).json({ error: true, message: "Not Authorized" });
-    }
-});
+router.get("/login/success", authController.checkLoginSuccess);
 
-/**
- *
- */
 router.get("/google", passport.authenticate("google", { scope: ["email", "profile"] }));
 
 /**
@@ -60,36 +39,17 @@ router.get(
 /**
  * OAuth2 failure callback
  */
-router.get("/failure", (req, res) => {
-    res.status(401).send({
-        error: true,
-        message: "Log in failure",
-    });
-});
+router.get("/failure", authController.authFailure);
 
-router.get("/protected", isLoggedIn, (req: Request, res: Response) => {
-    console.log(req.user);
-    if (req.user) {
-        const currUser: Express.User = req.user;
-        res.status(200).send({
-            error: false,
-            message: "Success",
-            data: currUser,
-        });
-    }
-});
+/**
+ * test page for protected authentication
+ */
+router.get("/protected", authController.isLoggedIn, authController.protectedAuth);
 
-router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
-    console.log(req.user);
-    if (req.user) {
-        const currUser: Express.User = req.user;
-        res.status(200).send({
-            error: false,
-            message: "Success",
-            data: currUser,
-        });
-    }
-});
+/**
+ * test page for highest privilege authentication
+ */
+router.get("/topSecret", authController.isHighestPrivilege, authController.topSecretAuth);
 /**
  * logout endpoint
  */
@@ -110,37 +70,7 @@ router.get("/logout", (req: Request, res: Response) => {
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-router.get("/read", upload.none(), async (req: Request, res: Response) => {
-    // check for required fields
-    if (!req.query.user_id) {
-        res.status(400).send({
-            error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
-        });
-        return;
-    }
-    const userId: string = <string>req.query.user_id;
-    try {
-        const queryReadAccess = await ReadAccess.findAll({
-            where: {
-                user_id: userId,
-            },
-        });
-        console.log(queryReadAccess);
-        res.status(200).send({
-            error: false,
-            message: "Successfully retrieved read access for user",
-            data: queryReadAccess,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            error: true,
-            message: "Error in granting read access",
-        });
-    }
-});
+router.get("/read", upload.none(), authController.getUserReadAccess);
 
 /**
  * Get specific user's write accesses
@@ -149,36 +79,7 @@ router.get("/read", upload.none(), async (req: Request, res: Response) => {
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-router.get("/write", upload.none(), async (req: Request, res: Response) => {
-    // check for required fields
-    if (!req.query.user_id) {
-        res.status(400).send({
-            error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
-        });
-        return;
-    }
-    const userId: string = <string>req.query.user_id;
-    try {
-        const queryReadAccess = await WriteAccess.findAll({
-            where: {
-                user_id: userId,
-            },
-        });
-        res.status(200).send({
-            error: false,
-            message: "Successfully retrieved read access for user",
-            data: queryReadAccess,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            error: true,
-            message: "Error in granting read access",
-        });
-    }
-});
+router.get("/write", upload.none(), authController.getUserWriteAccess);
 
 /**
  * Get all access requests approvable by specific user
@@ -187,36 +88,7 @@ router.get("/write", upload.none(), async (req: Request, res: Response) => {
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-router.get("/requestapproval", upload.none(), async (req: Request, res: Response) => {
-    // check for required fields
-    if (!req.query.user_id) {
-        res.status(400).send({
-            error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
-        });
-        return;
-    }
-    const userId: string = <string>req.query.user_id;
-    try {
-        const queryReadAccess = await AccessRequest.findAll({
-            where: {
-                approver_id: userId,
-            },
-        });
-        res.status(200).send({
-            error: false,
-            message: "Successfully retrieved access requests for user",
-            data: queryReadAccess,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            error: true,
-            message: "Error in granting read access",
-        });
-    }
-});
+router.get("/requestapproval", upload.none(), authController.getUserApprovableAccessRequest);
 
 /**
  * Get all access requests submitted by specific user
@@ -225,37 +97,9 @@ router.get("/requestapproval", upload.none(), async (req: Request, res: Response
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-router.get("/submittedrequest", upload.none(), async (req: Request, res: Response) => {
-    // check for required fields
-    if (!req.query.user_id) {
-        res.status(400).send({
-            error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
-        });
-        return;
-    }
-    const userId: string = <string>req.query.user_id;
-    try {
-        const queryReadAccess = await AccessRequest.findAll({
-            where: {
-                requestor_id: userId,
-            },
-        });
-        res.status(200).send({
-            error: false,
-            message: "Successfully retrieved access requests for user",
-            data: queryReadAccess,
-        });
-    } catch (error) {
-        console.log(error);
-        res.status(500).send({
-            error: true,
-            message: "Error in granting read access",
-        });
-    }
-});
+router.get("/submittedrequest", upload.none(), authController.getUserSubmittedAccessRequest);
 
+// API FOR TESTING PURPOSES
 router.get("/test", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
     console.log(req.user);

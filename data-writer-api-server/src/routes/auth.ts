@@ -153,7 +153,7 @@ router.post("/read", upload.none(), async (req: Request, res: Response) => {
             });
             res.status(200).send({
                 error: false,
-                message: "successfully granted write access",
+                message: "successfully granted read access",
             });
         } else {
             res.status(200).send({
