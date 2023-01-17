@@ -1,5 +1,4 @@
 import axios from "axios";
-import "bulma/css/bulma.min.css";
 
 const Login = () => {
     const fetchUser = async () => {
