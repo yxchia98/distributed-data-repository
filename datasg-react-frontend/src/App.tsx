@@ -3,14 +3,14 @@ import "./App.css";
 import { Routes, Route, useRoutes, Navigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import Home from "./home";
-import Login from "./login";
+import Register from "./register";
 
 function App() {
     const routes = useRoutes([
         { path: "/", element: <Home /> },
-        { path: "/login", element: <Login /> },
+        { path: "/login", element: <Register /> },
     ]);
-    return routes;
+    return <div className="h-screen bg-gray-100">{routes}</div>;
 }
 
 export default App;

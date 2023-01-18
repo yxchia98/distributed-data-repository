@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
+import NavigationBar from "../common/NavigationBar";
 // axios.defaults.withCredentials = true;
 
-interface currentUser {
+interface CurrentUser {
     error: boolean;
     message: string;
     user_id: string;
+}
+interface ResponseData {
+    error: boolean;
+    message: string;
 }
 
 const Home = () => {
@@ -18,7 +23,7 @@ const Home = () => {
             headers: {},
             withCredentials: true,
         };
-        let response: currentUser = { error: false, message: "", user_id: "" };
+        let response: CurrentUser = { error: false, message: "", user_id: "" };
         try {
             response = await axios(configurationObject);
             console.log(response);
@@ -58,31 +63,29 @@ const Home = () => {
     };
 
     return (
-        <div className="columns">
-            <div className="column">
-                <h1>HOME PAGE</h1>
-                {!login && (
-                    <button
-                        className="border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
-                        onClick={googleAuth}
-                    >
-                        Sign in with google
-                    </button>
-                )}
-                {login && (
-                    <button
-                        className="border border-red-500 bg-red-500 text-white rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
-                        onClick={googleLogout}
-                    >
-                        Logout
-                    </button>
-                )}
-                <button
-                    className="border border-gray-200 bg-gray-200 text-gray-700 rounded-md px-4 py-2 m-2 transition duration-500 ease select-none hover:bg-gray-300 focus:outline-none focus:shadow-outline"
-                    onClick={fetchUser}
-                >
-                    Check!
-                </button>
+        <div className="home">
+            <NavigationBar login={googleAuth} logout={googleLogout} />
+            <div
+                className="max-w px-2 mx-2 my-2 overflow-hidden bg-white flex bg-local bg-origin-content p-12"
+                style={{
+                    backgroundImage: `url(${
+                        process.env.REACT_APP_PUBLIC_URL + "/img/DDR-landing-image.png"
+                    })`,
+                    backgroundRepeat: `no-repeat`,
+                    backgroundSize: `contain`,
+                    backgroundPositionX: `right`,
+                }}
+            >
+                <div className="px-6 py-4">
+                    <div className="font-bold text-5xl mb-2 pt-24 pb-48">
+                        Efficiently share Data <br /> across Agencies. <br /> Transparently.
+                    </div>
+                    {/* <img
+                        className="w-full"
+                        src="/img/DDR-landing-image.png"
+                        alt="landing page image"
+                    /> */}
+                </div>
             </div>
         </div>
     );

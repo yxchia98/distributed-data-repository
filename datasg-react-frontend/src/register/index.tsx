@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const Login = () => {
+const Register = () => {
     const fetchUser = async () => {
         // const configurationObject = {
         //     method: "post",
@@ -35,4 +35,4 @@ const Login = () => {
     );
 };
 
-export default Login;
+export default Register;
