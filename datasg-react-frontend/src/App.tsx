@@ -10,7 +10,7 @@ function App() {
         { path: "/", element: <Home /> },
         { path: "/login", element: <Register /> },
     ]);
-    return <div className="h-screen bg-gray-100">{routes}</div>;
+    return <div className="h-screen bg-gray-100 overflow-auto">{routes}</div>;
 }
 
 export default App;

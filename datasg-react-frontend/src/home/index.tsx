@@ -1,6 +1,11 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import NavigationBar from "../common/NavigationBar";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { solid, regular, brands, icon } from "@fortawesome/fontawesome-svg-core/import.macro"; // <-- import styles to be used
+import MainCard from "./MainCard";
+import AgencyCard from "./AgencyCard";
+import OfferingCard from "./OfferingCard";
 // axios.defaults.withCredentials = true;
 
 interface CurrentUser {
@@ -65,28 +70,28 @@ const Home = () => {
     return (
         <div className="home">
             <NavigationBar login={googleAuth} logout={googleLogout} />
-            <div
-                className="max-w px-2 mx-2 my-2 overflow-hidden bg-white flex bg-local bg-origin-content p-12"
-                style={{
-                    backgroundImage: `url(${
-                        process.env.REACT_APP_PUBLIC_URL + "/img/DDR-landing-image.png"
-                    })`,
-                    backgroundRepeat: `no-repeat`,
-                    backgroundSize: `contain`,
-                    backgroundPositionX: `right`,
-                }}
-            >
-                <div className="px-6 py-4">
-                    <div className="font-bold text-5xl mb-2 pt-24 pb-48">
+            {/* <div className="max-w py-20 px-2 mx-2 my-2 overflow-hidden bg-white flex justify-center bg-local bg-origin-content shadow-lg">
+                <div className="px-6 py-2">
+                    <div className="font-bold mb-2 pb-4 xl:text-6xl md:text-4xl sm:text-2xl text-gray-700">
                         Efficiently share Data <br /> across Agencies. <br /> Transparently.
                     </div>
-                    {/* <img
-                        className="w-full"
-                        src="/img/DDR-landing-image.png"
-                        alt="landing page image"
-                    /> */}
+                    <div className="">
+                        <button className="h-12 self-center text-sm-bold border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 transition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline">
+                            Get Started
+                            <FontAwesomeIcon
+                                className="pl-2.5 ease-in-out"
+                                icon={solid("arrow-right")}
+                            />{" "}
+                        </button>
+                    </div>
                 </div>
-            </div>
+                <div className="xl:w-[50%] xl:-translate-x-20 md:w-[60%] md:-translate-x-12">
+                    <img src="/img/DDR-landing-image.png"></img>
+                </div>
+            </div> */}
+            <MainCard />
+            <AgencyCard />
+            <OfferingCard />
         </div>
     );
 };
