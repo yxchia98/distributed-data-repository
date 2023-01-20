@@ -37,22 +37,22 @@ const FooterCard = () => {
                         Contact us here
                     </div>
                     <div className="flex flex-row justify-center">
-                        <IconContext.Provider value={{ size: "1em" }}>
+                        <IconContext.Provider value={{ size: "1.5em" }}>
                             <div className="px-[5%]">
                                 <BsGithub />
                             </div>
                         </IconContext.Provider>
-                        <IconContext.Provider value={{ size: "1em" }}>
+                        <IconContext.Provider value={{ size: "1.5em" }}>
                             <div className="px-[5%]">
                                 <MdOutlineAlternateEmail />
                             </div>
                         </IconContext.Provider>
-                        <IconContext.Provider value={{ size: "1em" }}>
+                        <IconContext.Provider value={{ size: "1.5em" }}>
                             <div className="px-[5%]">
                                 <BsWhatsapp />
                             </div>
                         </IconContext.Provider>
-                        <IconContext.Provider value={{ size: "1em" }}>
+                        <IconContext.Provider value={{ size: "1.5em" }}>
                             <div className="px-[5%]">
                                 <BsTelegram />
                             </div>

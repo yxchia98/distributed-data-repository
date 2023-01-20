@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { Button, Navbar } from "flowbite-react";
-import LoginButton from "./LoginButton";
-import LogoutButton from "./LogoutButton";
+import LoginButton from "./NavLoginButton";
+import LogoutButton from "./NavLogoutButton";
 
 interface CurrentUser {
     error: boolean;

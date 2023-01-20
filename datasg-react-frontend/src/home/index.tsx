@@ -70,10 +70,10 @@ const Home = () => {
     return (
         <div className="home">
             <NavigationBar login={googleAuth} logout={googleLogout} />
-            <MainCard />
+            <MainCard login={login} />
             <AgencyCard />
             <OfferingCard />
-            <GetStartedCard />
+            <GetStartedCard login={login} />
             <FooterCard />
         </div>
     );

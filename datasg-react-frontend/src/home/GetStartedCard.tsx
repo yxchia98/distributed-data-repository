@@ -1,4 +1,13 @@
-const GetStartedCard = () => {
+interface GetStartedCardProps {
+    login: boolean;
+}
+const GetStartedCard: React.FC<GetStartedCardProps> = (props) => {
+    const googleAuth = async () => {
+        window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`, "_self");
+    };
+    const toExplorePage = async () => {
+        console.log("navigating to explore data page");
+    };
     return (
         <div className="max-w py-10 px-2 mx-2 my-2 overflow-hidden bg-white bg-local bg-origin-content shadow-lg">
             <div className="flex flex-col text-center">
@@ -11,9 +20,20 @@ const GetStartedCard = () => {
                 </div>
             </div>
             <div className="flex justify-center h-20">
-                <button className="h-10 self-center flex items-center justify-center text-sm-bold border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 transition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline">
-                    <p className="">Login</p>
-                </button>
+                {!props.login && (
+                    <button className="h-10 self-center flex items-center justify-center text-sm-bold border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 transition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline">
+                        <p className="" onClick={googleAuth}>
+                            Login
+                        </p>
+                    </button>
+                )}
+                {props.login && (
+                    <button className="h-10 self-center flex items-center justify-center text-sm-bold border border-indigo-500 bg-indigo-500 text-white rounded-md px-4 transition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline">
+                        <p className="" onClick={toExplorePage}>
+                            Explore Data
+                        </p>
+                    </button>
+                )}
             </div>
         </div>
     );
