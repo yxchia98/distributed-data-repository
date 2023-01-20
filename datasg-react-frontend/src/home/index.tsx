@@ -4,6 +4,8 @@ import NavigationBar from "../common/NavigationBar";
 import MainCard from "./MainCard";
 import AgencyCard from "./AgencyCard";
 import OfferingCard from "./OfferingCard";
+import GetStartedCard from "./GetStartedCard";
+import FooterCard from "./FooterCard";
 // axios.defaults.withCredentials = true;
 
 interface CurrentUser {
@@ -71,6 +73,8 @@ const Home = () => {
             <MainCard />
             <AgencyCard />
             <OfferingCard />
+            <GetStartedCard />
+            <FooterCard />
         </div>
     );
 };
