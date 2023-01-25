@@ -125,16 +125,17 @@ export const getSingleAgency = async (req: Request, res: Response) => {
 export const getAllAgencies = async (req: Request, res: Response) => {
     try {
         const allUsers = await Agency.findAll();
+        console.log(allUsers);
         res.status(200).send({
             error: false,
-            message: "Successfully retrieved all users",
+            message: "Successfully retrieved all agencies",
             data: allUsers,
         });
     } catch (error) {
         res.status(500).send({
             error: true,
             message: "Error fetching users",
-            data: {},
+            data: [],
         });
     }
 };

@@ -30,10 +30,12 @@ const checkLoginSuccess = (req: Request, res: Response) => {
             error: false,
             message: "Successfully Logged In",
             // @ts-ignore
-            userid: req.user.id,
+            userId: req.user.id,
+            // @ts-ignore
+            email: req.user.email,
         });
     } else {
-        res.status(403).json({ error: true, message: "Not Authorized", userid: "" });
+        res.status(403).json({ error: true, message: "Not Authorized", userId: "" });
     }
 };
 

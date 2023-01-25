@@ -53,7 +53,7 @@ router.get("/agency", upload.none(), getSingleAgency);
  * Type: GET
  * InputType: Params
  * Input: -
- * Returns: boolean error, string message, obj data
+ * Returns: boolean error, string message, array data
  */
 router.get("/agencies", upload.none(), getAllAgencies);
 
