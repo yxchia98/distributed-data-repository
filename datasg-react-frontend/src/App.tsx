@@ -8,7 +8,7 @@ import Register from "./register";
 function App() {
     const routes = useRoutes([
         { path: "/", element: <Home /> },
-        { path: "/login", element: <Register /> },
+        { path: "/register", element: <Register /> },
     ]);
     return <div className="h-screen bg-gray-100 overflow-auto">{routes}</div>;
 }
