@@ -1,16 +1,27 @@
 import React from "react";
 import "./App.css";
-import { Routes, Route, useRoutes, Navigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Home from "./home";
 import Register from "./register";
+import ErrorPage from "./error-page";
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <Home />,
+        errorElement: <ErrorPage />,
+        children: [],
+    },
+    {
+        path: "/register",
+        element: <Register />,
+        errorElement: <ErrorPage />,
+        children: [],
+    },
+]);
 
 function App() {
-    const routes = useRoutes([
-        { path: "/", element: <Home /> },
-        { path: "/register", element: <Register /> },
-    ]);
-    return <div className="h-screen bg-gray-100 overflow-auto">{routes}</div>;
+    return <RouterProvider router={router} />;
 }
 
 export default App;
