@@ -6,6 +6,10 @@ import AgencyCard from "./AgencyCard";
 import OfferingCard from "./OfferingCard";
 import GetStartedCard from "./GetStartedCard";
 import FooterCard from "./FooterCard";
+import { useNavigate } from "react-router-dom";
+import { useSelector, useDispatch } from "react-redux";
+import { selectUserId } from "../redux/userSlice";
+
 // axios.defaults.withCredentials = true;
 
 interface CurrentUserResponse {
@@ -35,10 +39,11 @@ interface userData {
 }
 
 const Home = () => {
+    let navigate = useNavigate();
     const [user, setUser] = useState("");
     const [userEmail, setUserEmail] = useState("");
     const [login, setLogin] = useState(false);
-    const [isRegistered, setIsRegistered] = useState<boolean>(false);
+    const userRedux = useSelector(selectUserId);
 
     const fetchUser = async () => {
         // check if user is logged in
@@ -68,6 +73,9 @@ const Home = () => {
     const checkRegistered = async () => {
         // check if user is already registered in db
         let response: RegisteredUserResponse = { error: false, message: "", data: null };
+        if (!user) {
+            return false;
+        }
         try {
             const configurationObject: AxiosRequestConfig = {
                 method: "get",
@@ -76,24 +84,21 @@ const Home = () => {
                 params: { user_id: user },
                 withCredentials: true,
             };
+            // send get request to check if user is alreaady registered
             response = await axios(configurationObject);
-            console.log(response.data);
-            setIsRegistered(response.data ? true : false);
-            return;
-        } catch (error: any) {
-            setIsRegistered(false);
-            console.log(error.message);
-            return false;
-        }
-    };
 
-    const checkLoginAndRegistered = async () => {
-        if (user && isRegistered) {
-            console.log("logged in and registered");
-        } else if (user && !isRegistered) {
-            console.log("logged in but not registered yet. Redirecting to register page...");
-        } else {
-            console.log("not logged in nor registered");
+            // redirect to register page if user not found
+            if (!response.data && user) {
+                return navigate("/register");
+            }
+            return true;
+        } catch (error: any) {
+            console.log(error.message);
+            // redirect to register page if user not found
+            if (user) {
+                return navigate("/register");
+            }
+            return false;
         }
     };
 
@@ -104,10 +109,6 @@ const Home = () => {
     useEffect(() => {
         checkRegistered();
     }, [user]);
-
-    useEffect(() => {
-        checkLoginAndRegistered();
-    }, [checkRegistered]);
 
     const googleAuth = async () => {
         window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`, "_self");

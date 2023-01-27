@@ -5,7 +5,7 @@ import Home from "./home";
 import Register from "./register";
 import ErrorPage from "./error-page";
 
-const router = createBrowserRouter([
+export const router = createBrowserRouter([
     {
         path: "/",
         element: <Home />,

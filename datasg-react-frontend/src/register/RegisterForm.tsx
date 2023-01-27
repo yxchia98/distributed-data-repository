@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
 
 interface RegisterFormProps {
@@ -43,7 +43,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
         console.log("retrieving agency details...");
         let response: AgencyDetailsResponse = { error: false, message: "", data: [] };
         try {
-            const configurationObject = {
+            const configurationObject: AxiosRequestConfig = {
                 method: "get",
                 url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/agencies`,
                 headers: {},
@@ -141,7 +141,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
             // register user using POST request
             console.log("submitting...");
             try {
-                const configurationObject = {
+                const configurationObject: AxiosRequestConfig = {
                     method: "POST",
                     url: `${process.env.REACT_APP_DATA_WRITER_API_URL}profile/user`,
                     headers: {},
