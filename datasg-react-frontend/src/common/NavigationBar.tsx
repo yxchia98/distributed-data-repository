@@ -5,6 +5,7 @@ import LoginButton from "./NavLoginButton";
 import LogoutButton from "./NavLogoutButton";
 import { fetchUser, FetchUserResponseType, setStatus, UserState } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { useNavigate } from "react-router-dom";
 
 interface CurrentUser {
     error: boolean;
@@ -20,6 +21,7 @@ interface CurrentUser {
 const NavigationBar: React.FC = () => {
     // const [user, setUser] = useState("");
     // const [login, setLogin] = useState(false);
+    const navigate = useNavigate();
     const user = useAppSelector((state) => state.user.user);
     const loginStatus = useAppSelector((state) => state.user.user.loggedIn);
     const registeredStatus = useAppSelector((state) => state.user.user.registered);
@@ -72,7 +74,15 @@ const NavigationBar: React.FC = () => {
 
     const fetchUserRedux = () => {
         if (userStatus == "idle") {
-            dispatch(fetchUser());
+            // dispatch redux thunk to fetch session and
+            // chain mandatory redirect to register page if not registered
+            dispatch(fetchUser()).then((action: any) => {
+                console.log(action);
+                if (action.payload.data.loggedIn && !action.payload.data.registered) {
+                    return navigate("/register");
+                }
+                return;
+            });
         }
         return;
     };

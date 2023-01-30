@@ -89,6 +89,7 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
         );
         resData.user_id = authResponse.data.data.user_id;
         resData.email = authResponse.data.data.email;
+        resData.loggedIn = true;
         // retrieve user details from db, using OAuth-retrieved ID
         if (authResponse.data.data?.user_id) {
             const userDetailsConfigurationObject: AxiosRequestConfig = {
@@ -105,6 +106,7 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
             resData.last_name = detailsResponse.data.data.last_name;
             resData.contact = detailsResponse.data.data.contact;
             resData.agency_id = detailsResponse.data.data.agency_id;
+            resData.registered = true;
             return res;
         } else {
             return res;
