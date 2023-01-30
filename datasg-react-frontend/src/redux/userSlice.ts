@@ -18,16 +18,27 @@ export interface UserState {
 export interface FetchUserResponseType {
     error: boolean;
     message: string;
-    data: FetchUserResponse | undefined;
+    data: UserState;
 }
 
-interface FetchUserResponse {
+export interface FetchUserDetailsResponseType {
+    error: boolean;
+    message: string;
+    data: FetchUserDetailsData;
+}
+
+interface FetchUserData {
     user_id: string;
-    first_name?: string;
-    last_name?: string;
     email: string;
-    contact?: string;
-    agency_id?: string;
+}
+
+interface FetchUserDetailsData {
+    user_id: string;
+    first_name: string;
+    last_name: string;
+    email: string;
+    contact: string;
+    agency_id: string;
 }
 
 const initialUserState = {
@@ -49,6 +60,21 @@ const initialState = {
 };
 
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
+    let resData: UserState = {
+        user_id: "",
+        email: "",
+        first_name: "",
+        last_name: "",
+        contact: "",
+        agency_id: "",
+        registered: false,
+        loggedIn: false,
+    };
+    let res: FetchUserResponseType = {
+        error: false,
+        message: "",
+        data: resData,
+    };
     try {
         // configuration object for sending GET request to validify login session
         const authUserConfigurationObject: AxiosRequestConfig = {
@@ -61,6 +87,8 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
         const authResponse: AxiosResponse<FetchUserResponseType> = await axios(
             authUserConfigurationObject
         );
+        resData.user_id = authResponse.data.data.user_id;
+        resData.email = authResponse.data.data.email;
         // retrieve user details from db, using OAuth-retrieved ID
         if (authResponse.data.data?.user_id) {
             const userDetailsConfigurationObject: AxiosRequestConfig = {
@@ -70,22 +98,27 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
                 params: { user_id: authResponse.data.data.user_id },
                 withCredentials: true,
             };
-            const detailsResponse: AxiosResponse<FetchUserResponseType> = await axios(
+            const detailsResponse: AxiosResponse<FetchUserDetailsResponseType> = await axios(
                 userDetailsConfigurationObject
             );
-            return detailsResponse.data;
+            resData.first_name = detailsResponse.data.data.first_name;
+            resData.last_name = detailsResponse.data.data.last_name;
+            resData.contact = detailsResponse.data.data.contact;
+            resData.agency_id = detailsResponse.data.data.agency_id;
+            return res;
         } else {
-            return authResponse.data;
+            return res;
         }
     } catch (error: any) {
         console.log(error.message);
-        const errorResponse: FetchUserResponseType = {
-            error: true,
-            message: "",
-            data: undefined,
-        };
-        return errorResponse;
+        res.error = true;
+        res.message = error.message;
+        return res;
     }
+});
+
+export const fetchUserDetails = createAsyncThunk("user/fetchUserDetails", async () => {
+    // retrieve user details from db, using OAuth-retrieved ID
 });
 
 export const userSlice = createSlice({
@@ -101,7 +134,7 @@ export const userSlice = createSlice({
         },
         setDetails: (state, action: PayloadAction<FetchUserResponseType>) => {
             state.user.user_id = action.payload.data?.user_id ? action.payload.data?.user_id : "";
-            state.user.first_name = action.payload.data?.first_name
+            state.user.first_name = action.payload.data.first_name
                 ? action.payload.data?.first_name
                 : "";
             state.user.last_name = action.payload.data?.last_name
@@ -127,16 +160,13 @@ export const userSlice = createSlice({
             .addCase(fetchUser.fulfilled, (state, action) => {
                 state.status = "succeeded";
                 // retrieve data parsed from thunk and assign to current redux state
-                console.log(action.payload);
-                const loadedUser = action.payload.data
-                    ? action.payload.data
-                    : { user_id: "", email: "" };
-                if (action.payload.data?.user_id && action.payload.data?.email) {
+                const loadedUser = action.payload.data;
+                if (action.payload.data.user_id && action.payload.data.email) {
                     state.user.loggedIn = true;
                     state.user.user_id = loadedUser.user_id;
                     state.user.email = loadedUser.email;
                 }
-                if (action.payload.data?.agency_id) {
+                if (action.payload.data.agency_id) {
                     state.user.registered = true;
                     state.user.first_name = loadedUser.first_name ? loadedUser.first_name : "";
                     state.user.last_name = loadedUser.last_name ? loadedUser.last_name : "";

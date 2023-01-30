@@ -84,7 +84,7 @@ const NavigationBar: React.FC = () => {
     return (
         <header className="flex items-center justify-between px-4 py-1 bg-white">
             <div>
-                <p>{JSON.stringify(user)}</p>
+                {/* <p>{JSON.stringify(user)}</p> */}
                 <a href={process.env.REACT_APP_PUBLIC_URL} className="flex items-center">
                     <img src="/gvt-logo.png" className="h-8" alt="DDR" />
                     <span className="self-center text-xl font-semibold text-gray-700 py-1">
