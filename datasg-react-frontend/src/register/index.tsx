@@ -52,7 +52,8 @@ const Register: React.FC = (props) => {
     };
     return (
         <div className="register">
-            <NavigationBar login={googleAuth} logout={googleLogout} />
+            {/* <NavigationBar login={googleAuth} logout={googleLogout} /> */}
+            <NavigationBar />
             <RegisterForm userId={user} email={userEmail} />
             <p>{user}</p>
         </div>

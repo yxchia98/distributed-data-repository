@@ -1,52 +1,90 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import axios, { AxiosResponse } from "axios";
 import { Button, Navbar } from "flowbite-react";
 import LoginButton from "./NavLoginButton";
 import LogoutButton from "./NavLogoutButton";
+import { fetchUser, FetchUserResponseType, setStatus, UserState } from "../redux/userSlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 
 interface CurrentUser {
     error: boolean;
     message: string;
-    user_id: string;
+    userId: string;
+    email: string;
 }
-interface NavigationBarProps {
-    login: () => {};
-    logout: () => {};
-}
+// interface NavigationBarProps {
+//     login: () => {};
+//     logout: () => {};
+// }
 
-const NavigationBar: React.FC<NavigationBarProps> = (props) => {
-    const [user, setUser] = useState("");
-    const [login, setLogin] = useState(false);
-    const fetchUser = async () => {
-        console.log(login);
-        const configurationObject = {
-            method: "get",
-            url: `${process.env.REACT_APP_DATA_WRITER_API_URL}auth/login/success`,
-            headers: {},
-            withCredentials: true,
-        };
-        let response: CurrentUser = { error: false, message: "", user_id: "" };
-        try {
-            response = await axios(configurationObject);
-            console.log(response);
-            if (!response.error) {
-                setUser(response.user_id);
-                setLogin(true);
-            }
-            return;
-        } catch (err: any) {
-            console.log(err.response.data);
-            return false;
+const NavigationBar: React.FC = () => {
+    // const [user, setUser] = useState("");
+    // const [login, setLogin] = useState(false);
+    const user = useAppSelector((state) => state.user.user);
+    const loginStatus = useAppSelector((state) => state.user.user.loggedIn);
+    const registeredStatus = useAppSelector((state) => state.user.user.registered);
+    const userStatus = useAppSelector((state) => state.user.status);
+    const dispatch = useAppDispatch();
+
+    // const fetchUser = async () => {
+    //     console.log(login);
+    //     const configurationObject = {
+    //         method: "get",
+    //         url: `${process.env.REACT_APP_DATA_WRITER_API_URL}auth/login/success`,
+    //         headers: {},
+    //         withCredentials: true,
+    //     };
+    //     let response: CurrentUser = { error: false, message: "", user_id: "" };
+    //     try {
+    //         response = await axios(configurationObject);
+    //         console.log(response);
+    //         if (!response.error) {
+    //             setUser(response.user_id);
+    //             setLogin(true);
+    //         }
+    //         return;
+    //     } catch (err: any) {
+    //         console.log(err.response.data);
+    //         return false;
+    //     }
+    // };
+
+    // const fetchUser = async () => {
+    //     console.log(loginStatus);
+    //     const configurationObject = {
+    //         method: "get",
+    //         url: `${process.env.REACT_APP_DATA_WRITER_API_URL}auth/login/success`,
+    //         headers: {},
+    //         withCredentials: true,
+    //     };
+    //     try {
+    //         const response: AxiosResponse<FetchUserResponseType> = await axios(configurationObject);
+    //         console.log(response.data);
+    //         if (!response.data.error) {
+    //             dispatch(setStatus(response.data));
+    //         }
+    //         return;
+    //     } catch (error: any) {
+    //         console.log(error.message);
+    //         return false;
+    //     }
+    // };
+
+    const fetchUserRedux = () => {
+        if (userStatus == "idle") {
+            dispatch(fetchUser());
         }
+        return;
     };
 
     useEffect(() => {
-        fetchUser();
+        fetchUserRedux();
     }, []);
 
     return (
         <header className="flex items-center justify-between px-4 py-1 bg-white">
             <div>
+                <p>{JSON.stringify(user)}</p>
                 <a href={process.env.REACT_APP_PUBLIC_URL} className="flex items-center">
                     <img src="/gvt-logo.png" className="h-8" alt="DDR" />
                     <span className="self-center text-xl font-semibold text-gray-700 py-1">
@@ -205,8 +243,8 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
                         </div>
                     </li>
                 </ul>
-                {login && <LogoutButton />}
-                {!login && <LoginButton />}
+                {loginStatus && <LogoutButton />}
+                {!loginStatus && <LoginButton />}
                 <button
                     className="text-xs h-8 w-16 border border-gray-200 bg-gray-200 text-gray-700 rounded-md px-2 py-2 m-2 transition duration-300 ease select-none hover:bg-gray-300 focus:outline-none focus:shadow-outline"
                     onClick={fetchUser}
@@ -215,27 +253,6 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
                 </button>
             </div>
         </header>
-        // <Navbar fluid={true} rounded={true}>
-        //     <Navbar.Brand href="https://flowbite.com/">
-        //         <img src="/gvt-logo.png" className="mr-3 h-6 sm:h-9" alt="Flowbite Logo" />
-        //         <span className="self-center whitespace-nowrap text-xl font-semibold dark:text-white">
-        //             Distributed Data Repository
-        //         </span>
-        //     </Navbar.Brand>
-        //     <div className="flex md:order-2">
-        //         <Button>Get started</Button>
-        //         <Navbar.Toggle />
-        //     </div>
-        //     <Navbar.Collapse>
-        //         <Navbar.Link className="text-color-black" href="/navbars" active={true}>
-        //             Home
-        //         </Navbar.Link>
-        //         <Navbar.Link href="/navbars">About</Navbar.Link>
-        //         <Navbar.Link href="/navbars">Services</Navbar.Link>
-        //         <Navbar.Link href="/navbars">Pricing</Navbar.Link>
-        //         <Navbar.Link href="/navbars">Contact</Navbar.Link>
-        //     </Navbar.Collapse>
-        // </Navbar>
     );
 };
 

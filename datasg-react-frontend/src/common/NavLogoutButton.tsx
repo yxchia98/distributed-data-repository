@@ -1,8 +1,6 @@
 import axios from "axios";
+import { googleLogout } from "./googleAuth";
 
-const googleLogout = async () => {
-    window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/logout`, "_self");
-};
 const LogoutButton: React.FC = () => {
     return (
         <button

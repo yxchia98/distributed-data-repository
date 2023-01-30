@@ -1,4 +1,5 @@
 import axios from "axios";
+import { googleAuth } from "./googleAuth";
 
 interface LoginButtonProps {
     buttonFunction: () => {};
@@ -14,22 +15,6 @@ interface CurrentUser {
     message: string;
     user_id: string;
 }
-
-const googleAuth = async () => {
-    window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`, "_self");
-    // const configurationObject = {
-    //     method: "get",
-    //     url: `${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`,
-    //     headers: {},
-    // };
-    // try {
-    //     await axios(configurationObject);
-    //     return;
-    // } catch (err: any) {
-    //     console.log(err.response.data);
-    //     return false;
-    // }
-};
 const LoginButton: React.FC = () => {
     return (
         <button

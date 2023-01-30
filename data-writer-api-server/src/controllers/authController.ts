@@ -29,10 +29,12 @@ const checkLoginSuccess = (req: Request, res: Response) => {
         res.status(200).json({
             error: false,
             message: "Successfully Logged In",
-            // @ts-ignore
-            userId: req.user.id,
-            // @ts-ignore
-            email: req.user.email,
+            data: {
+                // @ts-ignore
+                user_id: req.user.id,
+                // @ts-ignore
+                email: req.user.email,
+            },
         });
     } else {
         res.status(403).json({ error: true, message: "Not Authorized", userId: "" });
