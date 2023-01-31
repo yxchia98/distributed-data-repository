@@ -1,10 +1,8 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
-
-interface RegisterFormProps {
-    userId: string;
-    email: string;
-}
+import { fetchAgencies } from "../redux/agencySlice";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import { UserDetails } from "../redux/userSlice";
 
 interface RegisterUser {
     user_id: string;
@@ -27,7 +25,8 @@ interface AgencyDetails {
     long_name: string;
 }
 
-const RegisterForm: React.FC<RegisterFormProps> = (props) => {
+const RegisterForm: React.FC = () => {
+    const userSelector: UserDetails = useAppSelector((state) => state.user.user);
     const [firstName, setFirstName] = useState<string>("");
     const [firstNameError, setFirstNameError] = useState<boolean>(false);
     const [lastName, setLastName] = useState<string>("");
@@ -38,26 +37,32 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
     const [agencyError, setAgencyError] = useState<boolean>(false);
     const [agencies, setAgencies] = useState<Array<any> | Array<null>>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const agenciesSelector = useAppSelector((state) => state.agencies);
+    const dispatch = useAppDispatch();
 
-    const retrieveAgencyDetails = async () => {
-        console.log("retrieving agency details...");
-        let response: AgencyDetailsResponse = { error: false, message: "", data: [] };
-        try {
-            const configurationObject: AxiosRequestConfig = {
-                method: "get",
-                url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/agencies`,
-                headers: {},
-                withCredentials: true,
-            };
-            response = (await axios(configurationObject)).data;
-            setAgencies(response.data);
-            return;
-        } catch (error: any) {
-            console.log(error.response.data);
-            return false;
-        }
+    // const retrieveAgencyDetails = async () => {
+    //     console.log("retrieving agency details...");
+    //     let response: AgencyDetailsResponse = { error: false, message: "", data: [] };
+    //     try {
+    //         const configurationObject: AxiosRequestConfig = {
+    //             method: "get",
+    //             url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/agencies`,
+    //             headers: {},
+    //             withCredentials: true,
+    //         };
+    //         response = (await axios(configurationObject)).data;
+    //         setAgencies(response.data);
+    //         return;
+    //     } catch (error: any) {
+    //         console.log(error.response.data);
+    //         return false;
+    //     }
+    // };
+
+    // execute redux-thunk to fetch agencies if applicable
+    const fetchAgenciesRedux = () => {
+        dispatch(fetchAgencies());
     };
-
     const handleFirstNameChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setFirstName(e.target.value);
         return;
@@ -120,11 +125,11 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
         e.preventDefault(); // 👈️ prevent page refresh
 
         const user: RegisterUser = {
-            user_id: props.userId,
+            user_id: userSelector.user_id,
             first_name: firstName,
             last_name: lastName,
             contact: contact,
-            email: props.email,
+            email: userSelector.email,
             agency_id: agency,
         };
 
@@ -168,7 +173,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
     const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
     useEffect(() => {
-        retrieveAgencyDetails();
+        fetchAgenciesRedux();
     }, []);
     return (
         <div className="p-[2.5%] mx-[15%] my-[2%] flex flex-col overflow-hidden bg-white items-center bg-local bg-origin-content shadow-lg">
@@ -278,7 +283,7 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
                                     <option key="" value="">
                                         select an option
                                     </option>
-                                    {agencies.map((agency: any) => (
+                                    {agenciesSelector.agencies.map((agency: any) => (
                                         <option key={agency.agency_id} value={agency.agency_id}>
                                             {agency.short_name}
                                         </option>
@@ -310,20 +315,20 @@ const RegisterForm: React.FC<RegisterFormProps> = (props) => {
                         <label className="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
                             Email *
                         </label>
-                        {props.email && (
+                        {userSelector.email && (
                             <input
                                 className="appearance-none block w-full bg-gray-200 text-gray-600 border border-gray-200 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white focus:border-gray-500 transition duration-300"
                                 type="text"
-                                value={props.email}
+                                value={userSelector.email}
                                 placeholder="Please login with work email"
                                 disabled={true}
                             />
                         )}
-                        {!props.email && (
+                        {!userSelector.email && (
                             <input
                                 className="appearance-none block w-full bg-gray-200 text-gray-600 border  border-red-500 outline-red-500 focus:ring-red-500 focus:border-red-500 rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white transition duration-300"
                                 type="text"
-                                value={props.email}
+                                value={userSelector.email}
                                 placeholder="Please login with work email"
                                 disabled={true}
                             />

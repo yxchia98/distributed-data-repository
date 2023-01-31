@@ -120,9 +120,9 @@ const Home = () => {
     };
 
     return (
-        <div className="home">
+        <div className="home bg-gray-100 overflow-auto h-screen">
             {/* <NavigationBar login={googleAuth} logout={googleLogout} /> */}
-            <NavigationBar />
+            <NavigationBar current="home" />
             <MainCard login={loginStatus} />
             <AgencyCard />
             <OfferingCard />

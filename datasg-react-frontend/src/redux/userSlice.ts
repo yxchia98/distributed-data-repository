@@ -1,10 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import type { RootState } from "./store";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { useAppSelector } from "./hooks";
 
-export interface UserState {
+export interface UserDetails {
     user_id: string;
     first_name: string;
     last_name: string;
@@ -18,7 +16,7 @@ export interface UserState {
 export interface FetchUserResponseType {
     error: boolean;
     message: string;
-    data: UserState;
+    data: UserDetails;
 }
 
 export interface FetchUserDetailsResponseType {
@@ -50,7 +48,7 @@ const initialUserState = {
     agency_id: "",
     registered: false,
     loggedIn: false,
-} as UserState;
+} as UserDetails;
 
 // initialize initial state for user in redux store
 const initialState = {
@@ -60,7 +58,7 @@ const initialState = {
 };
 
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
-    let resData: UserState = {
+    let resData: UserDetails = {
         user_id: "",
         email: "",
         first_name: "",
@@ -112,15 +110,11 @@ export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
             return res;
         }
     } catch (error: any) {
-        console.log(error.message);
+        // console.log(error.message);
         res.error = true;
         res.message = error.message;
         return res;
     }
-});
-
-export const fetchUserDetails = createAsyncThunk("user/fetchUserDetails", async () => {
-    // retrieve user details from db, using OAuth-retrieved ID
 });
 
 export const userSlice = createSlice({

@@ -1,11 +1,9 @@
-import { useState, useEffect } from "react";
-import axios, { AxiosResponse } from "axios";
-import { Button, Navbar } from "flowbite-react";
+import { useEffect } from "react";
 import LoginButton from "./NavLoginButton";
 import LogoutButton from "./NavLogoutButton";
-import { fetchUser, FetchUserResponseType, setStatus, UserState } from "../redux/userSlice";
+import { fetchUser } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 interface CurrentUser {
     error: boolean;
@@ -13,19 +11,14 @@ interface CurrentUser {
     userId: string;
     email: string;
 }
-// interface NavigationBarProps {
-//     login: () => {};
-//     logout: () => {};
-// }
 
-const NavigationBar: React.FC = () => {
-    // const [user, setUser] = useState("");
-    // const [login, setLogin] = useState(false);
+interface NavigationBarProps {
+    current: string;
+}
+
+const NavigationBar: React.FC<NavigationBarProps> = (props) => {
     const navigate = useNavigate();
-    const user = useAppSelector((state) => state.user.user);
-    const loginStatus = useAppSelector((state) => state.user.user.loggedIn);
-    const registeredStatus = useAppSelector((state) => state.user.user.registered);
-    const userStatus = useAppSelector((state) => state.user.status);
+    const userSelector = useAppSelector((state) => state.user);
     const dispatch = useAppDispatch();
 
     // const fetchUser = async () => {
@@ -72,18 +65,17 @@ const NavigationBar: React.FC = () => {
     //     }
     // };
 
+    // request for user credentials in redux
     const fetchUserRedux = () => {
-        if (userStatus == "idle") {
-            // dispatch redux thunk to fetch session and
-            // chain mandatory redirect to register page if not registered
-            dispatch(fetchUser()).then((action: any) => {
-                console.log(action);
-                if (action.payload.data.loggedIn && !action.payload.data.registered) {
-                    return navigate("/register");
-                }
-                return;
-            });
-        }
+        // dispatch redux thunk to fetch session and
+        // chain mandatory redirect to register page if not registered
+        dispatch(fetchUser()).then((action: any) => {
+            // console.log(action);
+            if (action.payload.data.loggedIn && !action.payload.data.registered) {
+                return navigate("/register");
+            }
+            return;
+        });
         return;
     };
 
@@ -95,40 +87,88 @@ const NavigationBar: React.FC = () => {
         <header className="flex items-center justify-between px-4 py-1 bg-white">
             <div>
                 {/* <p>{JSON.stringify(user)}</p> */}
-                <a href={process.env.REACT_APP_PUBLIC_URL} className="flex items-center">
+                <Link to="/" className="flex items-center">
+                    <img src="/gvt-logo.png" className="h-8" alt="DDR" />
+                    <span className="self-center text-xl font-semibold text-gray-700 py-1">
+                        Distributed Data Repository
+                    </span>{" "}
+                </Link>
+                {/* <a href={process.env.REACT_APP_PUBLIC_URL} className="flex items-center">
                     <img src="/gvt-logo.png" className="h-8" alt="DDR" />
                     <span className="self-center text-xl font-semibold text-gray-700 py-1">
                         Distributed Data Repository
                     </span>
-                </a>
+                </a> */}
             </div>
             {/* <div className="hidden w-full md:block md:w-auto" id="navbar-multi-level"></div> */}
             <div className="flex">
                 <ul className="flex flex-col p-4 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
                     <li>
-                        <a
+                        {/* <a
                             href={process.env.REACT_APP_PUBLIC_URL}
                             className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent transition duration-300 ease"
                             aria-current="page"
                         >
                             Home
-                        </a>
+                        </a> */}
+                        {props.current == "home" && (
+                            <Link
+                                to="/"
+                                className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Home
+                            </Link>
+                        )}
+                        {props.current != "home" && (
+                            <Link
+                                to="/"
+                                className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Home
+                            </Link>
+                        )}
                     </li>
                     <li>
-                        <a
-                            href="#"
-                            className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent transition duration-300 ease"
-                        >
-                            Explore
-                        </a>
+                        {props.current == "explore" && (
+                            <Link
+                                to="/explore"
+                                className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Explore
+                            </Link>
+                        )}
+                        {props.current != "explore" && (
+                            <Link
+                                to="/explore"
+                                className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Explore
+                            </Link>
+                        )}
                     </li>
                     <li>
-                        <a
-                            href="#"
-                            className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent transition duration-300 ease"
-                        >
-                            Publish
-                        </a>
+                        {props.current == "publish" && (
+                            <Link
+                                to="/publish"
+                                className="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 md:dark:text-white dark:bg-blue-600 md:dark:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Publish
+                            </Link>
+                        )}
+                        {props.current != "publish" && (
+                            <Link
+                                to="/publish"
+                                className="block py-2 pl-3 pr-4 text-gray-700 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-gray-400 md:dark:hover:text-white dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent transition duration-300 ease"
+                                aria-current="page"
+                            >
+                                Publish
+                            </Link>
+                        )}
                     </li>
                     <li>
                         <button
@@ -253,8 +293,8 @@ const NavigationBar: React.FC = () => {
                         </div>
                     </li>
                 </ul>
-                {loginStatus && <LogoutButton />}
-                {!loginStatus && <LoginButton />}
+                {userSelector.user.loggedIn && <LogoutButton />}
+                {!userSelector.user.loggedIn && <LoginButton />}
                 <button
                     className="text-xs h-8 w-16 border border-gray-200 bg-gray-200 text-gray-700 rounded-md px-2 py-2 m-2 transition duration-300 ease select-none hover:bg-gray-300 focus:outline-none focus:shadow-outline"
                     onClick={fetchUser}
