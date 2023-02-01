@@ -1,8 +1,11 @@
 import { useEffect } from "react";
+import { IconContext } from "react-icons";
+import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics } from "../redux/topicSlice";
+import TopicCard from "./TopicCard";
 
 const TopicList = () => {
     const navigate = useNavigate();
@@ -12,7 +15,6 @@ const TopicList = () => {
     const dispatch = useAppDispatch();
     const fetchTopicsRedux = () => {
         if (agenciesSelector.status == "idle") {
-            console.log("fetching...");
             dispatch(fetchTopics());
         }
     };
@@ -26,22 +28,31 @@ const TopicList = () => {
 
     return (
         <div className="topicList">
-            <p>{JSON.stringify(agenciesSelector.agencies)}</p>
-            {topicsSelector.topics.map((topic) => {
-                return (
-                    <div
-                        key={topic.topic_id}
-                        className="max-w py-5 px-5 mx-[10%] my-[1%] overflow-hidden bg-white bg-local bg-origin-content rounded-lg"
-                    >
-                        <div className="text-left">
-                            <div className="font-semibold xl:text-3xl md:text-2xl sm:text-xl text-gray-700">
-                                {topic.topic_name}
-                            </div>
-                            <div className="flex"></div>
-                        </div>
-                    </div>
-                );
-            })}
+            {topicsSelector.topics &&
+                agenciesSelector.agencies &&
+                topicsSelector.topics
+                    .filter((topic) => {
+                        const cellTopicName = topicsSelector.search.search
+                            ? topicsSelector.search.search
+                            : topic.topic_name;
+                        const cellAgencyId = topicsSelector.search.agency_id
+                            ? topicsSelector.search.agency_id
+                            : topic.agency_id;
+                        return (
+                            topic.topic_name.includes(cellTopicName) &&
+                            topic.agency_id.includes(cellAgencyId)
+                        );
+                    })
+                    .map((topic) => {
+                        return (
+                            <TopicCard
+                                topic_id={topic.topic_id}
+                                topic_name={topic.topic_name}
+                                agency_id={topic.agency_id}
+                                description={topic.description}
+                            />
+                        );
+                    })}
         </div>
     );
 };

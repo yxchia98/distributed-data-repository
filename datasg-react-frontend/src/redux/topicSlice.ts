@@ -24,7 +24,7 @@ interface FetchTopicsResponseType {
     data: Array<TopicDetails> | undefined;
 }
 
-interface TopicSearch {
+export interface TopicSearch {
     search: string;
     agency_id: string;
 }
@@ -71,7 +71,10 @@ export const topicsSlice = createSlice({
     initialState,
     reducers: {
         setSearch: (state, action: PayloadAction<TopicSearch>) => {
-            state.search = action.payload;
+            const searchText = action.payload.search ? action.payload.search : "";
+            const searchAgency = action.payload.agency_id ? action.payload.agency_id : "";
+            state.search.search = searchText;
+            state.search.agency_id = searchAgency;
         },
     },
     extraReducers: (builder) => {
@@ -90,6 +93,6 @@ export const topicsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {} = topicsSlice.actions;
+export const { setSearch } = topicsSlice.actions;
 
 export default topicsSlice.reducer;
