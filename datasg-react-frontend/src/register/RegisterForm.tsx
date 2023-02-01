@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { useEffect, useState } from "react";
-import { fetchAgencies } from "../redux/agencySlice";
+import { fetchAgencies } from "../redux/agenciesSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { UserDetails } from "../redux/userSlice";
 

@@ -1,12 +1,14 @@
 import { useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { fetchAgencies } from "../redux/agencySlice";
+import { fetchAgencies } from "../redux/agenciesSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics } from "../redux/topicSlice";
+import { fetchTopics } from "../redux/topicsSlice";
 
 interface TopicCardProps {
+    key: string;
     topic_id: string;
     topic_name: string;
     agency_id: string;
@@ -28,7 +30,8 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
     return (
         <div
             key={props.topic_id}
-            className="max-w py-5 px-5 mx-[10%] my-[1%] overflow-hidden bg-white bg-local bg-origin-content rounded-lg"
+            onClick={() => console.log(`clicked on ${props.topic_name}, ${props.topic_id}`)}
+            className="max-w py-5 px-5 mx-[10%] my-[1%] overflow-hidden bg-white bg-local bg-origin-content rounded-lg hover:shadow hover:cursor-pointer"
         >
             <div className="flex flex-row">
                 <div className="font-semibold xl:text-3xl md:text-2xl sm:text-xl text-gray-700">

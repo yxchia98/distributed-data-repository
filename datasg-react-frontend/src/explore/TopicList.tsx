@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { fetchAgencies } from "../redux/agencySlice";
+import { fetchAgencies } from "../redux/agenciesSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics } from "../redux/topicSlice";
+import { fetchTopics } from "../redux/topicsSlice";
 import TopicCard from "./TopicCard";
 
 const TopicList = () => {
@@ -46,6 +46,7 @@ const TopicList = () => {
                     .map((topic) => {
                         return (
                             <TopicCard
+                                key={topic.topic_id}
                                 topic_id={topic.topic_id}
                                 topic_name={topic.topic_name}
                                 agency_id={topic.agency_id}
