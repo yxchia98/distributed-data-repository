@@ -1,15 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "./userSlice";
-import topicsReducer from "./topicsSlice";
-import agenciesReducer from "./agenciesSlice";
-import selectedTopicReducer from "./selectedTopicSlice";
+import topicsReducer from "./topicSlice";
+import agenciesReducer from "./agencySlice";
+import topicFilesReducer from "./topicFileSlice";
 
 export const store = configureStore({
     reducer: {
         user: userReducer,
         topics: topicsReducer,
         agencies: agenciesReducer,
-        selectedTopic: selectedTopicReducer,
+        topicFiles: topicFilesReducer,
     },
 });
 

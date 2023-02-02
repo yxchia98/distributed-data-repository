@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
-import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { fetchAgencies } from "../redux/agenciesSlice";
+import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics } from "../redux/topicsSlice";
+import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import { fetchTopics } from "../redux/topicSlice";
 
 interface TopicCardProps {
     key: string;
@@ -20,17 +20,35 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const user = useAppSelector((state) => state.user);
     const dispatch = useAppDispatch();
+
     const fetchAgenciesRedux = () => {
         dispatch(fetchAgencies());
     };
+    const fetchTopicFilesRedux = () => {
+        dispatch(fetchSelectedTopicFiles(props.topic_id));
+    };
+
     useEffect(() => {
         fetchAgenciesRedux();
     }, []);
+    const handleCardOnClick = () => {
+        console.log(`clicked on ${props.topic_id}`);
+        fetchTopicFilesRedux();
+        // console.log(`clicked on ${e.target.value.topic_name}, ${e.target.value.topic_id}`);
+        return navigate("/viewTopic", {
+            state: {
+                topic_id: props.topic_id,
+                topic_name: props.topic_name,
+                agency_id: props.agency_id,
+                description: props.description,
+            },
+        });
+    };
 
     return (
         <div
             key={props.topic_id}
-            onClick={() => console.log(`clicked on ${props.topic_name}, ${props.topic_id}`)}
+            onClick={handleCardOnClick}
             className="max-w py-5 px-5 mx-[10%] my-[1%] overflow-hidden bg-white bg-local bg-origin-content rounded-lg hover:shadow hover:cursor-pointer"
         >
             <div className="flex flex-row">

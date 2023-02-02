@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics, setSearch, TopicSearch } from "../redux/topicsSlice";
+import { fetchTopics, setSearch, TopicSearch } from "../redux/topicSlice";
 
 const TopicSearchBar = () => {
     const topicsSelector = useAppSelector((state) => state.topics);

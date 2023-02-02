@@ -2,9 +2,9 @@ import { useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
-import { fetchAgencies } from "../redux/agenciesSlice";
+import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics } from "../redux/topicsSlice";
+import { fetchTopics } from "../redux/topicSlice";
 import TopicCard from "./TopicCard";
 
 const TopicList = () => {
@@ -13,14 +13,17 @@ const TopicList = () => {
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const user = useAppSelector((state) => state.user);
     const dispatch = useAppDispatch();
+
     const fetchTopicsRedux = () => {
-        if (agenciesSelector.status == "idle") {
+        if (topicsSelector.status == "idle") {
             dispatch(fetchTopics());
         }
     };
+
     const fetchAgenciesRedux = () => {
         dispatch(fetchAgencies());
     };
+
     useEffect(() => {
         fetchTopicsRedux();
         fetchAgenciesRedux();
