@@ -34,7 +34,7 @@ const ViewTopic: React.FC = () => {
         fetchAgenciesRedux();
     }, []);
     return (
-        <div className="viewTopic bg-gray-100 h-screen">
+        <div className="viewTopic bg-gray-100 h-screen overflow-auto">
             <NavigationBar current="explore" />
             <p>{JSON.stringify(topicsSelector)}</p>
             <p>{JSON.stringify(topicFilesSelector)}</p>

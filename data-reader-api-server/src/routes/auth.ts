@@ -102,7 +102,6 @@ router.get("/submittedrequest", upload.none(), authController.getUserSubmittedAc
 // API FOR TESTING PURPOSES
 router.get("/test", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
-    console.log(req.user);
     res.status(200).send({
         error: false,
         message: "Successfully retrieved access requests for user",
