@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
-import TopicFileBrowserHeader from "./topicFileBrowserHeader";
-import TopicFileBrowserContent from "./topicFileBrowserContent";
+import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
+import TopicFileBrowserContent from "./TopicFileBrowserContent";
 
 interface TopicFileBrowserProps {
     topic_id: string;
@@ -11,11 +11,6 @@ interface TopicFileBrowserProps {
 }
 
 const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
-    const topicsSelector = useAppSelector((state) => state.topics).topics;
-    const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
-    const topicFilesSelector = useAppSelector((state) => state.topicFiles);
-    const navigate = useNavigate();
-    const user = useAppSelector((state) => state.user);
     const dispatch = useAppDispatch();
 
     // fetch topic files using redux thunk
@@ -27,15 +22,12 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
         fetchTopicFilesRedux();
     }, []);
 
-    const handleBackOnClick = () => {
-        console.log(`clicked!`);
-        navigate(-1);
-    };
-
     return (
-        <div>
-            <TopicFileBrowserHeader topic_id={props.topic_id} agency_id={props.agency_id} />
-            <TopicFileBrowserContent topic_id={props.topic_id} agency_id={props.agency_id} />
+        <div className="w-screen overflow-hidden">
+            <div className="max-w h-full py-2.5 px-2.5 mt-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
+                <TopicFileBrowserHeader topic_id={props.topic_id} agency_id={props.agency_id} />
+                <TopicFileBrowserContent topic_id={props.topic_id} agency_id={props.agency_id} />
+            </div>
         </div>
     );
 };

@@ -1,11 +1,9 @@
-import { useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import { useAppSelector } from "../redux/hooks";
 
 interface TopicFileBrowserHeaderProps {
     topic_id: string;
@@ -22,7 +20,9 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         navigate("/explore");
     };
     return (
-        <div className="max-w py-5 px-5 mx-[10%] overflow-hidden bg-white bg-local bg-origin-content border-b-2 border-indigo-400 rounded-t-xl">
+        <div id="fileBrowserHeader" className="border-b-2 py-5 px-5">
+            {/* <div className="max-w py-5 px-5 mt-[5%] mx-[10%] overflow-hidden bg-white bg-local bg-origin-content border-b-2 border-indigo-400 rounded-t-xl"> */}
+
             <div className="flow-root mb-[2%]">
                 <div className="float-left">
                     <button

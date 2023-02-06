@@ -7,7 +7,7 @@ interface TopicFileDetails {
     topic_id: string;
     agency_id: string;
     file_url: string;
-    file_date: Date;
+    file_date: string;
 }
 
 interface SelectedTopicFilesState {

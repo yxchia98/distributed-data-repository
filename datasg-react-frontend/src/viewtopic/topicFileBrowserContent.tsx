@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { IconContext } from "react-icons";
-import { BiShareAlt } from "react-icons/bi";
-import { IoChevronBackOutline } from "react-icons/io5";
-import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import dayjs from "dayjs";
+import TopicFileActionMenu from "./TopicFileActionMenu";
+
+var customParseFormat = require("dayjs/plugin/customParseFormat");
+dayjs.extend(customParseFormat);
 
 interface TopicFileBrowserContentProps {
     topic_id: string;
@@ -13,11 +13,8 @@ interface TopicFileBrowserContentProps {
 }
 
 const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) => {
-    const topicsSelector = useAppSelector((state) => state.topics).topics;
-    const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
     const topicFilesSelector = useAppSelector((state) => state.topicFiles);
-    const [loading, setLoading] = useState(true);
-    const navigate = useNavigate();
+    const [loading, setLoading] = useState<boolean>(true);
     const dispatch = useAppDispatch();
 
     // fetch topic files using redux thunk
@@ -26,21 +23,59 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     };
 
     useEffect(() => {
+        topicFilesSelector.status === "loading" ? setLoading(true) : setLoading(false);
+    }, [topicFilesSelector]);
+
+    useEffect(() => {
         fetchTopicFilesRedux();
     }, []);
     return (
-        <div className="max-w mx-[10%] overflow-hidden bg-white bg-local bg-origin-content rounded-b-xl">
-            <div className="max-w mx-[5%] overflow-hidden bg-white bg-local bg-origin-content border-2 rounded">
-                <div className="flex flex-row justify-center items-center">
-                    <div className="w-1/12 text-center border-r-2">heading 1</div>
-                    <div className="w-5/12 text-center border-r-2">heading 2</div>
-                    <div className="w-5/12 text-center border-r-2">heading 3</div>
-                    <div className="w-1/12 text-center ">heading 4</div>
+        <div id="fileBrowserContent" className="">
+            <div className="max-w mx-[5%] h-full overflow-auto bg-white bg-local bg-origin-content border-[1px] border-gray-400 rounded">
+                <div
+                    id="browsertContentTableHeader"
+                    className="flex flex-row border-b-[1px] bg-gray-100"
+                >
+                    <div className="w-1/12 flex items-center justify-center border-r-2">
+                        <input
+                            type="checkbox"
+                            className="rounded border-2 checked:bg-gray-500 focus:outline-none focus:ring-0 hover:outline-none transition duration-300"
+                        />
+                    </div>
+                    <div className="w-5/12 py-2 px-4 border-r-2 font-semibold">File Name</div>
+                    <div className="w-5/12 py-2 px-4 border-r-2 font-semibold">Date </div>
+                    <div className="w-1/12 py-2 text-center font-semibold">Action</div>
                 </div>
+                {!loading &&
+                    topicFilesSelector.topicFiles.map((topicFile) => {
+                        let topicDate = dayjs(topicFile.file_date, "YYYY-MM-DD");
+                        return (
+                            <div
+                                id="browserContentTableRow"
+                                key={topicFile.file_id}
+                                className="flex flex-row"
+                            >
+                                <div className="w-1/12 flex items-center justify-center border-r-2">
+                                    <input
+                                        type="checkbox"
+                                        className="rounded border-2 checked:bg-gray-500 focus:outline-none focus:ring-0 hover:outline-none transition duration-300"
+                                    />
+                                </div>
+                                <div className="w-5/12 py-2 px-4 border-r-2">
+                                    {/* get file name, which is the last element of the file url */}
+                                    {topicFile.file_url.split("/").slice(-1)}
+                                </div>
+                                <div className="w-5/12 py-2 px-4 border-r-2">{`${topicDate.format(
+                                    "DD/MM/YYYY"
+                                )}`}</div>
+                                <TopicFileActionMenu file_id={topicFile.file_id} />
+                            </div>
+                        );
+                    })}
             </div>
-
             {loading && (
-                <div className="flex justify-center items-center">
+                // loading indicator
+                <div className="flex justify-center items-center ">
                     <svg
                         width="40"
                         height="40"
