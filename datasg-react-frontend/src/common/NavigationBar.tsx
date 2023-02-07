@@ -76,7 +76,7 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
                         {props.current == "explore" && (
                             <Link
                                 to="/explore"
-                                className="block py-2 pl-3 pr-4 text-white bg-indigo-700 rounded md:bg-transparent md:text-indigo-700 md:p-0 md:dark:text-white dark:bg-indigo-600 md:dark:bg-transparent transition duration-200 ease"
+                                className="block py-2 pl-3 pr-4 text-white bg-indigo-700 rounded md:bg-transparent md:text-indigo-700 md:p-0 dark:bg-indigo-600 md:dark:bg-transparent transition duration-200 ease"
                                 aria-current="page"
                             >
                                 Explore
@@ -96,7 +96,7 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
                         {props.current == "publish" && (
                             <Link
                                 to="/publish"
-                                className="block py-2 pl-3 pr-4 text-white bg-indigo-700 rounded md:bg-transparent md:text-indigo-700 md:p-0 md:dark:text-white dark:bg-indigo-600 md:dark:bg-transparent transition duration-200 ease"
+                                className="block py-2 pl-3 pr-4 text-white bg-indigo-700 rounded md:bg-transparent md:text-indigo-700 md:p-0 dark:bg-indigo-600 md:dark:bg-transparent transition duration-200 ease"
                                 aria-current="page"
                             >
                                 Publish

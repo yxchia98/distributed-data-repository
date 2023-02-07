@@ -1,8 +1,12 @@
-import axios, { AxiosRequestConfig } from "axios";
-import { useEffect, useState } from "react";
+import { Transition, Dialog } from "@headlessui/react";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { Fragment, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { UserDetails } from "../redux/userSlice";
+import RegisterModalFailure from "./RegisterModalFailure";
+import RegisterModalSuccess from "./RegisterModalSuccess";
 
 interface RegisterUser {
     user_id: string;
@@ -13,16 +17,9 @@ interface RegisterUser {
     agency_id: string;
 }
 
-interface AgencyDetailsResponse {
+interface RegisterResponse {
     error: boolean;
     message: string;
-    data: Array<any>;
-}
-
-interface AgencyDetails {
-    agency_id: string;
-    short_name: string;
-    long_name: string;
 }
 
 const RegisterForm: React.FC = () => {
@@ -37,27 +34,11 @@ const RegisterForm: React.FC = () => {
     const [agencyError, setAgencyError] = useState<boolean>(false);
     const [agencies, setAgencies] = useState<Array<any> | Array<null>>([]);
     const [loading, setLoading] = useState<boolean>(false);
+    const [isSuccessModalOpen, setIsSuccessModalOpen] = useState<boolean>(false);
+    const [isFailureModalOpen, setIsFailureModalOpen] = useState<boolean>(false);
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const dispatch = useAppDispatch();
-
-    // const retrieveAgencyDetails = async () => {
-    //     console.log("retrieving agency details...");
-    //     let response: AgencyDetailsResponse = { error: false, message: "", data: [] };
-    //     try {
-    //         const configurationObject: AxiosRequestConfig = {
-    //             method: "get",
-    //             url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/agencies`,
-    //             headers: {},
-    //             withCredentials: true,
-    //         };
-    //         response = (await axios(configurationObject)).data;
-    //         setAgencies(response.data);
-    //         return;
-    //     } catch (error: any) {
-    //         console.log(error.response.data);
-    //         return false;
-    //     }
-    // };
+    const navigate = useNavigate();
 
     // execute redux-thunk to fetch agencies if applicable
     const fetchAgenciesRedux = () => {
@@ -138,10 +119,14 @@ const RegisterForm: React.FC = () => {
         if (
             user.user_id &&
             user.first_name &&
+            !firstNameError &&
             user.last_name &&
+            !lastNameError &&
             user.contact &&
+            !contactError &&
             user.email &&
-            user.agency_id
+            user.agency_id &&
+            !agencyError
         ) {
             // register user using POST request
             console.log("submitting...");
@@ -153,10 +138,20 @@ const RegisterForm: React.FC = () => {
                     data: user,
                     withCredentials: true,
                 };
-                const response = await axios(configurationObject);
+                const response: AxiosResponse<RegisterResponse> = await axios(configurationObject);
                 console.log(response.data);
+                if (response.data.error) {
+                    openFailureModal();
+                    setLoading(false);
+                    return false;
+                }
+                openSuccessModal();
+                setLoading(false);
+                return true;
             } catch (error: any) {
                 console.log(error.response.data);
+                openFailureModal();
+                setLoading(false);
                 return false;
             }
         } else {
@@ -169,14 +164,31 @@ const RegisterForm: React.FC = () => {
         setLoading(false);
         return;
     };
-    // @ts-ignore
-    const delay = (ms) => new Promise((res) => setTimeout(res, ms));
 
+    // functions for
+    const openSuccessModal = () => {
+        setIsSuccessModalOpen(true);
+    };
+    const openFailureModal = () => {
+        setIsFailureModalOpen(true);
+    };
+    const closeSuccessModal = () => {
+        setIsSuccessModalOpen(false);
+        navigate("/");
+        return;
+    };
+    const closeFailureModal = () => {
+        setIsFailureModalOpen(false);
+    };
     useEffect(() => {
         fetchAgenciesRedux();
     }, []);
+
+    const timeout = (ms: number) => {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    };
     return (
-        <div className="p-[2.5%] mx-[15%] my-[2%] flex flex-col overflow-hidden bg-white items-center bg-local bg-origin-content shadow-lg">
+        <div className="p-[2.5%] mx-[15%] my-[2%] flex flex-col overflow-hidden bg-white items-center rounded bg-local bg-origin-content shadow-lg">
             <div className="font-semibold text-3xl pb-8"> Register for an Account </div>
             <form className="w-full max-w-lg" onSubmit={handleSubmit}>
                 <div className="flex flex-wrap -mx-3 mb-6">
@@ -300,7 +312,7 @@ const RegisterForm: React.FC = () => {
                                     <option key="" value="">
                                         select an option
                                     </option>
-                                    {agencies.map((agency: any) => (
+                                    {agenciesSelector.agencies.map((agency: any) => (
                                         <option key={agency.agency_id} value={agency.agency_id}>
                                             {agency.short_name}
                                         </option>
@@ -340,7 +352,8 @@ const RegisterForm: React.FC = () => {
                     {loading && (
                         <button
                             type="submit"
-                            className=" w-full h-12 px-3 border flex flex-row justify-center items-center border-indigo-500 bg-indigo-500 text-white text-lg text-center rounded-md transition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
+                            disabled={true}
+                            className="w-full h-12 px-3 border flex flex-row justify-center items-center border-indigo-500 bg-indigo-500 text-white text-lg text-center rounded-md transition duration-300 ease select-none focus:outline-none focus:shadow-outline"
                         >
                             <svg
                                 width="24"
@@ -367,6 +380,14 @@ const RegisterForm: React.FC = () => {
                         </button>
                     )}
                 </div>
+                <RegisterModalSuccess
+                    isOpen={isSuccessModalOpen}
+                    handleCloseModal={closeSuccessModal}
+                />
+                <RegisterModalFailure
+                    isOpen={isFailureModalOpen}
+                    handleCloseModal={closeFailureModal}
+                />
             </form>
         </div>
     );
