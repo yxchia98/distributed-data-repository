@@ -1,22 +1,25 @@
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import { Dispatch, Fragment, SetStateAction } from "react";
 import { IconContext } from "react-icons";
 import { SlOptionsVertical } from "react-icons/sl";
 import { BiDownload, BiEdit, BiTrash } from "react-icons/bi";
+import { TopicFileType } from "./TopicFileBrowserContent";
 
 interface TopicFileActionMenuProps {
-    file_id: string;
+    file: TopicFileType;
+    setLoading: Dispatch<SetStateAction<boolean>>;
 }
 
 const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
     const handleDownload = () => {
-        console.log(`downloading file for file_id: ${props.file_id}`);
+        console.log(`downloading file for file_id: ${props.file.file_id}`);
+        window.open(props.file.file_url);
     };
     const handleDelete = () => {
-        console.log(`deleting file for file_id: ${props.file_id}`);
+        console.log(`deleting file for file_id: ${props.file.file_id}`);
     };
     const handleEdit = () => {
-        console.log(`editing file for file_id: ${props.file_id}`);
+        console.log(`editing file for file_id: ${props.file.file_id}`);
     };
     return (
         <div className="w-1/12 py-2 flex items-center justify-center">

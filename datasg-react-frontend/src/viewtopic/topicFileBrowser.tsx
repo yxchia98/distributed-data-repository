@@ -23,8 +23,8 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     }, []);
 
     return (
-        <div className="w-screen overflow-hidden">
-            <div className="max-w h-full py-2.5 px-2.5 mt-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
+        <div className="w-screen h-[92.5%] overflow-hidden">
+            <div className="h-[92.5%] py-2.5 px-2.5 m-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
                 <TopicFileBrowserHeader topic_id={props.topic_id} agency_id={props.agency_id} />
                 <TopicFileBrowserContent topic_id={props.topic_id} agency_id={props.agency_id} />
             </div>

@@ -20,9 +20,7 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         navigate("/explore");
     };
     return (
-        <div id="fileBrowserHeader" className="border-b-2 py-5 px-5">
-            {/* <div className="max-w py-5 px-5 mt-[5%] mx-[10%] overflow-hidden bg-white bg-local bg-origin-content border-b-2 border-indigo-400 rounded-t-xl"> */}
-
+        <div id="fileBrowserHeader" className="py-5 px-5 h-[30%]">
             <div className="flow-root mb-[2%]">
                 <div className="float-left">
                     <button
