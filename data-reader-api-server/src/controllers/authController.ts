@@ -4,6 +4,15 @@ import { ReadAccess } from "../models/read_access";
 import { WriteAccess } from "../models/write_access";
 import { AccessRequest } from "../models/request";
 
+interface OAuthUserRequest extends Request {
+    user: OAuthUser;
+}
+
+interface OAuthUser {
+    id: string;
+    email: string;
+}
+
 /**
  * Endpoint to check if current session is logged in
  */
@@ -81,17 +90,27 @@ const topSecretAuth = (req: Request, res: Response) => {
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-const getUserReadAccess = async (req: Request, res: Response) => {
+const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
     // check for required fields
-    if (!req.query.user_id) {
+    // if (!req.query.user_id) {
+    //     res.status(400).send({
+    //         error: true,
+    //         message: "Error, mandatory fields not set",
+    //         data: {},
+    //     });
+    //     return;
+    // }
+    if (!req.user) {
         res.status(400).send({
             error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
+            message: "Error, no user logged in",
+            data: [],
         });
         return;
     }
-    const userId: string = <string>req.query.user_id;
+    // const userId: string = <string>req.query.user_id;
+    const userId: string = req.user.id;
+
     try {
         const queryReadAccess = await ReadAccess.findAll({
             where: {
@@ -109,6 +128,7 @@ const getUserReadAccess = async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error in granting read access",
+            data: [],
         });
     }
 };
@@ -120,17 +140,25 @@ const getUserReadAccess = async (req: Request, res: Response) => {
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
-const getUserWriteAccess = async (req: Request, res: Response) => {
+const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
     // check for required fields
-    if (!req.query.user_id) {
+    // if (!req.query.user_id) {
+    //     res.status(400).send({
+    //         error: true,
+    //         message: "Error, mandatory fields not set",
+    //         data: [],
+    //     });
+    //     return;
+    // }
+    if (!req.user) {
         res.status(400).send({
             error: true,
-            message: "Error, mandatory fields not set",
-            data: {},
+            message: "Error, no user logged in",
+            data: [],
         });
         return;
     }
-    const userId: string = <string>req.query.user_id;
+    const userId: string = <string>req.user.id;
     try {
         const queryReadAccess = await WriteAccess.findAll({
             where: {
@@ -147,6 +175,7 @@ const getUserWriteAccess = async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error in granting read access",
+            data: [],
         });
     }
 };

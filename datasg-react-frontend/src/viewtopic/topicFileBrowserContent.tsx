@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import { fetchAccess } from "../redux/accessSlice";
 import dayjs, { Dayjs } from "dayjs";
 import TopicFileActionMenu from "./TopicFileActionMenu";
 
@@ -22,6 +23,7 @@ export interface TopicFileType {
 
 const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) => {
     const topicFilesSelector = useAppSelector((state) => state.topicFiles);
+    const accessSelector = useAppSelector((state) => state.access);
     const [loading, setLoading] = useState<boolean>(true);
     const dispatch = useAppDispatch();
     const [formattedTopicFiles, setFormattedTopicFiles] = useState<Array<TopicFileType>>([]);
@@ -29,12 +31,14 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     const fetchTopicFilesRedux = () => {
         dispatch(fetchSelectedTopicFiles(props.topic_id));
     };
+    const fetchAccessRedux = () => {
+        dispatch(fetchAccess());
+    };
 
     useEffect(() => {
         topicFilesSelector.status === "loading" ? setLoading(true) : setLoading(false);
         let topicFiles: Array<TopicFileType> = [];
         topicFilesSelector.topicFiles.forEach((topicFile) => {
-            console.log(topicFile);
             topicFiles.push({
                 file_id: topicFile.file_id,
                 topic_id: topicFile.topic_id,
@@ -48,13 +52,14 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
         );
         setFormattedTopicFiles(topicFiles);
     }, [topicFilesSelector]);
-
     useEffect(() => {
         fetchTopicFilesRedux();
+        fetchAccessRedux();
     }, []);
 
     return (
         <div id="fileBrowserContent" className="h-[70%] p-4">
+            <p>{JSON.stringify(accessSelector)}</p>
             <div className="max-w h-full flex flex-col bg-white bg-local bg-origin-content border-[1px] border-gray-400 rounded">
                 <div id="browsertContentTableHeader" className="flex flex-row border bg-gray-100">
                     <div className="w-1/12 flex items-center justify-center border-r-2">

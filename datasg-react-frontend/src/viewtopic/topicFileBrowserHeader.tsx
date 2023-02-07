@@ -16,7 +16,6 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     const navigate = useNavigate();
 
     const handleBackOnClick = () => {
-        console.log(`clicked!`);
         navigate("/explore");
     };
     return (

@@ -3,6 +3,7 @@ import userReducer from "./userSlice";
 import topicsReducer from "./topicSlice";
 import agenciesReducer from "./agencySlice";
 import topicFilesReducer from "./topicFileSlice";
+import accessReducer from "./accessSlice";
 
 export const store = configureStore({
     reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
         topics: topicsReducer,
         agencies: agenciesReducer,
         topicFiles: topicFilesReducer,
+        access: accessReducer,
     },
 });
 
