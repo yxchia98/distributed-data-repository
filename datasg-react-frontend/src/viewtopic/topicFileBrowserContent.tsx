@@ -22,6 +22,7 @@ export interface TopicFileType {
 }
 
 const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) => {
+    const userSelector = useAppSelector((state) => state.user);
     const topicFilesSelector = useAppSelector((state) => state.topicFiles);
     const accessSelector = useAppSelector((state) => state.access);
     const [loading, setLoading] = useState<boolean>(true);
@@ -60,6 +61,8 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     return (
         <div id="fileBrowserContent" className="h-[70%] p-4">
             <p>{JSON.stringify(accessSelector)}</p>
+            <p>{JSON.stringify(userSelector.user.user_id)}</p>
+            <p>{JSON.stringify(props.topic_id)}</p>
             <div className="max-w h-full flex flex-col bg-white bg-local bg-origin-content border-[1px] border-gray-400 rounded">
                 <div id="browsertContentTableHeader" className="flex flex-row border bg-gray-100">
                     <div className="w-1/12 flex items-center justify-center border-r-2">

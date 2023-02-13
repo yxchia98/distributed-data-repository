@@ -1,11 +1,18 @@
 import { Request, Response } from "express";
-import { S3Client } from "@aws-sdk/client-s3";
-import { checkBucketFolder, createBucketFolder, deleteBucketItem } from "../services/awsbucket";
+import { Delete, ObjectIdentifier, S3Client } from "@aws-sdk/client-s3";
+import {
+    checkBucketFolder,
+    createBucketFolder,
+    deleteBucketItem,
+    deleteFilesInBucket,
+} from "../services/awsbucket";
 import dotenv from "dotenv";
 import { Topic, TopicType } from "../models/topic";
 import { TopicFile } from "../models/topic_file";
 import { AppUser } from "../models/app_user";
 import { Agency } from "../models/agency";
+import { WriteAccess } from "../models/write_access";
+import { ReadAccess } from "../models/read_access";
 dotenv.config();
 
 interface TypeMap {
@@ -79,9 +86,10 @@ const publishTopicFile = async (req: TopicFileRequest, res: Response) => {
  *      agency_id - The agency which the topic belongs to
  *      topic_description - The long description for the topic
  *
- * Returns: boolean error, string message
+ * Returns: boolean error, string message, string topic_id
  */
 const createTopic = async (req: Request, res: Response) => {
+    console.log(req.body);
     // check for compulsory fields
     if (!(req.body.topic_name || req.body.user_id || req.body.agency_id)) {
         res.send({
@@ -123,6 +131,7 @@ const createTopic = async (req: Request, res: Response) => {
                     res.status(200).send({
                         error: false,
                         message: "Topic created!",
+                        topic_id: insertTopic.topic_id,
                     });
                 } else {
                     // if cant insert into db, delete the previously created s3 topic folder
@@ -130,18 +139,21 @@ const createTopic = async (req: Request, res: Response) => {
                     res.send({
                         error: true,
                         message: "Error creating topic",
+                        topic_id: "",
                     });
                 }
             } else {
                 res.send({
                     error: true,
                     message: "Error creating topic",
+                    topic_id: "",
                 });
             }
         } else {
-            res.status(404).send({
+            res.status(400).send({
                 error: false,
                 message: "Error, topic already exists",
+                topic_id: "",
             });
         }
     } catch (error: any) {
@@ -268,28 +280,67 @@ const deleteTopic = async (req: Request, res: Response) => {
     }
     try {
         // check if record exists in db
-        const queryTopic = await Topic.findByPk(req.body.topic_id);
+        const queryTopicResponse = await Topic.findByPk(req.body.topic_id);
         let folder = "";
-        if (queryTopic) {
-            folder = queryTopic.topic_url;
-            console.log(folder);
-
+        if (queryTopicResponse) {
             // check if topic folder already exists in S3
+            folder = queryTopicResponse.topic_url;
             const topicExistResponse = await checkBucketFolder(
                 s3,
                 process.env.AWS_S3_BUCKET_NAME,
                 folder
             );
             if (topicExistResponse.success) {
+                // get key of all items in folder
+                const queryTopicFilesResponse = await TopicFile.findAll({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
+                let fileUrls = {
+                    Objects: <Array<ObjectIdentifier>>[],
+                };
+                queryTopicFilesResponse.forEach((topicFile) => {
+                    let currFile: ObjectIdentifier = {
+                        Key: topicFile.file_url,
+                    };
+                    fileUrls.Objects.push(currFile);
+                });
+
+                const deleteBucketItems: Delete = fileUrls;
+                const deleteBucketItemsResult = await deleteFilesInBucket(
+                    s3,
+                    process.env.AWS_S3_BUCKET_NAME,
+                    deleteBucketItems
+                );
                 // delete folder in S3
-                const result = await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
-                if (result.success) {
+                const deleteBucketResult = await deleteBucketItem(
+                    s3,
+                    process.env.AWS_S3_BUCKET_NAME,
+                    folder
+                );
+                if (deleteBucketResult.success) {
+                    // delete all dependencies of the topic before deleting the actual topic record in db
+                    await TopicFile.destroy({
+                        where: {
+                            topic_id: queryTopicResponse.topic_id,
+                        },
+                    });
+                    await WriteAccess.destroy({
+                        where: {
+                            topic_id: queryTopicResponse.topic_id,
+                        },
+                    });
+                    await ReadAccess.destroy({
+                        where: {
+                            topic_id: queryTopicResponse.topic_id,
+                        },
+                    });
+                    await queryTopicResponse.destroy();
                     res.status(200).send({
                         error: false,
                         message: "Successfully deleted topic!",
                     });
-                    // delete the record in db
-                    await queryTopic.destroy();
                 } else {
                     res.send({
                         error: true,
@@ -298,7 +349,7 @@ const deleteTopic = async (req: Request, res: Response) => {
                 }
             } else {
                 // delete record in db
-                await queryTopic.destroy();
+                await queryTopicResponse.destroy();
                 res.status(500).send({
                     error: true,
                     message: "Successfully deleted topic",
@@ -364,7 +415,7 @@ const deleteTopicFile = async (req: Request, res: Response) => {
             });
         }
     } catch (error) {
-        res.status(500).send({
+        res.send({
             error: true,
             message: "Error deleting file",
         });

@@ -101,7 +101,7 @@ const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
     //     return;
     // }
     if (!req.user) {
-        res.status(400).send({
+        res.status(403).send({
             error: true,
             message: "Error, no user logged in",
             data: [],
@@ -151,7 +151,7 @@ const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
     //     return;
     // }
     if (!req.user) {
-        res.status(400).send({
+        res.status(403).send({
             error: true,
             message: "Error, no user logged in",
             data: [],

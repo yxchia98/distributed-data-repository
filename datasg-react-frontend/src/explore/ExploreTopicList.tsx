@@ -5,9 +5,9 @@ import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics } from "../redux/topicSlice";
-import TopicCard from "./TopicCard";
+import ExploreTopicCard from "./ExploreTopicCard";
 
-const TopicList = () => {
+const ExploreTopicList = () => {
     const navigate = useNavigate();
     const topicsSelector = useAppSelector((state) => state.topics);
     const agenciesSelector = useAppSelector((state) => state.agencies);
@@ -15,9 +15,7 @@ const TopicList = () => {
     const dispatch = useAppDispatch();
 
     const fetchTopicsRedux = () => {
-        if (topicsSelector.status == "idle") {
-            dispatch(fetchTopics());
-        }
+        dispatch(fetchTopics());
     };
 
     const fetchAgenciesRedux = () => {
@@ -48,7 +46,7 @@ const TopicList = () => {
                     })
                     .map((topic) => {
                         return (
-                            <TopicCard
+                            <ExploreTopicCard
                                 key={topic.topic_id}
                                 topic_id={topic.topic_id}
                                 topic_name={topic.topic_name}
@@ -61,4 +59,4 @@ const TopicList = () => {
     );
 };
 
-export default TopicList;
+export default ExploreTopicList;

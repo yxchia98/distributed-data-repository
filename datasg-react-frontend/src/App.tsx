@@ -6,6 +6,8 @@ import Register from "./register";
 import ErrorPage from "./error-page";
 import Explore from "./explore";
 import ViewTopic from "./viewtopic";
+import Publish from "./publish";
+import PublishTopic from "./publishtopic";
 
 export const router = createBrowserRouter([
     {
@@ -29,6 +31,24 @@ export const router = createBrowserRouter([
     {
         path: "/viewTopic",
         element: <ViewTopic />,
+        errorElement: <ErrorPage />,
+        children: [],
+    },
+    {
+        path: "/publish",
+        element: <Publish />,
+        errorElement: <ErrorPage />,
+        children: [],
+    },
+    {
+        path: "/publishTopic",
+        element: <PublishTopic />,
+        errorElement: <ErrorPage />,
+        children: [],
+    },
+    {
+        path: "/publishTopicFile",
+        element: <Publish />,
         errorElement: <ErrorPage />,
         children: [],
     },

@@ -16,6 +16,10 @@ import {
     DeleteObjectCommandOutput,
     DeleteObjectCommandInput,
     DeleteObjectCommand,
+    DeleteObjectsCommandInput,
+    Delete,
+    DeleteObjectsCommand,
+    DeleteObjectsCommandOutput,
 } from "@aws-sdk/client-s3";
 import fs from "fs";
 import dotenv from "dotenv";
@@ -122,6 +126,34 @@ export const deleteBucketItem = async (s3: S3Client, bucket: string, item: strin
         console.log("Folder deleted!", res.$metadata);
 
         return { success: true, message: "Folder deleted", data: {} };
+    } catch (error) {
+        console.log("Error deleting item", error);
+        return {
+            success: false,
+            message: "error deleting folder",
+            data: error,
+        };
+    }
+};
+
+/**
+ * BUG????
+ * AWS SDK response as successfully deleted, however delays the deletion until hours later
+ * https://stackoverflow.com/questions/35048604/javascript-aws-sdk-s3-deleteobjects-succedes-but-doesnt-actually-delete-anyth
+ *
+ */
+export const deleteFilesInBucket = async (s3: S3Client, bucket: string, items: Delete) => {
+    console.log(items);
+    try {
+        const input: DeleteObjectsCommandInput = {
+            Bucket: bucket,
+            Delete: items,
+        };
+        const res: DeleteObjectsCommandOutput = await s3.send(new DeleteObjectsCommand(input));
+        console.log("Items in folder deleted!", res.$metadata);
+        console.log("Deleted:", res.Deleted);
+
+        return { success: true, message: "Items in folder deleted", data: {} };
     } catch (error) {
         console.log("Error deleting item", error);
         return {

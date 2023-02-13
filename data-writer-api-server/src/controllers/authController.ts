@@ -109,7 +109,7 @@ const createReadAccess = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.log(error);
-        res.status(500).send({
+        res.send({
             error: true,
             message: "Error in granting read access",
         });
@@ -158,7 +158,7 @@ const deleteReadAccess = async (req: Request, res: Response) => {
             });
         }
     } catch (error) {
-        res.status(500).send({
+        res.send({
             error: true,
             message: "Error deleting read access",
         });
@@ -212,7 +212,7 @@ const createWriteAccess = async (req: Request, res: Response) => {
         }
     } catch (error) {
         console.log(error);
-        res.status(500).send({
+        res.send({
             error: true,
             message: "Error in granting write access",
         });
@@ -289,7 +289,7 @@ const createRequestAccess = async (req: Request, res: Response) => {
             });
         }
     } catch (error) {
-        res.status(500).send({
+        res.send({
             error: true,
             message: "Error submitting new access request",
         });

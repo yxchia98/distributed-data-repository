@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics, setSearch, TopicSearch } from "../redux/topicSlice";
 
-const TopicSearchBar = () => {
+const PublishTopicSearchBar = () => {
     const topicsSelector = useAppSelector((state) => state.topics);
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const dispatch = useAppDispatch();
@@ -41,7 +41,7 @@ const TopicSearchBar = () => {
                         </div>
                     </IconContext.Provider>
                     <input
-                        className="w-full h-full p-2 mx-2 text-gray-700 leading-tight focus:outline-none transition duration-300"
+                        className="w-full h-full p-2 mx-2 text-gray-700 leading-tight border-none focus:outline-none focus:border-none focus:ring-0 transition duration-300"
                         type="text"
                         placeholder="Search for topics..."
                         onChange={textSearchOnChangeHandler}
@@ -50,7 +50,7 @@ const TopicSearchBar = () => {
                 <div className="flex flex-row w-1/6 rounded-lg items-center justify-center mx-4 bg-white border border-gray-200">
                     <select
                         onChange={agencySearchOnChangeHandler}
-                        className="w-full h-full p-2 mx-2 text-gray-700 leading-tight focus:outline-none transition duration-300"
+                        className="w-full h-full p-2 mx-2 text-gray-700 leading-tight border-none focus:outline-none focus:border-none focus:ring-0 transition duration-300"
                     >
                         <option key="" value="">
                             select an option
@@ -67,4 +67,4 @@ const TopicSearchBar = () => {
     );
 };
 
-export default TopicSearchBar;
+export default PublishTopicSearchBar;

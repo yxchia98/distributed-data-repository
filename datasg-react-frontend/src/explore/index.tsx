@@ -3,8 +3,8 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import NavigationBar from "../common/NavigationBar";
 import { useAppSelector } from "../redux/hooks";
-import TopicList from "./TopicList";
-import TopicSearchBar from "./TopicSearchBar";
+import ExploreTopicList from "./ExploreTopicList";
+import ExploreTopicSearchBar from "./ExploreTopicSearchBar";
 
 const Explore: React.FC = (props) => {
     // const user = useAppSelector((state) => state.user);
@@ -22,8 +22,8 @@ const Explore: React.FC = (props) => {
     return (
         <div className="explore bg-gray-100 h-screen">
             <NavigationBar current="explore" />
-            <TopicSearchBar />
-            <TopicList />
+            <ExploreTopicSearchBar />
+            <ExploreTopicList />
         </div>
     );
 };

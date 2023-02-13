@@ -188,7 +188,7 @@ const RegisterForm: React.FC = () => {
         return new Promise((resolve) => setTimeout(resolve, ms));
     };
     return (
-        <div className="p-[2.5%] mx-[15%] my-[2%] flex flex-col overflow-hidden bg-white items-center rounded bg-local bg-origin-content shadow-lg">
+        <div className="p-[2.5%] mx-[15%] my-[2%] flex flex-col overflow-hidden bg-white items-center rounded-lg bg-local bg-origin-content shadow-lg">
             <div className="font-semibold text-3xl pb-8"> Register for an Account </div>
             <form className="w-full max-w-lg" onSubmit={handleSubmit}>
                 <div className="flex flex-wrap -mx-3 mb-6">
