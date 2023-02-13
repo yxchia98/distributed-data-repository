@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchAccess } from "../redux/accessSlice";
 import { fetchAgencies } from "../redux/agencySlice";
@@ -8,6 +8,7 @@ import { fetchTopics } from "../redux/topicSlice";
 import { fetchUser, UserDetails } from "../redux/userSlice";
 import { CgSpinner } from "react-icons/cg";
 import { IconContext } from "react-icons";
+import { GrClose } from "react-icons/gr";
 import PublishTopicModal from "./PublishTopicModal";
 
 interface NewTopicResponse {
@@ -26,6 +27,7 @@ const PublishTopicForm: React.FC = () => {
     const [topicDesc, setTopicDesc] = useState<string>("");
     const [topicAgencyId, setTopicAgencyId] = useState<string>("");
     const [topicFileList, setTopicFileList] = useState<FileList | null>(null);
+    const [formattedTopicFiles, setFormattedTopicFiles] = useState<Array<File>>([]);
 
     const [isTopicNameValid, setIsTopicNameValid] = useState<boolean>(false);
     const [isTopicDescValid, setIsTopicDescValid] = useState<boolean>(false);
@@ -49,6 +51,52 @@ const PublishTopicForm: React.FC = () => {
         dispatch(fetchTopics());
     };
 
+    // handle drag and drop
+    const [dragActive, setDragActive] = useState<boolean>(false);
+
+    // handle drag events
+    const drop = useRef<any>(null);
+    useEffect(() => {
+        drop.current.addEventListener("dragover", handleDragOver);
+        drop.current.addEventListener("drop", handleDrop);
+
+        // return () => {
+        //     drop.current.removeEventListener("dragover", handleDragOver);
+        //     drop.current.removeEventListener("drop", handleDrop);
+        // };
+    }, []);
+    const handleDragOver = (e: { preventDefault: () => void; stopPropagation: () => void }) => {
+        e.preventDefault();
+        e.stopPropagation();
+    };
+
+    const handleDrop = (e: {
+        preventDefault: () => void;
+        stopPropagation: () => void;
+        dataTransfer: { files: any };
+    }) => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        const { files } = e.dataTransfer;
+
+        if (files && files.length) {
+            console.log(files);
+            setTopicFileList(files);
+        }
+    };
+
+    const handleRemoveFile = (file: File) => {
+        return (event: React.MouseEvent) => {
+            const newFileArray: Array<File> = formattedTopicFiles.filter((currFile) => {
+                return currFile.name != file.name;
+            });
+            setFormattedTopicFiles(newFileArray);
+            console.log(newFileArray);
+            event.preventDefault();
+        };
+    };
+
     // Handle change of input form elements
     const handleTopicNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setTopicName(e.target.value);
@@ -60,6 +108,7 @@ const PublishTopicForm: React.FC = () => {
         setTopicAgencyId(e.target.value);
     };
     const handleTopicFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e.target.files);
         setTopicFileList(e.target.files);
     };
 
@@ -164,6 +213,9 @@ const PublishTopicForm: React.FC = () => {
     useEffect(() => {
         fetchPublishTopicFormInfoRedux();
     }, []);
+    useEffect(() => {
+        setFormattedTopicFiles(Array.from(topicFileList ? topicFileList : []));
+    }, [topicFileList]);
     useEffect(() => {
         setTopicAgencyId(userSelector.agency_id);
     }, [userSelector]);
@@ -286,7 +338,10 @@ const PublishTopicForm: React.FC = () => {
                                         <label className="block text-sm font-medium text-gray-700">
                                             Topic File (optional)
                                         </label>
-                                        <div className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6">
+                                        <div
+                                            ref={drop}
+                                            className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                                        >
                                             <div className="space-y-1 text-center">
                                                 <svg
                                                     className="mx-auto h-12 w-12 text-gray-400"
@@ -309,6 +364,7 @@ const PublishTopicForm: React.FC = () => {
                                                             id="file-upload"
                                                             name="file-upload"
                                                             type="file"
+                                                            multiple={true}
                                                             className="sr-only"
                                                             onChange={handleTopicFileChange}
                                                             onBlur={handleTopicFileBlur}
@@ -320,6 +376,33 @@ const PublishTopicForm: React.FC = () => {
                                                     CSV files only
                                                 </p>
                                             </div>
+                                        </div>
+                                        <div className="flex flex-row overflow-auto">
+                                            {formattedTopicFiles &&
+                                                formattedTopicFiles.length > 0 &&
+                                                formattedTopicFiles.map((file) => {
+                                                    return (
+                                                        <div
+                                                            key={file.name}
+                                                            className="flex flex-row justify-between bg-gray-100 rounded m-1 p-1 border border-gray-300"
+                                                        >
+                                                            <p className="mr-1">{file.name}</p>
+                                                            <IconContext.Provider
+                                                                value={{
+                                                                    size: "0.75em",
+                                                                    color: "white",
+                                                                }}
+                                                            >
+                                                                <div
+                                                                    onClick={handleRemoveFile(file)}
+                                                                    className="hover:cursor-pointer"
+                                                                >
+                                                                    <GrClose />
+                                                                </div>
+                                                            </IconContext.Provider>
+                                                        </div>
+                                                    );
+                                                })}
                                         </div>
                                     </div>
                                 </div>
