@@ -300,9 +300,11 @@ const deleteTopic = async (req: Request, res: Response) => {
                 let fileUrls = {
                     Objects: <Array<ObjectIdentifier>>[],
                 };
+                // ensure that there are no spaces in the filename, or it will deform the deletion
                 queryTopicFilesResponse.forEach((topicFile) => {
+                    let fileURI = topicFile.file_url.split("/").slice(-3).join("/");
                     let currFile: ObjectIdentifier = {
-                        Key: topicFile.file_url,
+                        Key: fileURI,
                     };
                     fileUrls.Objects.push(currFile);
                 });
