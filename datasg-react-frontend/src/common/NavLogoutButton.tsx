@@ -3,6 +3,7 @@ import axios from "axios";
 import { Fragment } from "react";
 import { IconContext } from "react-icons";
 import { BsPersonCircle } from "react-icons/bs";
+import { SiDatabricks } from "react-icons/si";
 import { IoLogOutOutline } from "react-icons/io5";
 import { googleLogout } from "./googleAuth";
 
@@ -47,7 +48,7 @@ const LogoutButton: React.FC = () => {
                                 <button className="bg-white p-4 rounded-md flex flex-row justify-center items-center">
                                     <IconContext.Provider
                                         value={{
-                                            size: "1.5em",
+                                            size: "1.25em",
                                             color: "rgb(107 114 128)",
                                         }}
                                     >
@@ -59,13 +60,28 @@ const LogoutButton: React.FC = () => {
                                         Profile
                                     </p>
                                 </button>
+                                <button className="bg-white px-2 py-4 flex flex-row  border-b-[1px] border-t-[1px] border-gray-100 justify-center items-center">
+                                    <IconContext.Provider
+                                        value={{
+                                            size: "1.25em",
+                                            color: "rgb(107 114 128)",
+                                        }}
+                                    >
+                                        <div className="px-2">
+                                            <SiDatabricks />
+                                        </div>
+                                    </IconContext.Provider>
+                                    <p className="text-sm font-medium text-gray-900 px-2">
+                                        My Data
+                                    </p>
+                                </button>
                                 <button
-                                    className="bg-gray-50 p-4 rounded-md flex flex-row justify-center items-center"
+                                    className="bg-gray-50 p-4 rounded-b-md flex flex-row justify-center items-center"
                                     onClick={googleLogout}
                                 >
                                     <IconContext.Provider
                                         value={{
-                                            size: "1.5em",
+                                            size: "1.25em",
                                             color: "rgb(107 114 128)",
                                         }}
                                     >

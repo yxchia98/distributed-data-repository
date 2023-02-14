@@ -9,7 +9,7 @@ export interface TopicDetails {
     topic_name: string;
     topic_url: string;
     description: string;
-    last_update: Date;
+    last_update: string;
 }
 
 interface TopicState {

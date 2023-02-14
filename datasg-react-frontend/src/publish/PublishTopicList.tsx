@@ -17,10 +17,19 @@ const PublishTopicList = () => {
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const accessSelector = useAppSelector((state) => state.access);
     const userSelector = useAppSelector((state) => state.user);
-    const dispatch = useAppDispatch();
     const [writeableTopics, setWriteableTopics] = useState<Array<TopicDetails>>([]);
-    const [showCreateNewTopic, setShowCreateNewTopic] = useState<boolean>(false);
     const [showPublishNewTopicFile, setShowPublishNewTopicFile] = useState<boolean>(false);
+    const [selectedTopic, setSelectedTopic] = useState<TopicDetails>({
+        topic_id: "",
+        user_id: "",
+        agency_id: "",
+        topic_name: "",
+        topic_url: "",
+        description: "",
+        last_update: "",
+    });
+    // dayjs(topicFile.file_date, "YYYY-MM-DD")
+    const dispatch = useAppDispatch();
 
     const fetchTopicsRedux = () => {
         dispatch(fetchTopics());
@@ -38,22 +47,6 @@ const PublishTopicList = () => {
         // openCreateTopicModal();
         navigate("/publishTopic");
     };
-
-    // const openCreateTopicModal = () => {
-    //     setShowCreateNewTopic(true);
-    // };
-
-    // const closeCreateTopicModal = () => {
-    //     setShowCreateNewTopic(false);
-    // };
-
-    // const openPublishTopicFileModal = () => {
-    //     setShowPublishNewTopicFile(true);
-    // };
-
-    // const closePublishTopicFileModal = () => {
-    //     setShowPublishNewTopicFile(false);
-    // };
 
     useEffect(() => {
         fetchTopicsRedux();
@@ -73,6 +66,11 @@ const PublishTopicList = () => {
 
     return (
         <div className="topicList">
+            <PublishTopicFileModal
+                topicDetails={selectedTopic}
+                isOpen={showPublishNewTopicFile}
+                setIsOpen={setShowPublishNewTopicFile}
+            />
             <div className="flex justify-between max-w mx-[10%] my-[1%] overflow-hidden bg-local bg-origin-content">
                 <div className="text-3xl font-semibold px-5">Publish Files to a Topic</div>
                 <button
@@ -111,6 +109,9 @@ const PublishTopicList = () => {
                                 topic_name={topic.topic_name}
                                 agency_id={topic.agency_id}
                                 description={topic.description}
+                                last_update={topic.last_update}
+                                setShowModal={setShowPublishNewTopicFile}
+                                setSelected={setSelectedTopic}
                             />
                         );
                     })}

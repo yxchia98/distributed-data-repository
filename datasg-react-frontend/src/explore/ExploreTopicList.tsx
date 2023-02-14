@@ -29,6 +29,9 @@ const ExploreTopicList = () => {
 
     return (
         <div className="topicList">
+            <div className="flex justify-between max-w mx-[10%] my-[1%] overflow-hidden bg-local bg-origin-content">
+                <div className="text-3xl font-semibold px-5">Explore Topics</div>
+            </div>{" "}
             {topicsSelector.topics &&
                 agenciesSelector.agencies &&
                 topicsSelector.topics

@@ -13,11 +13,18 @@ const Publish: React.FC = (props) => {
     return (
         <div className="explore bg-gray-100 h-screen">
             <NavigationBar current="publish" />
-            {!userSelector.user.user_id && (
+            {/* <p>{JSON.stringify(userSelector)}</p> */}
+            {(!userSelector.user.user_id ||
+                !userSelector.user.loggedIn ||
+                !userSelector.user.registered) && (
                 <CustomErrorPage message={"You have to be logged in to access this feature"} />
             )}
-            {userSelector.user.user_id && <PublishTopicSearchBar />}
-            {userSelector.user.user_id && <PublishTopicList />}
+            {userSelector.user.user_id &&
+                userSelector.user.loggedIn &&
+                userSelector.user.registered && <PublishTopicSearchBar />}
+            {userSelector.user.user_id &&
+                userSelector.user.loggedIn &&
+                userSelector.user.registered && <PublishTopicList />}
         </div>
     );
 };

@@ -57,6 +57,7 @@ const PublishTopicForm: React.FC = () => {
     // handle drag events
     const drop = useRef<any>(null);
     useEffect(() => {
+        console.log(drop);
         drop.current.addEventListener("dragover", handleDragOver);
         drop.current.addEventListener("drop", handleDrop);
 
@@ -190,6 +191,20 @@ const PublishTopicForm: React.FC = () => {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             };
             const createWriteAccessResponse = await axios(createWriteAccessConfigurationObject);
+
+            // Uploaded files into newly-created topic, if any
+            formattedTopicFiles.forEach(async (file) => {
+                const uploadTopicFileFormData: FormData = new FormData();
+                uploadTopicFileFormData.append("topic_id", createTopicResponse.data.topic_id);
+                uploadTopicFileFormData.append("uploaded_file", file);
+                const uploadTopicFileConfigurationObject: AxiosRequestConfig = {
+                    method: "post",
+                    url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/publish`,
+                    data: uploadTopicFileFormData,
+                    headers: { "Content-Type": "multipart/form-data" },
+                };
+                const uploadTopicFileResponse = await axios(uploadTopicFileConfigurationObject);
+            });
             console.log(createTopicResponse.data);
             console.log(createWriteAccessResponse.data);
             setIsSubmitting(false);

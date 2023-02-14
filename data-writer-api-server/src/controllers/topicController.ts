@@ -13,6 +13,7 @@ import { AppUser } from "../models/app_user";
 import { Agency } from "../models/agency";
 import { WriteAccess } from "../models/write_access";
 import { ReadAccess } from "../models/read_access";
+import { DataTypes } from "sequelize";
 dotenv.config();
 
 interface TypeMap {
@@ -61,6 +62,10 @@ const publishTopicFile = async (req: TopicFileRequest, res: Response) => {
             const queryTopicFile = await TopicFile.findByPk(req.file_id);
             queryTopicFile.update({
                 file_url: fileName,
+            });
+            const queryTopic = await Topic.findByPk(queryTopicFile.topic_id);
+            queryTopic.update({
+                last_update: new Date(),
             });
         } catch (error) {}
         res.status(200).send({

@@ -4,5 +4,9 @@ module.exports = {
     theme: {
         extend: {},
     },
-    plugins: [require("@headlessui/tailwindcss"), require("@tailwindcss/forms")],
+    plugins: [
+        require("@headlessui/tailwindcss"),
+        require("@tailwindcss/forms"),
+        require("@tailwindcss/line-clamp"),
+    ],
 };
