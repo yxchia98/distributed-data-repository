@@ -7,6 +7,9 @@ import dayjs from "dayjs";
 import { IconContext } from "react-icons";
 import { GrClose } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
+import axios, { AxiosRequestConfig } from "axios";
+import { CgSpinner } from "react-icons/cg";
+import { FiCheckCircle } from "react-icons/fi";
 
 interface PublishTopicFileModalProps {
     topicDetails: TopicDetails | undefined;
@@ -24,6 +27,7 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
     const [formattedTopicFiles, setFormattedTopicFiles] = useState<Array<File>>([]);
     const [referencing, setReferencing] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
 
     const handleDragOver = (e: { preventDefault: () => void; stopPropagation: () => void }) => {
         e.preventDefault();
@@ -55,10 +59,19 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
             event.preventDefault();
         };
     };
+    const handleTopicFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(e.target.files);
+        setTopicFileList(e.target.files);
+    };
+    const handleTopicFileBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setTopicFileList(e.target.files);
+    };
     const handleCloseModal = () => {
         props.setIsOpen(false);
         setTopicFileList(null);
         setFormattedTopicFiles([]);
+        setIsSubmitting(false);
+        setIsSubmitted(false);
     };
     const handleToTopicDetails = () => {
         return navigate("/viewTopic", {
@@ -76,6 +89,26 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
         console.log(
             `adding ${formattedTopicFiles.length} files to topic ${props.topicDetails!.topic_id}`
         );
+        try {
+            formattedTopicFiles.forEach(async (file) => {
+                const uploadTopicFileFormData: FormData = new FormData();
+                uploadTopicFileFormData.append("topic_id", props.topicDetails!.topic_id);
+                uploadTopicFileFormData.append("uploaded_file", file);
+                const uploadTopicFileConfigurationObject: AxiosRequestConfig = {
+                    method: "post",
+                    url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/publish`,
+                    data: uploadTopicFileFormData,
+                    headers: { "Content-Type": "multipart/form-data" },
+                };
+                const uploadTopicFileResponse = await axios(uploadTopicFileConfigurationObject);
+                setIsSubmitting(false);
+                setIsSubmitted(true);
+            });
+        } catch (error: any) {
+            console.log(error.response.data);
+            setIsSubmitting(false);
+            return false;
+        }
     };
 
     // utiliastion of 2 useEffects to workaround delayed referencing by useRef
@@ -107,147 +140,257 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                         {/* backdrop */}
                         <div className="fixed inset-0 bg-black bg-opacity-50" />
                     </Transition.Child>
-
-                    <div className="fixed inset-0 overflow-y-auto">
-                        <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
-                            <Transition.Child
-                                as={Fragment}
-                                enter="ease-out duration-300"
-                                enterFrom="opacity-0 scale-95"
-                                enterTo="opacity-100 scale-100"
-                                leave="ease-in duration-200"
-                                leaveFrom="opacity-100 scale-100"
-                                leaveTo="opacity-0 scale-95"
-                            >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                    <div className="flex flex-row justify-between">
-                                        <Dialog.Title
-                                            as="h3"
-                                            className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
-                                        >
-                                            {props.topicDetails?.topic_name}
-                                        </Dialog.Title>
-                                        <button
-                                            type="button"
-                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
-                                            onClick={handleToTopicDetails}
-                                        >
-                                            Topic Details {`>`}
-                                        </button>
-                                    </div>
-                                    <div className="flex justify-between items-center text-center">
-                                        <p className="text-sm text-indigo-600">
-                                            {agenciesSelector.agencies
-                                                .filter(
-                                                    (agency) =>
-                                                        agency.agency_id ==
-                                                        props.topicDetails?.agency_id
-                                                )
-                                                .map((agency) => agency.long_name)}
-                                        </p>
-                                    </div>
-                                    <div>
-                                        <p className="text-sm truncate text-ellipsis w-full overflow-hidden text-start col-span-4 text-gray-500">
-                                            {props.topicDetails?.description}
-                                        </p>
-                                    </div>
-                                    <div className="flex">
-                                        <p className="text-sm truncate text-start col-span-1 text-gray-500 mr-1">
-                                            Last updated:
-                                        </p>
-                                        <p className="text-sm truncate text-start col-span-1 text-gray-500">
-                                            {dayjs(
-                                                props.topicDetails!.last_update,
-                                                "YYYY-MM-DD"
-                                            ).format("DD/MM/YYYY")}
-                                        </p>
-                                    </div>
-                                    <form onSubmit={handleSubmit}>
-                                        <div
-                                            ref={drop}
-                                            className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
-                                        >
-                                            <div className="space-y-1 text-center">
-                                                <svg
-                                                    className="mx-auto h-12 w-12 text-gray-400"
-                                                    stroke="currentColor"
-                                                    fill="none"
-                                                    viewBox="0 0 48 48"
-                                                    aria-hidden="true"
-                                                >
-                                                    <path
-                                                        d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                                                        strokeWidth="2"
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                    />
-                                                </svg>
-                                                <div className="flex text-sm text-gray-600">
-                                                    <label className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
-                                                        <span>Upload a file</span>
-                                                        <input
-                                                            id="file-upload"
-                                                            name="file-upload"
-                                                            type="file"
-                                                            multiple={true}
-                                                            className="sr-only"
-                                                        />
-                                                    </label>
-                                                    <p className="pl-1">or drag and drop</p>
-                                                </div>
-                                                <p className="text-xs text-gray-500">
-                                                    CSV files only
-                                                </p>
-                                            </div>
+                    {isSubmitted ? (
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <div className="flex flex-row justify-between">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
+                                            >
+                                                {props.topicDetails?.topic_name}
+                                            </Dialog.Title>
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
+                                                onClick={handleToTopicDetails}
+                                            >
+                                                Topic Details {`>`}
+                                            </button>
                                         </div>
-                                        <div className="flex flex-row overflow-auto">
-                                            {formattedTopicFiles &&
-                                                formattedTopicFiles.length > 0 &&
-                                                formattedTopicFiles.map((file) => {
-                                                    return (
-                                                        <div
-                                                            key={file.name}
-                                                            className="flex flex-row justify-between bg-gray-100 rounded m-1 p-1 border border-gray-300"
-                                                        >
-                                                            <p className="mr-1">{file.name}</p>
-                                                            <IconContext.Provider
-                                                                value={{
-                                                                    size: "0.75em",
-                                                                    color: "white",
-                                                                }}
-                                                            >
-                                                                <div
-                                                                    onClick={handleRemoveFile(file)}
-                                                                    className="hover:cursor-pointer"
-                                                                >
-                                                                    <GrClose />
-                                                                </div>
-                                                            </IconContext.Provider>
-                                                        </div>
-                                                    );
-                                                })}
+                                        <div className="flex justify-between items-center text-center">
+                                            <p className="text-sm text-indigo-600">
+                                                {agenciesSelector.agencies
+                                                    .filter(
+                                                        (agency) =>
+                                                            agency.agency_id ==
+                                                            props.topicDetails?.agency_id
+                                                    )
+                                                    .map((agency) => agency.long_name)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm truncate text-ellipsis w-full overflow-hidden text-start col-span-4 text-gray-500">
+                                                {props.topicDetails?.description}
+                                            </p>
+                                        </div>
+                                        <div className="flex">
+                                            <p className="text-sm truncate text-start col-span-1 text-gray-500 mr-1">
+                                                Last updated:
+                                            </p>
+                                            <p className="text-sm truncate text-start col-span-1 text-gray-500">
+                                                {dayjs(
+                                                    props.topicDetails!.last_update,
+                                                    "YYYY-MM-DD"
+                                                ).format("DD/MM/YYYY")}
+                                            </p>
+                                        </div>
+                                        <div className="mt-1 flex flex-col justify-center rounded-md border-2 border-gray-300 px-6 pt-5 pb-6 transition">
+                                            <div className="flex justify-center items-center space-y-1 text-center">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                        color: "rgb(21 128 61)",
+                                                    }}
+                                                >
+                                                    <div className="transition transition-duration-500">
+                                                        <FiCheckCircle />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <p className="text-center mt-2">
+                                                Successfully published!
+                                            </p>
                                         </div>
 
                                         <div className="mt-4 flex justify-center items-center">
                                             <button
-                                                type="button"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-red-100 mx-1 px-4 py-2 text-sm font-medium text-red-900 hover:bg-blue-200 focus:outline-none"
                                                 onClick={handleCloseModal}
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                type="submit"
                                                 className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
                                             >
-                                                Publish
+                                                Yay!
                                             </button>
                                         </div>
-                                    </form>
-                                </Dialog.Panel>
-                            </Transition.Child>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
                         </div>
-                    </div>
+                    ) : (
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <div className="flex flex-row justify-between">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
+                                            >
+                                                {props.topicDetails?.topic_name}
+                                            </Dialog.Title>
+                                            <button
+                                                type="button"
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
+                                                onClick={handleToTopicDetails}
+                                            >
+                                                Topic Details {`>`}
+                                            </button>
+                                        </div>
+                                        <div className="flex justify-between items-center text-center">
+                                            <p className="text-sm text-indigo-600">
+                                                {agenciesSelector.agencies
+                                                    .filter(
+                                                        (agency) =>
+                                                            agency.agency_id ==
+                                                            props.topicDetails?.agency_id
+                                                    )
+                                                    .map((agency) => agency.long_name)}
+                                            </p>
+                                        </div>
+                                        <div>
+                                            <p className="text-sm truncate text-ellipsis w-full overflow-hidden text-start col-span-4 text-gray-500">
+                                                {props.topicDetails?.description}
+                                            </p>
+                                        </div>
+                                        <div className="flex">
+                                            <p className="text-sm truncate text-start col-span-1 text-gray-500 mr-1">
+                                                Last updated:
+                                            </p>
+                                            <p className="text-sm truncate text-start col-span-1 text-gray-500">
+                                                {dayjs(
+                                                    props.topicDetails!.last_update,
+                                                    "YYYY-MM-DD"
+                                                ).format("DD/MM/YYYY")}
+                                            </p>
+                                        </div>
+                                        <form onSubmit={handleSubmit}>
+                                            <div
+                                                ref={drop}
+                                                className="mt-1 flex justify-center rounded-md border-2 border-dashed border-gray-300 px-6 pt-5 pb-6"
+                                            >
+                                                <div className="space-y-1 text-center">
+                                                    <svg
+                                                        className="mx-auto h-12 w-12 text-gray-400"
+                                                        stroke="currentColor"
+                                                        fill="none"
+                                                        viewBox="0 0 48 48"
+                                                        aria-hidden="true"
+                                                    >
+                                                        <path
+                                                            d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                                                            strokeWidth="2"
+                                                            strokeLinecap="round"
+                                                            strokeLinejoin="round"
+                                                        />
+                                                    </svg>
+                                                    <div className="flex text-sm text-gray-600">
+                                                        <label className="relative cursor-pointer rounded-md bg-white font-medium text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-500 focus-within:ring-offset-2 hover:text-indigo-500">
+                                                            <span>Upload a file</span>
+                                                            <input
+                                                                id="file-upload"
+                                                                name="file-upload"
+                                                                type="file"
+                                                                multiple={true}
+                                                                className="sr-only"
+                                                                onChange={handleTopicFileChange}
+                                                                onBlur={handleTopicFileBlur}
+                                                            />
+                                                        </label>
+                                                        <p className="pl-1">or drag and drop</p>
+                                                    </div>
+                                                    <p className="text-xs text-gray-500">
+                                                        CSV files only
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="flex flex-row overflow-auto">
+                                                {formattedTopicFiles &&
+                                                    formattedTopicFiles.length > 0 &&
+                                                    formattedTopicFiles.map((file) => {
+                                                        return (
+                                                            <div
+                                                                key={file.name}
+                                                                className="flex flex-row justify-between bg-gray-100 rounded m-1 p-1 border border-gray-300"
+                                                            >
+                                                                <p className="mr-1">{file.name}</p>
+                                                                <IconContext.Provider
+                                                                    value={{
+                                                                        size: "0.75em",
+                                                                        color: "white",
+                                                                    }}
+                                                                >
+                                                                    <div
+                                                                        onClick={handleRemoveFile(
+                                                                            file
+                                                                        )}
+                                                                        className="hover:cursor-pointer"
+                                                                    >
+                                                                        <GrClose />
+                                                                    </div>
+                                                                </IconContext.Provider>
+                                                            </div>
+                                                        );
+                                                    })}
+                                            </div>
+                                            {isSubmitting ? (
+                                                <div className="mt-4 flex justify-center items-center">
+                                                    <button
+                                                        type="submit"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
+                                                    >
+                                                        <IconContext.Provider
+                                                            value={{
+                                                                size: "1.5em",
+                                                                color: "rgb(30 58 138)",
+                                                            }}
+                                                        >
+                                                            <div className="mr-2 animate-spin transition transition-duration-500">
+                                                                <CgSpinner />
+                                                            </div>
+                                                        </IconContext.Provider>
+                                                        Publishing...
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="mt-4 flex justify-center items-center">
+                                                    <button
+                                                        type="button"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-red-100 mx-1 px-4 py-2 text-sm font-medium text-red-900 hover:bg-blue-200 focus:outline-none"
+                                                        onClick={handleCloseModal}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    <button
+                                                        type="submit"
+                                                        className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
+                                                    >
+                                                        Publish
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </form>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    )}
                 </Dialog>
             </Transition>
         </>
