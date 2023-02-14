@@ -86,6 +86,10 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // 👈️ prevent page refresh
         setIsSubmitting(true);
+        if (!(formattedTopicFiles.length > 0)) {
+            setIsSubmitting(false);
+            return false;
+        }
         console.log(
             `adding ${formattedTopicFiles.length} files to topic ${props.topicDetails!.topic_id}`
         );
@@ -101,9 +105,10 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                     headers: { "Content-Type": "multipart/form-data" },
                 };
                 const uploadTopicFileResponse = await axios(uploadTopicFileConfigurationObject);
-                setIsSubmitting(false);
-                setIsSubmitted(true);
             });
+            setIsSubmitting(false);
+            setIsSubmitted(true);
+            return true;
         } catch (error: any) {
             console.log(error.response.data);
             setIsSubmitting(false);
