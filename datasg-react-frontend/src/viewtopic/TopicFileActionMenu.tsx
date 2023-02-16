@@ -60,7 +60,7 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
         <div className="w-1/12 py-2 flex items-center justify-center">
             <Menu as="div" className="absolute inline-block text-left">
                 <div>
-                    <Menu.Button className="inline-flex w-full ustify-center px-4 py-2 text-sm">
+                    <Menu.Button className="inline-flex w-full justify-center px-4 py-2 text-sm">
                         <IconContext.Provider value={{ size: "1em", color: "rgb(107 114 128)" }}>
                             <SlOptionsVertical />
                         </IconContext.Provider>

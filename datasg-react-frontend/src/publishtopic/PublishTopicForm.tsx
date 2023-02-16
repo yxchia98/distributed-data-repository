@@ -180,7 +180,7 @@ const PublishTopicForm: React.FC = () => {
                 createTopicConfigurationObject
             );
 
-            // get new topic id, and add default write access for owner
+            // get new topic id, and add default read + write access for owner
             const createWriteAccessFormData: FormData = new FormData();
             createWriteAccessFormData.append("user_id", userSelector.user_id);
             createWriteAccessFormData.append("topic_id", createTopicResponse.data.topic_id);
@@ -191,6 +191,17 @@ const PublishTopicForm: React.FC = () => {
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
             };
             const createWriteAccessResponse = await axios(createWriteAccessConfigurationObject);
+
+            const createReadAccessFormData: FormData = new FormData();
+            createReadAccessFormData.append("user_id", userSelector.user_id);
+            createReadAccessFormData.append("topic_id", createTopicResponse.data.topic_id);
+            const createReadAccessConfigurationObject: AxiosRequestConfig = {
+                method: "post",
+                url: `${process.env.REACT_APP_DATA_WRITER_API_URL}auth/read`,
+                data: createReadAccessFormData,
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            };
+            const createReadAccessResponse = await axios(createReadAccessConfigurationObject);
 
             // Uploaded files into newly-created topic, if any
             formattedTopicFiles.forEach(async (file) => {
@@ -207,6 +218,7 @@ const PublishTopicForm: React.FC = () => {
             });
             console.log(createTopicResponse.data);
             console.log(createWriteAccessResponse.data);
+            console.log(createReadAccessResponse.data);
             setIsSubmitting(false);
             setIsModalOpen(true);
             return true;

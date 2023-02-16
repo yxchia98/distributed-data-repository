@@ -173,33 +173,6 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                                                 Topic Details {`>`}
                                             </button>
                                         </div>
-                                        <div className="flex justify-between items-center text-center">
-                                            <p className="text-sm text-indigo-600">
-                                                {agenciesSelector.agencies
-                                                    .filter(
-                                                        (agency) =>
-                                                            agency.agency_id ==
-                                                            props.topicDetails?.agency_id
-                                                    )
-                                                    .map((agency) => agency.long_name)}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm truncate text-ellipsis w-full overflow-hidden text-start col-span-4 text-gray-500">
-                                                {props.topicDetails?.description}
-                                            </p>
-                                        </div>
-                                        <div className="flex">
-                                            <p className="text-sm truncate text-start col-span-1 text-gray-500 mr-1">
-                                                Last updated:
-                                            </p>
-                                            <p className="text-sm truncate text-start col-span-1 text-gray-500">
-                                                {dayjs(
-                                                    props.topicDetails!.last_update,
-                                                    "YYYY-MM-DD"
-                                                ).format("DD/MM/YYYY")}
-                                            </p>
-                                        </div>
                                         <div className="mt-1 flex flex-col justify-center rounded-md border-2 border-gray-300 px-6 pt-5 pb-6 transition">
                                             <div className="flex justify-center items-center space-y-1 text-center">
                                                 <IconContext.Provider
@@ -243,47 +216,13 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                                     leaveTo="opacity-0 scale-95"
                                 >
                                     <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                        <div className="flex flex-row justify-between">
+                                        <div className="flex flex-row justify-center">
                                             <Dialog.Title
                                                 as="h3"
                                                 className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
                                             >
-                                                {props.topicDetails?.topic_name}
+                                                {`Publish files to ${props.topicDetails?.topic_name}`}
                                             </Dialog.Title>
-                                            <button
-                                                type="button"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
-                                                onClick={handleToTopicDetails}
-                                            >
-                                                Topic Details {`>`}
-                                            </button>
-                                        </div>
-                                        <div className="flex justify-between items-center text-center">
-                                            <p className="text-sm text-indigo-600">
-                                                {agenciesSelector.agencies
-                                                    .filter(
-                                                        (agency) =>
-                                                            agency.agency_id ==
-                                                            props.topicDetails?.agency_id
-                                                    )
-                                                    .map((agency) => agency.long_name)}
-                                            </p>
-                                        </div>
-                                        <div>
-                                            <p className="text-sm truncate text-ellipsis w-full overflow-hidden text-start col-span-4 text-gray-500">
-                                                {props.topicDetails?.description}
-                                            </p>
-                                        </div>
-                                        <div className="flex">
-                                            <p className="text-sm truncate text-start col-span-1 text-gray-500 mr-1">
-                                                Last updated:
-                                            </p>
-                                            <p className="text-sm truncate text-start col-span-1 text-gray-500">
-                                                {dayjs(
-                                                    props.topicDetails!.last_update,
-                                                    "YYYY-MM-DD"
-                                                ).format("DD/MM/YYYY")}
-                                            </p>
                                         </div>
                                         <form onSubmit={handleSubmit}>
                                             <div

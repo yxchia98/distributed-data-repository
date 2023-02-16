@@ -9,7 +9,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics, TopicDetails } from "../redux/topicSlice";
 import CreateTopicModal from "./CreateTopicModal";
 import PublishTopicCard from "./PublishTopicCard";
-import PublishTopicFileModal from "./PublishTopicFileModal";
+import QuickPublishFileModal from "./QuickPublishFileModal";
 
 const PublishTopicList = () => {
     const navigate = useNavigate();
@@ -66,7 +66,7 @@ const PublishTopicList = () => {
 
     return (
         <div className="topicList">
-            <PublishTopicFileModal
+            <QuickPublishFileModal
                 topicDetails={selectedTopic}
                 isOpen={showPublishNewTopicFile}
                 setIsOpen={setShowPublishNewTopicFile}

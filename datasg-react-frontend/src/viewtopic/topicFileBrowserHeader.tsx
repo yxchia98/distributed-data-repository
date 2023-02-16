@@ -2,16 +2,23 @@ import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
+import { TbCircleDotted } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import saveAs from "file-saver";
-import { clearChecked } from "../redux/topicFileSlice";
+import { clearChecked, fetchSelectedTopicFiles } from "../redux/topicFileSlice";
 import JSZip from "jszip";
+import { useEffect, useState } from "react";
+import HeaderDownloadButton from "./HeaderDownloadButton";
+import HeaderPublishButton from "./HeaderPublishButton";
+import PublishTopicFileModal from "./PublishTopicFileModal";
 
 interface TopicFileBrowserHeaderProps {
     topic_id: string;
     agency_id: string;
+    readAccess: boolean;
+    writeAccess: boolean;
 }
 
 interface DownloadTopicFileResponse {
@@ -30,12 +37,18 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     const topicsSelector = useAppSelector((state) => state.topics).topics;
     const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
     const topicFileSelector = useAppSelector((state) => state.topicFiles);
+    const accessSelector = useAppSelector((state) => state.access);
+    const [isDownloading, setIsDownloading] = useState<boolean>(false);
+    const [isPublishing, setIsPublishing] = useState<boolean>(false);
+    const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
     const navigate = useNavigate();
 
-    const handleDownloadOnClick = async (e: any) => {
+    const handleDownloadOnClick = async () => {
+        setIsDownloading(true);
         const downloadList = topicFileSelector.checked;
         if (downloadList.length <= 0) {
             console.log("no files selected!");
+            setIsDownloading(false);
             return false;
         }
         // fetch blobs of files and zip them
@@ -67,29 +80,17 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                 }
             })
         );
-        // for (const file_id of downloadList) {
-        //     const downloadTopicFileConfigurationObject: AxiosRequestConfig = {
-        //         method: "get",
-        //         url: `${process.env.REACT_APP_DATA_READER_API_URL}topic/downloadSingleFile`,
-        //         headers: {},
-        //         params: {
-        //             file_id: file_id,
-        //         },
-        //     };
-        //     const downloadTopicFileResponse: AxiosResponse<DownloadTopicFileResponse> = await axios(
-        //         downloadTopicFileConfigurationObject
-        //     );
-        //     if (downloadTopicFileResponse.data.data) {
-        //         zip.file(
-        //             downloadTopicFileResponse.data.data.fileName,
-        //             downloadTopicFileResponse.data.data.blobString
-        //         );
-        //     }
-        // }
 
         zip.generateAsync({ type: "blob" }).then((blob) => {
             saveAs(blob, `${topicName}.zip`);
         });
+        setIsDownloading(false);
+        return true;
+    };
+
+    const handlePublishOnClick = () => {
+        setIsPublishing(true);
+        setIsPublishModalOpen(true);
         return true;
     };
 
@@ -97,15 +98,27 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         dispatch(clearChecked());
         navigate(-1);
     };
+
+    useEffect(() => {
+        if (!isPublishModalOpen) {
+            setIsPublishing(false);
+            dispatch(fetchSelectedTopicFiles(props.topic_id));
+        }
+    }, [isPublishModalOpen]);
     return (
         <div id="fileBrowserHeader" className="py-5 px-5 h-[30%]">
+            <PublishTopicFileModal
+                topicDetails={topicsSelector.find((topic) => topic.topic_id === props.topic_id)}
+                isOpen={isPublishModalOpen}
+                setIsOpen={setIsPublishModalOpen}
+            />
             <div className="flow-root mb-[2%]">
                 <div className="float-left">
                     <button
                         onClick={handleBackOnClick}
-                        className="flex flex-row items-center py-2 border border-gray-500 bg-white text-gray-700 shadow-sm rounded-md hover:bg-gray-50 transition"
+                        className="flex flex-row items-center py-2 border border-gray-300 bg-white text-gray-700 shadow-sm rounded-md hover:bg-gray-50 transition"
                     >
-                        <IconContext.Provider value={{ size: "1.5em", color: "rgb(107 114 128)" }}>
+                        <IconContext.Provider value={{ size: "1.5em", color: "rgb(156 163 175)" }}>
                             <div className="">
                                 <IoChevronBackOutline />
                             </div>
@@ -154,25 +167,18 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                         <option>option2</option>
                         <option>option3</option>
                     </select>
-                    <button
-                        onClick={handleDownloadOnClick}
-                        className="h-12 px-4 m-1 text-md rounded-lg bg-gray-200 flex flex-row items-center font-semibold"
-                    >
-                        <IconContext.Provider value={{ size: "1.5em", color: "rgb(156 163 175)" }}>
-                            <div className="mr-2">
-                                <FiArrowDownCircle />
-                            </div>
-                        </IconContext.Provider>
-                        Download
-                    </button>
-                    <button className="h-12 px-4 m-1 text-md rounded-lg bg-gray-200 flex flex-row items-center font-semibold">
-                        <IconContext.Provider value={{ size: "1.5em", color: "rgb(156 163 175)" }}>
-                            <div className="mr-2">
-                                <FiArrowUpCircle />
-                            </div>
-                        </IconContext.Provider>
-                        Publish
-                    </button>
+                    <HeaderDownloadButton
+                        isDownloading={isDownloading}
+                        setIsDownloading={setIsDownloading}
+                        handleOnClick={handleDownloadOnClick}
+                        disabled={!props.readAccess}
+                    />
+                    <HeaderPublishButton
+                        isPublishing={isPublishing}
+                        setIsPublishing={setIsPublishing}
+                        handleOnClick={handlePublishOnClick}
+                        disabled={!props.writeAccess}
+                    />
                 </div>
             </div>
         </div>
