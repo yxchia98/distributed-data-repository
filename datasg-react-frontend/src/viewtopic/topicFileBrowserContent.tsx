@@ -1,9 +1,16 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import {
+    clearChecked,
+    fetchSelectedTopicFiles,
+    setChecked,
+    TopicFileDetails,
+} from "../redux/topicFileSlice";
 import { fetchAccess } from "../redux/accessSlice";
 import dayjs, { Dayjs } from "dayjs";
 import TopicFileActionMenu from "./TopicFileActionMenu";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { saveAs } from "file-saver";
 
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
@@ -11,6 +18,17 @@ dayjs.extend(customParseFormat);
 interface TopicFileBrowserContentProps {
     topic_id: string;
     agency_id: string;
+}
+
+interface DownloadTopicFileResponse {
+    error: boolean;
+    message: string;
+    data: FileDataResponse;
+}
+
+interface FileDataResponse {
+    fileName: string;
+    blobString: string;
 }
 
 export interface TopicFileType {
@@ -28,12 +46,38 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     const [loading, setLoading] = useState<boolean>(true);
     const dispatch = useAppDispatch();
     const [formattedTopicFiles, setFormattedTopicFiles] = useState<Array<TopicFileType>>([]);
+    const [checkedTopicFiles, setCheckedTopicFiles] = useState<Array<TopicFileDetails>>([]);
     // fetch topic files using redux thunk
     const fetchTopicFilesRedux = () => {
         dispatch(fetchSelectedTopicFiles(props.topic_id));
     };
     const fetchAccessRedux = () => {
         dispatch(fetchAccess());
+    };
+
+    const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // add item to checkedTopicFiles if checked, else remove
+        if (e.target.checked) {
+            let addedList = [...topicFilesSelector.checked, e.target.value];
+            // setCheckedTopicFiles(addedList);
+            dispatch(setChecked(addedList));
+            return true;
+        }
+        if (!e.target.checked) {
+            let removedList = topicFilesSelector.checked.filter(
+                (file_id) => file_id != e.target.value
+            );
+            // setCheckedTopicFiles(removedList);
+            dispatch(setChecked(removedList));
+            return false;
+        }
+    };
+
+    const handleCheckAll = (e: React.ChangeEvent<HTMLInputElement>) => {
+        e.target.checked
+            ? dispatch(setChecked(topicFilesSelector.topicFiles.map((file) => file.file_id)))
+            : dispatch(setChecked([]));
+        return true;
     };
 
     useEffect(() => {
@@ -56,18 +100,17 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     useEffect(() => {
         fetchTopicFilesRedux();
         fetchAccessRedux();
+        dispatch(clearChecked());
     }, []);
 
     return (
         <div id="fileBrowserContent" className="h-[70%] p-4">
-            <p>{JSON.stringify(accessSelector)}</p>
-            <p>{JSON.stringify(userSelector.user.user_id)}</p>
-            <p>{JSON.stringify(props.topic_id)}</p>
             <div className="max-w h-full flex flex-col bg-white bg-local bg-origin-content border-[1px] border-gray-400 rounded">
                 <div id="browsertContentTableHeader" className="flex flex-row border bg-gray-100">
                     <div className="w-1/12 flex items-center justify-center border-r-2">
                         <input
                             type="checkbox"
+                            onChange={handleCheckAll}
                             className="rounded border-2 checked:bg-gray-500 focus:outline-none focus:ring-0 hover:outline-none transition duration-300"
                         />
                     </div>
@@ -88,16 +131,21 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
                                     <div className="w-1/12 flex items-center justify-center border-r-2">
                                         <input
                                             type="checkbox"
+                                            value={topicFile.file_id}
                                             className="rounded border-2 checked:bg-gray-500 focus:outline-none focus:ring-0 hover:outline-none transition duration-300"
+                                            onChange={handleCheck}
+                                            checked={topicFilesSelector.checked.includes(
+                                                topicFile.file_id
+                                            )}
                                         />
                                     </div>
                                     <div className="w-5/12 py-2 px-4 border-r-2">
                                         {/* get file name, which is the last element of the file url */}
                                         {topicFile.file_url.split("/").slice(-1)}
                                     </div>
-                                    <div className="w-5/12 py-2 px-4 border-r-2">{`${topicFile.file_date.format(
-                                        "DD/MM/YYYY"
-                                    )}`}</div>
+                                    <div className="w-5/12 py-2 px-4 border-r-2">
+                                        {`${topicFile.file_date.format("DD/MM/YYYY")}`}
+                                    </div>
                                     <TopicFileActionMenu file={topicFile} setLoading={setLoading} />
                                 </div>
                             );

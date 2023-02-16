@@ -3,7 +3,10 @@ import multer from "multer";
 import dotenv from "dotenv";
 import { Topic } from "../models/topic";
 import { TopicFile } from "../models/topic_file";
+import { downloadSingleFileS3 } from "../services/awsbucket";
 dotenv.config();
+import fs from "fs";
+import { GetObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
 
 /**
  * Get information of all Topics endpoint
@@ -12,6 +15,16 @@ dotenv.config();
  * Input: -
  * Returns: boolean error, string message, obj data
  */
+
+// AWS S3 client instance
+const s3 = new S3Client({
+    region: process.env.AWS_S3_BUCKET_REGION,
+    credentials: {
+        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
+        secretAccessKey: process.env.AWS_S3_ACCESS_SECRET,
+    },
+});
+
 const getAllTopics = async (req: Request, res: Response) => {
     try {
         const queryTopics = await Topic.findAll();
@@ -180,9 +193,60 @@ const getSingleTopicFile = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Download specific topic file
+ * Type: GET
+ * InputType: Params
+ * Input:
+ *      file_id - The identifier for the specified file
+ * Returns: boolean error, string message, obj data
+ */
+const downloadSingleTopicFile = async (req: Request, res: Response) => {
+    console.log(req.query.file_id);
+    if (!req.query.file_id) {
+        res.status(404).send({
+            error: true,
+            message: "Mandatory fields not set",
+            data: {},
+        });
+        return;
+    }
+    try {
+        const fileId = <string>req.query.file_id;
+        const queryTopicFile = await TopicFile.findByPk(fileId);
+        if (queryTopicFile) {
+            const fileKey = queryTopicFile.file_url.split("/").slice(-3).join("/");
+            const fileName = queryTopicFile.file_url.split("/").slice(-1)[0];
+            console.log("Trying to download file", fileKey);
+            const getFileResponse = await downloadSingleFileS3(s3, fileKey);
+            res.status(200).send({
+                error: false,
+                message: "Successfully retrieved Topic File",
+                data: {
+                    fileName: fileName,
+                    blobString: getFileResponse.data,
+                },
+            });
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "No Topic File found",
+                data: {},
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error retrieving topics",
+            data: {},
+        });
+    }
+};
+
 export default module.exports = {
     getAllTopics,
     getSingleTopic,
     getAssociatedTopicFiles,
     getSingleTopicFile,
+    downloadSingleTopicFile,
 };

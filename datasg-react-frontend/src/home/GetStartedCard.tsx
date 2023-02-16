@@ -1,12 +1,15 @@
+import { useNavigate } from "react-router-dom";
+
 interface GetStartedCardProps {
     login: boolean;
 }
 const GetStartedCard: React.FC<GetStartedCardProps> = (props) => {
+    const navigate = useNavigate();
     const googleAuth = async () => {
         window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`, "_self");
     };
     const toExplorePage = async () => {
-        console.log("navigating to explore data page");
+        return navigate("/explore");
     };
     return (
         <div className="max-w py-10 px-2 mx-2 my-2 overflow-hidden bg-white bg-local bg-origin-content shadow-lg">

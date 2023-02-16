@@ -52,6 +52,16 @@ router.get("/topicfiles", upload.none(), topicController.getAssociatedTopicFiles
 router.get("/singlefile", upload.none(), topicController.getSingleTopicFile);
 
 /**
+ * Get specific Topic File information endpoint
+ * Type: GET
+ * InputType: Params
+ * Input:
+ *      file_id - The identifier for the specified file
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/downloadSingleFile", upload.none(), topicController.downloadSingleTopicFile);
+
+/**
  * Get all existing Topic Files endpoint
  * Type: GET
  * InputType: Params

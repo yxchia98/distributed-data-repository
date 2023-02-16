@@ -4,17 +4,12 @@ import { Fragment } from "react";
 import { IconContext } from "react-icons";
 import { BsPersonCircle } from "react-icons/bs";
 import { SiDatabricks } from "react-icons/si";
+import { MdPendingActions } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { googleLogout } from "./googleAuth";
 
-const LogoutButton: React.FC = () => {
+const LoggedInUtility: React.FC = () => {
     return (
-        // <button
-        //     className="h-8 w-16 self-center text-xs text-center border border-red-500 bg-red-500 text-white rounded-md px-2 transition duration-300 ease select-none hover:bg-red-600 focus:outline-none focus:shadow-outline"
-        //     onClick={googleLogout}
-        // >
-        //     Logout
-        // </button>
         <Popover className="relative">
             {({ open }) => (
                 <>
@@ -45,7 +40,7 @@ const LogoutButton: React.FC = () => {
                     >
                         <Popover.Panel className="absolute z-10 mt-2 transform -translate-x-8 px-0 ">
                             <div className="overflow-hidden flex flex-col rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 ">
-                                <button className="bg-white p-4 rounded-md flex flex-row justify-center items-center">
+                                <button className="bg-white p-4 rounded-md flex flex-row justify-between items-center">
                                     <IconContext.Provider
                                         value={{
                                             size: "1.25em",
@@ -60,7 +55,22 @@ const LogoutButton: React.FC = () => {
                                         Profile
                                     </p>
                                 </button>
-                                <button className="bg-white px-2 py-4 flex flex-row  border-b-[1px] border-t-[1px] border-gray-100 justify-center items-center">
+                                <button className="bg-white px-2 py-4 flex flex-row border-t-[1px] border-gray-100 justify-between items-center">
+                                    <IconContext.Provider
+                                        value={{
+                                            size: "1.25em",
+                                            color: "rgb(107 114 128)",
+                                        }}
+                                    >
+                                        <div className="px-2">
+                                            <MdPendingActions />
+                                        </div>
+                                    </IconContext.Provider>
+                                    <p className="text-sm font-medium text-gray-900 px-2">
+                                        Requests
+                                    </p>
+                                </button>
+                                <button className="bg-white px-2 py-4 flex flex-row  border-b-[1px] border-t-[1px] border-gray-100 justify-between items-center">
                                     <IconContext.Provider
                                         value={{
                                             size: "1.25em",
@@ -76,7 +86,7 @@ const LogoutButton: React.FC = () => {
                                     </p>
                                 </button>
                                 <button
-                                    className="bg-gray-50 p-4 rounded-b-md flex flex-row justify-center items-center"
+                                    className="bg-gray-50 p-4 rounded-b-md flex flex-row justify-between items-center"
                                     onClick={googleLogout}
                                 >
                                     <IconContext.Provider
@@ -102,4 +112,4 @@ const LogoutButton: React.FC = () => {
     );
 };
 
-export default LogoutButton;
+export default LoggedInUtility;

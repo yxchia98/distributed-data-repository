@@ -1,14 +1,16 @@
 import { BsArrowRight } from "react-icons/bs";
+import { useNavigate } from "react-router-dom";
 
 interface MainCardProps {
     login: boolean;
 }
 const MainCard: React.FC<MainCardProps> = (props) => {
+    const navigate = useNavigate();
     const googleAuth = async () => {
         window.open(`${process.env.REACT_APP_DATA_WRITER_API_URL}auth/google`, "_self");
     };
     const toExplorePage = async () => {
-        console.log("navigating to explore data page");
+        return navigate("/explore");
     };
     return (
         <div className="max-w py-20 px-2 mx-2 my-2 overflow-hidden bg-white flex justify-center bg-local bg-origin-content shadow-lg">

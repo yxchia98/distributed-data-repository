@@ -3,19 +3,98 @@ import { BiShareAlt } from "react-icons/bi";
 import { IoChevronBackOutline } from "react-icons/io5";
 import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { useAppSelector } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import saveAs from "file-saver";
+import { clearChecked } from "../redux/topicFileSlice";
+import JSZip from "jszip";
 
 interface TopicFileBrowserHeaderProps {
     topic_id: string;
     agency_id: string;
 }
 
+interface DownloadTopicFileResponse {
+    error: boolean;
+    message: string;
+    data: FileDataResponse;
+}
+interface FileDataResponse {
+    fileName: string;
+    blobString: string;
+}
+
 const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) => {
+    const dispatch = useAppDispatch();
+
     const topicsSelector = useAppSelector((state) => state.topics).topics;
     const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
+    const topicFileSelector = useAppSelector((state) => state.topicFiles);
     const navigate = useNavigate();
 
+    const handleDownloadOnClick = async (e: any) => {
+        const downloadList = topicFileSelector.checked;
+        if (downloadList.length <= 0) {
+            console.log("no files selected!");
+            return false;
+        }
+        // fetch blobs of files and zip them
+        var zip = new JSZip();
+
+        // get current topic name to set in downloaded file
+        const topicName = topicsSelector
+            .filter((topic) => topic.topic_id === props.topic_id)
+            .map((topic) => topic.topic_name);
+
+        // iterate and consolidate files
+        await Promise.all(
+            downloadList.map(async (file_id) => {
+                const downloadTopicFileConfigurationObject: AxiosRequestConfig = {
+                    method: "get",
+                    url: `${process.env.REACT_APP_DATA_READER_API_URL}topic/downloadSingleFile`,
+                    headers: {},
+                    params: {
+                        file_id: file_id,
+                    },
+                };
+                const downloadTopicFileResponse: AxiosResponse<DownloadTopicFileResponse> =
+                    await axios(downloadTopicFileConfigurationObject);
+                if (downloadTopicFileResponse.data.data) {
+                    zip.file(
+                        downloadTopicFileResponse.data.data.fileName,
+                        downloadTopicFileResponse.data.data.blobString
+                    );
+                }
+            })
+        );
+        // for (const file_id of downloadList) {
+        //     const downloadTopicFileConfigurationObject: AxiosRequestConfig = {
+        //         method: "get",
+        //         url: `${process.env.REACT_APP_DATA_READER_API_URL}topic/downloadSingleFile`,
+        //         headers: {},
+        //         params: {
+        //             file_id: file_id,
+        //         },
+        //     };
+        //     const downloadTopicFileResponse: AxiosResponse<DownloadTopicFileResponse> = await axios(
+        //         downloadTopicFileConfigurationObject
+        //     );
+        //     if (downloadTopicFileResponse.data.data) {
+        //         zip.file(
+        //             downloadTopicFileResponse.data.data.fileName,
+        //             downloadTopicFileResponse.data.data.blobString
+        //         );
+        //     }
+        // }
+
+        zip.generateAsync({ type: "blob" }).then((blob) => {
+            saveAs(blob, `${topicName}.zip`);
+        });
+        return true;
+    };
+
     const handleBackOnClick = () => {
+        dispatch(clearChecked());
         navigate(-1);
     };
     return (
@@ -75,7 +154,10 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                         <option>option2</option>
                         <option>option3</option>
                     </select>
-                    <button className="h-12 px-4 m-1 text-md rounded-lg bg-gray-200 flex flex-row items-center font-semibold">
+                    <button
+                        onClick={handleDownloadOnClick}
+                        className="h-12 px-4 m-1 text-md rounded-lg bg-gray-200 flex flex-row items-center font-semibold"
+                    >
                         <IconContext.Provider value={{ size: "1.5em", color: "rgb(156 163 175)" }}>
                             <div className="mr-2">
                                 <FiArrowDownCircle />

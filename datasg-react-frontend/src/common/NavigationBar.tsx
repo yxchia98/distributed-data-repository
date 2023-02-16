@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import LoginButton from "./NavLoginButton";
-import LogoutButton from "./NavLogoutButton";
+import LoggedInUtility from "./NavLoggedInUtility";
 import { fetchUser } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { Link, useNavigate } from "react-router-dom";
@@ -113,7 +113,7 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
                     </li>
                     <li>
                         {!userSelector.user.loggedIn && <LoginButton />}
-                        {userSelector.user.loggedIn && <LogoutButton />}
+                        {userSelector.user.loggedIn && <LoggedInUtility />}
                     </li>
                 </ul>
             </div>

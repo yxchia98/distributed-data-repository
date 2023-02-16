@@ -3,7 +3,7 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Dayjs } from "dayjs";
 
-interface TopicFileDetails {
+export interface TopicFileDetails {
     file_id: string;
     topic_id: string;
     agency_id: string;
@@ -13,6 +13,7 @@ interface TopicFileDetails {
 
 interface SelectedTopicFilesState {
     topicFiles: Array<TopicFileDetails>;
+    checked: Array<string>;
     status: string;
 }
 
@@ -25,6 +26,7 @@ interface FetchTopicFilesResponseType {
 // initialize initial state for user in redux store
 const initialState: SelectedTopicFilesState = {
     topicFiles: [],
+    checked: [],
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
 
@@ -62,7 +64,15 @@ export const fetchSelectedTopicFiles = createAsyncThunk(
 export const selectedTopicSlice = createSlice({
     name: "selectedTopic",
     initialState,
-    reducers: {},
+    reducers: {
+        setChecked: (state, action: PayloadAction<Array<string>>) => {
+            const checkedList = action.payload;
+            state.checked = checkedList;
+        },
+        clearChecked: (state) => {
+            state.checked = [];
+        },
+    },
     extraReducers: (builder) => {
         builder
             .addCase(fetchSelectedTopicFiles.pending, (state, action) => {
@@ -79,6 +89,6 @@ export const selectedTopicSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const {} = selectedTopicSlice.actions;
+export const { setChecked, clearChecked } = selectedTopicSlice.actions;
 
 export default selectedTopicSlice.reducer;
