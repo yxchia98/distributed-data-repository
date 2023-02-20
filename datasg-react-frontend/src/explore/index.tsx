@@ -20,7 +20,7 @@ const Explore: React.FC = (props) => {
     //     checkUser();
     // }, []);
     return (
-        <div className="explore bg-gray-100 h-screen">
+        <div className="explore bg-gray-100 h-screen overflow-auto">
             <NavigationBar current="explore" />
             <ExploreTopicSearchBar />
             <ExploreTopicList />

@@ -4,8 +4,8 @@ import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
-import { fetchTopics } from "../redux/topicSlice";
+import { fetchSelectedTopicFiles, fetchSelectedTopicOwner } from "../redux/topicFileSlice";
+import { fetchTopics, setCurrentTopic, TopicDetails } from "../redux/topicSlice";
 
 interface TopicCardProps {
     key: string;
@@ -18,23 +18,34 @@ interface TopicCardProps {
 const TopicCard: React.FC<TopicCardProps> = (props) => {
     const navigate = useNavigate();
     const agenciesSelector = useAppSelector((state) => state.agencies);
-    const user = useAppSelector((state) => state.user);
+    const topicsSelector = useAppSelector((state) => state.topics);
     const dispatch = useAppDispatch();
 
     const fetchAgenciesRedux = () => {
         dispatch(fetchAgencies());
     };
-    const fetchTopicFilesRedux = () => {
-        dispatch(fetchSelectedTopicFiles(props.topic_id));
-    };
 
+    const fetchDataOnCardClickRedux = async () => {
+        let selectedTopic: TopicDetails = {
+            topic_id: "",
+            user_id: "",
+            agency_id: "",
+            topic_name: "",
+            topic_url: "",
+            description: "",
+            last_update: "",
+        };
+        const foundTopic = topicsSelector.topics.find((topic) => topic.topic_id === props.topic_id);
+        selectedTopic = foundTopic ? foundTopic : selectedTopic;
+    };
     useEffect(() => {
         fetchAgenciesRedux();
     }, []);
     const handleCardOnClick = () => {
         console.log(`clicked on ${props.topic_id}`);
-        fetchTopicFilesRedux();
+        // pre-emptively fetch necessary information via redux
         // console.log(`clicked on ${e.target.value.topic_name}, ${e.target.value.topic_id}`);
+        fetchDataOnCardClickRedux();
         return navigate("/viewTopic", {
             state: {
                 topic_id: props.topic_id,

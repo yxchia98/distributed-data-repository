@@ -226,6 +226,7 @@ const createWriteAccess = async (req: Request, res: Response) => {
  *
  * Input:
  *      requestor_id - User identifier that is requesting the access
+ *      approver_id User identifier that is granting the access
  *      topic_id - Topic identifier to be requesting access to
  *      access_type - Type of access. READ/WRITE
  *      description - Brief description for requesting access (optional)
@@ -235,7 +236,14 @@ const createWriteAccess = async (req: Request, res: Response) => {
 const createRequestAccess = async (req: Request, res: Response) => {
     // Takes in the user and the topic requested to
     // Checks if required fields are present
-    if (!(req.body.requestor_id && req.body.topic_id && req.body.access_type)) {
+    if (
+        !(
+            req.body.requestor_id &&
+            req.body.topic_id &&
+            req.body.access_type &&
+            req.body.approver_id
+        )
+    ) {
         res.status(400).send({
             error: true,
             message: "Error, mandatory fields not set",
@@ -272,7 +280,8 @@ const createRequestAccess = async (req: Request, res: Response) => {
             // get id of topic owner and put in request record
             const record: AccessRequestType = {
                 requestor_id: req.body.requestor_id,
-                approver_id: queryTopic.user_id,
+                // approver_id: queryTopic.user_id,
+                approver_id: req.body.approver_id,
                 topic_id: queryTopic.topic_id,
                 access_type: req.body.access_type,
                 description: description,

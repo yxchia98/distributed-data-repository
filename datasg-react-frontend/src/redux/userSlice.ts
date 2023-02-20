@@ -25,12 +25,7 @@ export interface FetchUserDetailsResponseType {
     data: FetchUserDetailsData;
 }
 
-interface FetchUserData {
-    user_id: string;
-    email: string;
-}
-
-interface FetchUserDetailsData {
+export interface FetchUserDetailsData {
     user_id: string;
     first_name: string;
     last_name: string;

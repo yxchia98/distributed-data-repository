@@ -52,6 +52,7 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
     const handleRemoveFile = (file: File) => {
         return (event: React.MouseEvent) => {
             const newFileArray: Array<File> = formattedTopicFiles.filter((currFile) => {
+                console.log("removed");
                 return currFile.name != file.name;
             });
             setFormattedTopicFiles(newFileArray);

@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import NavigationBar from "../common/NavigationBar";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics } from "../redux/topicSlice";
+import { fetchTopics, setCurrentTopic } from "../redux/topicSlice";
 import TopicFileBrowser from "./TopicFileBrowser";
 
 const ViewTopic: React.FC = () => {

@@ -15,6 +15,7 @@ export interface TopicDetails {
 interface TopicState {
     topics: Array<TopicDetails>;
     search: TopicSearch;
+    currentTopic: TopicDetails;
     status: string;
 }
 
@@ -34,10 +35,21 @@ const initialSearchState: TopicSearch = {
     agency_id: "",
 };
 
+const initialCurrentTopic: TopicDetails = {
+    topic_id: "",
+    user_id: "",
+    agency_id: "",
+    topic_name: "",
+    topic_url: "",
+    description: "",
+    last_update: "",
+};
+
 // initialize initial state for user in redux store
 const initialState: TopicState = {
     topics: [],
     search: initialSearchState,
+    currentTopic: initialCurrentTopic,
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
 
@@ -76,6 +88,10 @@ export const topicsSlice = createSlice({
             state.search.search = searchText;
             state.search.agency_id = searchAgency;
         },
+        setCurrentTopic: (state, action: PayloadAction<string>) => {
+            let foundTopic = state.topics.find((topic) => topic.topic_id === action.payload);
+            state.currentTopic = foundTopic ? foundTopic : initialCurrentTopic;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -93,6 +109,6 @@ export const topicsSlice = createSlice({
 });
 
 // Action creators are generated for each case reducer function
-export const { setSearch } = topicsSlice.actions;
+export const { setSearch, setCurrentTopic } = topicsSlice.actions;
 
 export default topicsSlice.reducer;

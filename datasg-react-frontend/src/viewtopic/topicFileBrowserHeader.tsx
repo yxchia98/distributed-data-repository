@@ -37,7 +37,6 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     const topicsSelector = useAppSelector((state) => state.topics).topics;
     const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
     const topicFileSelector = useAppSelector((state) => state.topicFiles);
-    const accessSelector = useAppSelector((state) => state.access);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);

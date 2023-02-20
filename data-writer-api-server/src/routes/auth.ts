@@ -184,6 +184,7 @@ router.delete("/write", upload.none(), async (req: Request, res: Response) => {
  *
  * Input:
  *      requestor_id - User identifier that is requesting the access
+ *      approver_id User identifier that is granting the access
  *      topic_id - Topic identifier to be requesting access to
  *      access_type - Type of access. READ/WRITE
  *      description - Brief description for requesting access (optional)

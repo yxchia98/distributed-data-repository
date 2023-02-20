@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import { fetchSelectedTopicFiles, fetchSelectedTopicOwner } from "../redux/topicFileSlice";
 import { fetchAccess } from "../redux/accessSlice";
 import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
 import TopicFileBrowserContent from "./TopicFileBrowserContent";
+import { setCurrentTopic } from "../redux/topicSlice";
 
 interface TopicFileBrowserProps {
     topic_id: string;
@@ -17,6 +18,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     const [hasWriteAccess, setHasWriteAccess] = useState<boolean>(false);
     const userSelector = useAppSelector((state) => state.user);
     const accessSelector = useAppSelector((state) => state.access);
+    const topicsSelector = useAppSelector((state) => state.topics);
 
     // fetch topic files and access rights using redux thunk
     const fetchTopicFilesRedux = () => {
@@ -25,7 +27,24 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     const fetchAccessRedux = () => {
         dispatch(fetchAccess());
     };
+    const setCurrentTopicRedux = () => {
+        dispatch(setCurrentTopic(props.topic_id));
+    };
+    const fetchTopicOwnerRedux = (user_id: string) => {
+        dispatch(fetchSelectedTopicOwner(user_id));
+    };
 
+    // fetch topic owner's details after setting current topic
+    useEffect(() => {
+        fetchTopicOwnerRedux(topicsSelector.currentTopic.user_id);
+    }, [topicsSelector.currentTopic]);
+
+    // fetch and set current topic after fetching topic details
+    useEffect(() => {
+        setCurrentTopicRedux();
+    }, [topicsSelector.topics]);
+
+    // fetch latest topic and access details
     useEffect(() => {
         fetchTopicFilesRedux();
         fetchAccessRedux();
