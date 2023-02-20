@@ -103,7 +103,7 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
 
     return (
         <div id="fileBrowserContent" className="h-[70%] p-4">
-            <div className="max-w h-full flex flex-col bg-white bg-local bg-origin-content border-[1px] border-gray-400 rounded-lg">
+            <div className="max-w h-full flex flex-col bg-white bg-local bg-origin-content border-[1px] border-gray-400 overflow-auto rounded-lg">
                 <div>
                     <div
                         id="browsertContentTableHeader"
@@ -121,7 +121,7 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
                         <div className="w-1/12 py-2 text-center font-semibold">Action</div>
                     </div>
                     {props.readAccess && (
-                        <div className="overflow-auto flex-1 items-center justify-center">
+                        <div className="items-center justify-center">
                             {!loading &&
                                 // rendering table rows for each topic file item
                                 formattedTopicFiles.map((topicFile) => {
