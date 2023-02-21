@@ -125,7 +125,16 @@ const ProfileDetail: React.FC = (props) => {
             setIsSubmitting(false);
             setIsEditing(false);
             setIsSubmitted(true);
-            // dispatch(setDetails({}))
+            dispatch(
+                setDetails({
+                    user_id: userSelector.user.user_id,
+                    first_name: firstName,
+                    last_name: lastName,
+                    contact: contact,
+                    email: email,
+                    agency_id: agency,
+                })
+            );
         } catch (error: any) {
             setErrorMessage(error.message);
             setIsSubmitting(false);

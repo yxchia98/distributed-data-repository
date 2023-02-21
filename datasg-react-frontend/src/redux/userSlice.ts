@@ -123,20 +123,14 @@ export const userSlice = createSlice({
                 state.user.loggedIn = true;
             }
         },
-        setDetails: (state, action: PayloadAction<FetchUserResponseType>) => {
-            state.user.user_id = action.payload.data?.user_id ? action.payload.data?.user_id : "";
-            state.user.first_name = action.payload.data.first_name
-                ? action.payload.data?.first_name
-                : "";
-            state.user.last_name = action.payload.data?.last_name
-                ? action.payload.data?.last_name
-                : "";
-            state.user.email = action.payload.data?.email ? action.payload.data?.email : "";
-            state.user.contact = action.payload.data?.contact ? action.payload.data?.contact : "";
-            state.user.agency_id = action.payload.data?.agency_id
-                ? action.payload.data?.agency_id
-                : "";
-            if (action.payload.data?.user_id && action.payload.data?.agency_id) {
+        setDetails: (state, action: PayloadAction<FetchUserDetailsData>) => {
+            state.user.user_id = action.payload.user_id ? action.payload.user_id : "";
+            state.user.first_name = action.payload.first_name ? action.payload.first_name : "";
+            state.user.last_name = action.payload.last_name ? action.payload.last_name : "";
+            state.user.email = action.payload.email ? action.payload.email : "";
+            state.user.contact = action.payload.contact ? action.payload.contact : "";
+            state.user.agency_id = action.payload.agency_id ? action.payload.agency_id : "";
+            if (action.payload.user_id && action.payload.agency_id) {
                 state.user.registered = true;
             }
         },
