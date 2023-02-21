@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { useState, useEffect } from "react";
 import { IconContext } from "react-icons";
 import { BiEdit } from "react-icons/bi";
@@ -8,6 +8,14 @@ import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../../redux/hooks";
 import { fetchTopics } from "../../redux/topicSlice";
+import ProfileDetailSuccessModal from "./ProfileDetailSuccessModal";
+import ProfileDetailFailureModal from "./ProfileDetailFailureModal";
+import { setDetails } from "../../redux/userSlice";
+
+interface UpdateProfileResponseType {
+    error: boolean;
+    message: string;
+}
 
 const ProfileDetail: React.FC = (props) => {
     const dispatch = useAppDispatch();
@@ -27,6 +35,8 @@ const ProfileDetail: React.FC = (props) => {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
     const [isErrorSubmitting, setIsErrorSubmitting] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>("Error updating profile...");
+    const [successMessage, setSuccessMessage] = useState<string>("Successfully updated profile!");
 
     // field error states
     const [firstNameError, setFirstNameError] = useState<boolean>(false);
@@ -36,7 +46,6 @@ const ProfileDetail: React.FC = (props) => {
     const [agencyError, setAgencyError] = useState<boolean>(false);
 
     const fetchProfileDataRedux = () => {
-        dispatch(fetchTopics());
         dispatch(fetchAgencies());
     };
 
@@ -57,6 +66,14 @@ const ProfileDetail: React.FC = (props) => {
         setAgency(e.target.value);
     };
 
+    const closeSuccessModal = () => {
+        fetchProfileDataRedux();
+        setIsSubmitted(false);
+    };
+
+    const closeFailureModal = () => {
+        setIsErrorSubmitting(false);
+    };
     // button click handlers
     const handleEditButtonClick = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
         validifyForm();
@@ -71,12 +88,50 @@ const ProfileDetail: React.FC = (props) => {
         setIsSubmitting(true);
 
         // validify form
-        validifyForm();
-        if (firstNameError || lastNameError || contactError || emailError || agencyError) {
-            setIsSubmitting(false);
+        const isFormValid = validifyForm();
+        console.log(isFormValid);
+        if (!isFormValid) {
+            setIsErrorSubmitting(true);
+            setErrorMessage("Please ensure all fields are filled up correctly.");
             return;
         }
         // update values and send post request
+        const updateProfileFormData: FormData = new FormData();
+        updateProfileFormData.append("user_id", userSelector.user.user_id);
+        updateProfileFormData.append("first_name", firstName);
+        updateProfileFormData.append("last_name", lastName);
+        updateProfileFormData.append("email", email);
+        updateProfileFormData.append("contact", contact);
+        updateProfileFormData.append("agency_id", agency);
+
+        const updateProfileConfigurationObject: AxiosRequestConfig = {
+            method: "put",
+            url: `${process.env.REACT_APP_DATA_WRITER_API_URL}profile/user`,
+            data: updateProfileFormData,
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        };
+        try {
+            const updateProfileResponse: AxiosResponse<UpdateProfileResponseType> = await axios(
+                updateProfileConfigurationObject
+            );
+            if (updateProfileResponse.data.error) {
+                setErrorMessage(updateProfileResponse.data.message);
+                setIsSubmitting(false);
+                setIsErrorSubmitting(true);
+                return;
+            }
+            console.log(updateProfileResponse);
+            setSuccessMessage(updateProfileResponse.data.message);
+            setIsSubmitting(false);
+            setIsEditing(false);
+            setIsSubmitted(true);
+            // dispatch(setDetails({}))
+        } catch (error: any) {
+            setErrorMessage(error.message);
+            setIsSubmitting(false);
+            setIsErrorSubmitting(true);
+            return;
+        }
     };
 
     const validifyForm = () => {
@@ -111,18 +166,26 @@ const ProfileDetail: React.FC = (props) => {
         setAgency(userSelector.user.agency_id);
     };
 
+    // validify form's select dropdown list, as there are no onblur functionality for it
+    useEffect(() => {
+        validifyForm();
+    }, [agency]);
+
     useEffect(() => {
         if (userSelector.status === "loading" || agenciesSelector.status === "loading") {
             setIsLoading(true);
             return;
         }
         setIsLoading(false);
-        // set initial user details
-        resetFormFields();
-
         return;
     }, [userSelector, agenciesSelector]);
 
+    useEffect(() => {
+        fetchProfileDataRedux();
+        resetFormFields();
+    }, []);
+
+    // fetch essential data
     useEffect(() => {
         fetchProfileDataRedux();
     }, []);
@@ -187,8 +250,10 @@ const ProfileDetail: React.FC = (props) => {
                                 name="email"
                                 id="email"
                                 disabled={true}
-                                value={userSelector.user.email}
-                                className="mt-1 block w-full rounded-md bg-gray-50 border-gray-300 shadow-sm focus:ring-0 focus:border-gray-300 disabled:text-gray-500"
+                                value={email}
+                                className={`mt-1 block w-full rounded-md bg-gray-50 ${
+                                    emailError ? "border-red-500" : "border-gray-300"
+                                }  shadow-sm focus:ring-0 focus:border-gray-300 disabled:text-gray-500`}
                             />
                         </div>
 
@@ -200,8 +265,6 @@ const ProfileDetail: React.FC = (props) => {
                                 disabled={!isEditing}
                                 value={agency}
                                 onChange={handleAgencyOnChange}
-                                onSelect={validifyForm}
-                                onBlur={validifyForm}
                                 className="mt-1 block w-full rounded-md bg-gray-50 border-gray-300 shadow-sm focus:ring-0 focus:border-gray-300 disabled:text-gray-500"
                             >
                                 {agenciesSelector.agencies.map((agency: any) => {
@@ -210,15 +273,6 @@ const ProfileDetail: React.FC = (props) => {
                                             {`${agency.long_name} (${agency.short_name})`}
                                         </option>
                                     );
-                                    //                                     if (agency.agency_id === userSelector.user.agency_id) {
-                                    // ;
-                                    //                                     } else {
-                                    //                                         return (
-                                    //                                             <option key={agency.agency_id} value={agency.agency_id}>
-                                    //                                                 {`${agency.long_name} (${agency.short_name})`}
-                                    //                                             </option>
-                                    //                                         );
-                                    //                                     }
                                 })}
                             </select>
                         </div>
@@ -259,16 +313,32 @@ const ProfileDetail: React.FC = (props) => {
                                     disabled={!isSubmittable}
                                     type="submit"
                                 >
-                                    <IconContext.Provider
-                                        value={{
-                                            size: "1.5em",
-                                            // color: "rgb(107 114 128)",
-                                        }}
-                                    >
+                                    {isSubmitting && (
                                         <div className="pl-2">
-                                            <FaRegSave />
+                                            <IconContext.Provider
+                                                value={{
+                                                    size: "1.5em",
+                                                    // color: "rgb(107 114 128)",
+                                                }}
+                                            >
+                                                <div className="animate-spin">
+                                                    <CgSpinner />
+                                                </div>
+                                            </IconContext.Provider>
                                         </div>
-                                    </IconContext.Provider>
+                                    )}
+                                    {!isSubmitting && (
+                                        <IconContext.Provider
+                                            value={{
+                                                size: "1.5em",
+                                                // color: "rgb(107 114 128)",
+                                            }}
+                                        >
+                                            <div className="pl-2">
+                                                <FaRegSave />
+                                            </div>
+                                        </IconContext.Provider>
+                                    )}
 
                                     <span className="px-2">Update Details</span>
                                 </button>
@@ -290,6 +360,20 @@ const ProfileDetail: React.FC = (props) => {
                     </IconContext.Provider>
                 </div>
             )}
+            <ProfileDetailSuccessModal
+                title={"Successfully Updated!"}
+                message={successMessage}
+                closeMessage={`Yay!`}
+                isOpen={isSubmitted}
+                handleCloseModal={closeSuccessModal}
+            />
+            <ProfileDetailFailureModal
+                title={"Whoops, something went wrong..."}
+                message={errorMessage}
+                closeMessage={`Got it`}
+                isOpen={isErrorSubmitting}
+                handleCloseModal={closeFailureModal}
+            />
         </div>
     );
 };

@@ -18,17 +18,17 @@ const ProfileSideBar: React.FC = (props) => {
     return (
         <div className="w-full h-full border-r-1 flex border-gray-300 overflow-auto bg-gray-50">
             <nav className="w-full">
-                <div className="w-full border-b-2 flex flex-row justify-center items-center">
+                <div className="w-full border-b-[1px] flex flex-row justify-center items-center">
                     <span className="text-xl p-4">My Stuff</span>
                 </div>
-                <ul className="w-full">
+                <ul className="w-full mt-4">
                     <li className="w-auto m-2">
                         <NavLink
                             to={`details`}
                             className={({ isActive, isPending }) =>
                                 isActive
                                     ? `w-full grid grid-cols-5 py-4 bg-indigo-500 rounded-xl shadow-md text-white`
-                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 transition duration-300`
+                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 active:bg-indigo-300 transition duration-300`
                             }
                         >
                             <div className="col-start-2 flex">
@@ -53,7 +53,7 @@ const ProfileSideBar: React.FC = (props) => {
                             className={({ isActive, isPending }) =>
                                 isActive
                                     ? `w-full grid grid-cols-5 py-4 bg-indigo-500 rounded-xl shadow-md text-white`
-                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 transition duration-300`
+                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 active:bg-indigo-300 transition duration-300`
                             }
                         >
                             <div className="col-start-2 flex">
@@ -77,7 +77,7 @@ const ProfileSideBar: React.FC = (props) => {
                             className={({ isActive, isPending }) =>
                                 isActive
                                     ? `w-full grid grid-cols-5 py-4 bg-indigo-500 rounded-xl shadow-md text-white`
-                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 transition duration-300`
+                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 active:bg-indigo-300 transition duration-300`
                             }
                         >
                             <div className="col-start-2 flex">
@@ -101,7 +101,7 @@ const ProfileSideBar: React.FC = (props) => {
                             className={({ isActive, isPending }) =>
                                 isActive
                                     ? `w-full grid grid-cols-5 py-4 bg-indigo-500 rounded-xl shadow-md text-white`
-                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 transition duration-300`
+                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 active:bg-indigo-300 transition duration-300`
                             }
                         >
                             <div className="col-start-2 flex">
