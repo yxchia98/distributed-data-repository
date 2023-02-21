@@ -7,8 +7,19 @@ import { SiDatabricks } from "react-icons/si";
 import { MdPendingActions } from "react-icons/md";
 import { IoLogOutOutline } from "react-icons/io5";
 import { googleLogout } from "./googleAuth";
+import { useNavigate } from "react-router-dom";
 
 const LoggedInUtility: React.FC = () => {
+    const navigate = useNavigate();
+    const handleProfileOnClick = () => {
+        return navigate("/profile/details");
+    };
+    const handleRequestOnClick = () => {
+        return navigate("/profile/requests");
+    };
+    const handleTopicOnClick = () => {
+        return navigate("/profile/topics");
+    };
     return (
         <Popover className="relative">
             {({ open }) => (
@@ -40,7 +51,10 @@ const LoggedInUtility: React.FC = () => {
                     >
                         <Popover.Panel className="absolute z-10 mt-2 transform -translate-x-8 px-0 ">
                             <div className="overflow-hidden flex flex-col rounded-lg shadow-lg ring-1 ring-black ring-opacity-5 ">
-                                <button className="bg-white p-4 rounded-md flex flex-row justify-between items-center">
+                                <button
+                                    onClick={handleProfileOnClick}
+                                    className="bg-white p-4 rounded-md flex flex-row justify-between items-center"
+                                >
                                     <IconContext.Provider
                                         value={{
                                             size: "1.25em",
@@ -55,7 +69,10 @@ const LoggedInUtility: React.FC = () => {
                                         Profile
                                     </p>
                                 </button>
-                                <button className="bg-white px-2 py-4 flex flex-row border-t-[1px] border-gray-100 justify-between items-center">
+                                <button
+                                    onClick={handleRequestOnClick}
+                                    className="bg-white px-2 py-4 flex flex-row border-t-[1px] border-gray-100 justify-between items-center"
+                                >
                                     <IconContext.Provider
                                         value={{
                                             size: "1.25em",
@@ -70,19 +87,22 @@ const LoggedInUtility: React.FC = () => {
                                         Requests
                                     </p>
                                 </button>
-                                <button className="bg-white px-2 py-4 flex flex-row  border-b-[1px] border-t-[1px] border-gray-100 justify-between items-center">
+                                <button
+                                    onClick={handleTopicOnClick}
+                                    className="bg-white px-2 py-4 flex flex-row  border-b-[1px] border-t-[1px] border-gray-100 justify-between items-center"
+                                >
                                     <IconContext.Provider
                                         value={{
                                             size: "1.25em",
                                             color: "rgb(107 114 128)",
                                         }}
                                     >
-                                        <div className="px-2">
+                                        <div className="pl-2">
                                             <SiDatabricks />
                                         </div>
                                     </IconContext.Provider>
-                                    <p className="text-sm font-medium text-gray-900 px-2">
-                                        My Data
+                                    <p className="text-sm font-medium text-gray-900 pr-2">
+                                        My Topics
                                     </p>
                                 </button>
                                 <button

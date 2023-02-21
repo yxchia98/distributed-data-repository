@@ -8,6 +8,10 @@ import Explore from "./explore";
 import ViewTopic from "./viewtopic";
 import Publish from "./publish";
 import PublishTopic from "./publishtopic";
+import Profile from "./profile";
+import ProfileDetail from "./profile/profiledetail";
+import ProfileRequest from "./profile/profilerequest";
+import ProfileTopic from "./profile/profiletopic";
 
 export const router = createBrowserRouter([
     {
@@ -51,6 +55,25 @@ export const router = createBrowserRouter([
         element: <Publish />,
         errorElement: <ErrorPage />,
         children: [],
+    },
+    {
+        path: "/profile",
+        element: <Profile />,
+        errorElement: <ErrorPage />,
+        children: [
+            {
+                path: "details",
+                element: <ProfileDetail />,
+            },
+            {
+                path: "requests",
+                element: <ProfileRequest />,
+            },
+            {
+                path: "topics",
+                element: <ProfileTopic />,
+            },
+        ],
     },
 ]);
 
