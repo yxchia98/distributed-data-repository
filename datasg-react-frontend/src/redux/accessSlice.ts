@@ -72,7 +72,7 @@ export const fetchAccessRequests = createAsyncThunk(
         try {
             const fetchSubmittedAccessRequestConfigurationObject: AxiosRequestConfig = {
                 method: "get",
-                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/requestapproval`,
+                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/submittedrequest`,
                 headers: {},
                 withCredentials: true,
                 params: {
@@ -82,7 +82,7 @@ export const fetchAccessRequests = createAsyncThunk(
 
             const fetchApprovableAccessRequestConfigurationObject: AxiosRequestConfig = {
                 method: "get",
-                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/submittedrequest`,
+                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/requestapproval`,
                 headers: {},
                 withCredentials: true,
                 params: {

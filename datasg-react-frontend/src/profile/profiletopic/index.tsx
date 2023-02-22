@@ -5,9 +5,7 @@ import { useAppSelector } from "../../redux/hooks";
 
 const ProfileTopic: React.FC = (props) => {
     const userSelector = useAppSelector((state) => state.user);
-    useEffect(() => {
-        console.log("hello");
-    }, []);
+    useEffect(() => {}, []);
     return (
         <div className="explore bg-gray-100">
             <span>My Topics</span>

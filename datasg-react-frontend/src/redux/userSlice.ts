@@ -19,6 +19,12 @@ export interface FetchUserResponseType {
     data: UserDetails;
 }
 
+interface FetchAllUsersResponseType {
+    error: boolean;
+    message: string;
+    data: Array<FetchUserDetailsData>;
+}
+
 export interface FetchUserDetailsResponseType {
     error: boolean;
     message: string;
@@ -34,6 +40,14 @@ export interface FetchUserDetailsData {
     agency_id: string;
 }
 
+interface UserState {
+    user: UserDetails;
+    allUsers: Array<FetchUserDetailsData>;
+    status: string;
+    fetchAllUsersStatus: string;
+    error: string | undefined;
+}
+
 const initialUserState = {
     user_id: "",
     first_name: "",
@@ -46,11 +60,44 @@ const initialUserState = {
 } as UserDetails;
 
 // initialize initial state for user in redux store
-const initialState = {
+const initialState: UserState = {
     user: initialUserState,
+    allUsers: [],
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
-    error: <string | undefined>undefined,
+    fetchAllUsersStatus: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
+    error: undefined,
 };
+
+// fetch all users from db
+export const fetchAllUsers = createAsyncThunk("user/fetchAllUsers", async () => {
+    let res: FetchAllUsersResponseType = {
+        error: true,
+        message: "",
+        data: [],
+    };
+    const FetchAllUsersConfigurationObject: AxiosRequestConfig = {
+        method: "get",
+        url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/users`,
+        headers: {},
+        withCredentials: true,
+    };
+    try {
+        const fetchAllUsersResponse: AxiosResponse<FetchAllUsersResponseType> = await axios(
+            FetchAllUsersConfigurationObject
+        );
+        if (fetchAllUsersResponse.data.error) {
+            res.message = fetchAllUsersResponse.data.message;
+            return res;
+        }
+        res = fetchAllUsersResponse.data;
+        return res;
+    } catch (error: any) {
+        // console.log(error.message);
+        res.error = true;
+        res.message = error.message;
+        return res;
+    }
+});
 
 export const fetchUser = createAsyncThunk("user/fetchUser", async () => {
     let resData: UserDetails = {
@@ -164,6 +211,16 @@ export const userSlice = createSlice({
                 state.error = action.error.message;
                 state.user.loggedIn = false;
                 state.user.registered = false;
+            })
+            .addCase(fetchAllUsers.pending, (state, action) => {
+                state.fetchAllUsersStatus = "loading";
+            })
+            .addCase(fetchAllUsers.fulfilled, (state, action) => {
+                state.fetchAllUsersStatus = "succeeded";
+                state.allUsers = action.payload.data;
+            })
+            .addCase(fetchAllUsers.rejected, (state, action) => {
+                state.fetchAllUsersStatus = "failed";
             });
     },
 });
