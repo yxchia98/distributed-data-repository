@@ -10,6 +10,7 @@ interface AccessRequest
     access_type: string;
     status: string;
     description: string;
+    request_date: string;
 }
 
 export interface AccessRequestType {
@@ -20,6 +21,7 @@ export interface AccessRequestType {
     access_type: string;
     status?: string;
     description: string;
+    request_date?: string;
 }
 
 export const AccessRequest = sequelize.define<AccessRequest>(
@@ -56,6 +58,11 @@ export const AccessRequest = sequelize.define<AccessRequest>(
         description: {
             type: DataTypes.TEXT,
             allowNull: true,
+        },
+        request_date: {
+            type: DataTypes.DATE,
+            allowNull: true,
+            defaultValue: DataTypes.NOW,
         },
     },
     {

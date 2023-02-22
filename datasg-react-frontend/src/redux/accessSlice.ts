@@ -5,6 +5,8 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 interface AccessState {
     readAccess: Array<ReadAccessDetail>;
     writeAccess: Array<WriteAccessDetail>;
+    requested: Array<AccessRequestDetail>;
+    approvable: Array<AccessRequestDetail>;
     status: string;
 }
 
@@ -17,6 +19,23 @@ interface WriteAccessDetail {
     user_id: string;
     topic_id: string;
     last_access: string;
+}
+
+export interface AccessRequestDetail {
+    request_id: string;
+    requestor_id: string;
+    approver_id: string;
+    topic_id: string;
+    access_type: string;
+    status: string;
+    description: string;
+    request_date: string;
+}
+
+interface FetchAccessRequestResponse {
+    error: boolean;
+    message: string;
+    data: Array<AccessRequestDetail>;
 }
 
 interface FetchReadAccessResponse {
@@ -35,13 +54,60 @@ interface FetchWriteAccessResponse {
 const initialState: AccessState = {
     readAccess: [],
     writeAccess: [],
+    requested: [],
+    approvable: [],
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
+
+export const fetchAccessRequests = createAsyncThunk(
+    "access/fetchAccessRequests",
+    async (userId: string) => {
+        let res: AccessState = {
+            readAccess: [],
+            writeAccess: [],
+            requested: [],
+            approvable: [],
+            status: "",
+        };
+        try {
+            const fetchSubmittedAccessRequestConfigurationObject: AxiosRequestConfig = {
+                method: "get",
+                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/requestapproval`,
+                headers: {},
+                withCredentials: true,
+                params: {
+                    user_id: userId,
+                },
+            };
+
+            const fetchApprovableAccessRequestConfigurationObject: AxiosRequestConfig = {
+                method: "get",
+                url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/submittedrequest`,
+                headers: {},
+                withCredentials: true,
+                params: {
+                    user_id: userId,
+                },
+            };
+            const fetchSubmittedRequestAccessResponse: AxiosResponse<FetchAccessRequestResponse> =
+                await axios(fetchSubmittedAccessRequestConfigurationObject);
+            const fetchApprovableRequestAccessResponse: AxiosResponse<FetchAccessRequestResponse> =
+                await axios(fetchApprovableAccessRequestConfigurationObject);
+            res.requested = fetchSubmittedRequestAccessResponse.data.data;
+            res.approvable = fetchApprovableRequestAccessResponse.data.data;
+            return res;
+        } catch (error: any) {
+            return res;
+        }
+    }
+);
 
 export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
     let res: AccessState = {
         readAccess: [],
         writeAccess: [],
+        requested: [],
+        approvable: [],
         status: "",
     };
     try {
@@ -66,7 +132,7 @@ export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
         res.readAccess = fetchReadAccessResponse.data.data;
         res.writeAccess = FetchWriteAccessResponse.data.data;
         return res;
-    } catch (error) {
+    } catch (error: any) {
         return res;
     }
 });
@@ -86,6 +152,17 @@ export const accessSlice = createSlice({
                 state.writeAccess = action.payload.writeAccess;
             })
             .addCase(fetchAccess.rejected, (state, action) => {
+                state.status = "failed;";
+            })
+            .addCase(fetchAccessRequests.pending, (state, action) => {
+                state.status = "loading";
+            })
+            .addCase(fetchAccessRequests.fulfilled, (state, action) => {
+                state.status = "succeeded";
+                state.approvable = action.payload.approvable;
+                state.requested = action.payload.requested;
+            })
+            .addCase(fetchAccessRequests.rejected, (state, action) => {
                 state.status = "failed;";
             });
     },
