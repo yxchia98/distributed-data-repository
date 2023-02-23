@@ -42,7 +42,6 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
         fetchAgenciesRedux();
     }, []);
     const handleCardOnClick = () => {
-        console.log(`clicked on ${props.topic_id}`);
         // pre-emptively fetch necessary information via redux
         // console.log(`clicked on ${e.target.value.topic_name}, ${e.target.value.topic_id}`);
         fetchDataOnCardClickRedux();

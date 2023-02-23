@@ -103,8 +103,8 @@ const createReadAccess = async (req: Request, res: Response) => {
             });
         } else {
             res.status(200).send({
-                error: true,
-                message: `Error, ${req.body.user_id} already has the requested access`,
+                error: false,
+                message: `${req.body.user_id} already has the requested access`,
             });
         }
     } catch (error) {
@@ -206,8 +206,8 @@ const createWriteAccess = async (req: Request, res: Response) => {
             });
         } else {
             res.status(200).send({
-                error: true,
-                message: `Error, ${req.body.user_id} already has the requested access`,
+                error: false,
+                message: `${req.body.user_id} already has the requested access`,
             });
         }
     } catch (error) {

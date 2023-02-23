@@ -6,6 +6,8 @@ import { fetchAccess } from "../redux/accessSlice";
 import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
 import TopicFileBrowserContent from "./TopicFileBrowserContent";
 import { setCurrentTopic } from "../redux/topicSlice";
+import { IconContext } from "react-icons";
+import { CgSpinner } from "react-icons/cg";
 
 interface TopicFileBrowserProps {
     topic_id: string;
@@ -16,6 +18,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     const dispatch = useAppDispatch();
     const [hasReadAccess, setHasReadAccess] = useState<boolean>(false);
     const [hasWriteAccess, setHasWriteAccess] = useState<boolean>(false);
+    const [isLoading, setIsLoading] = useState<boolean>(false);
     const userSelector = useAppSelector((state) => state.user);
     const accessSelector = useAppSelector((state) => state.access);
     const topicsSelector = useAppSelector((state) => state.topics);
@@ -36,11 +39,16 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
 
     // fetch topic owner's details after setting current topic
     useEffect(() => {
-        fetchTopicOwnerRedux(topicsSelector.currentTopic.user_id);
+        if (topicsSelector.currentTopic.user_id) {
+            fetchTopicOwnerRedux(topicsSelector.currentTopic.user_id);
+            setIsLoading(false);
+            return;
+        }
     }, [topicsSelector.currentTopic]);
 
     // fetch and set current topic after fetching topic details
     useEffect(() => {
+        setIsLoading(true);
         setCurrentTopicRedux();
     }, [topicsSelector.topics]);
 
@@ -73,20 +81,37 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
 
     return (
         <div className="w-screen h-[92.5%] overflow-hidden">
-            <div className="h-[92.5%] py-2.5 px-2.5 m-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
-                <TopicFileBrowserHeader
-                    topic_id={props.topic_id}
-                    agency_id={props.agency_id}
-                    readAccess={hasReadAccess}
-                    writeAccess={hasWriteAccess}
-                />
-                <TopicFileBrowserContent
-                    topic_id={props.topic_id}
-                    agency_id={props.agency_id}
-                    readAccess={hasReadAccess}
-                    writeAccess={hasWriteAccess}
-                />
-            </div>
+            {!isLoading && (
+                <div className="h-[92.5%] py-2.5 px-2.5 m-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
+                    <TopicFileBrowserHeader
+                        topic_id={props.topic_id}
+                        agency_id={props.agency_id}
+                        readAccess={hasReadAccess}
+                        writeAccess={hasWriteAccess}
+                    />
+                    <TopicFileBrowserContent
+                        topic_id={props.topic_id}
+                        agency_id={props.agency_id}
+                        readAccess={hasReadAccess}
+                        writeAccess={hasWriteAccess}
+                    />
+                </div>
+            )}
+            {isLoading && (
+                <div className="h-[92.5%] py-2.5 px-2.5 m-[2.5%] overflow-hidden bg-white bg-local bg-origin-content rounded-xl">
+                    <div className="w-full h-full flex justify-center items-center">
+                        <IconContext.Provider
+                            value={{
+                                size: "5em",
+                            }}
+                        >
+                            <div className="mx-2 animate-spin text-indigo-700">
+                                <CgSpinner />
+                            </div>
+                        </IconContext.Provider>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

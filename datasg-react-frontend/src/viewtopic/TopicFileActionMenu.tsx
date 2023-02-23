@@ -53,9 +53,9 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
     const handleDelete = () => {
         console.log(`deleting file for file_id: ${props.file.file_id}`);
     };
-    const handleEdit = () => {
-        console.log(`editing file for file_id: ${props.file.file_id}`);
-    };
+    // const handleEdit = () => {
+    //     console.log(`editing file for file_id: ${props.file.file_id}`);
+    // };
     return (
         <div className="w-1/12 py-2 flex items-center justify-center">
             {/* <Menu as="div" className="absolute inline-block text-left"> */}
@@ -112,7 +112,7 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
                                     </button>
                                 )}
                             </Menu.Item>
-                            <Menu.Item>
+                            {/* <Menu.Item>
                                 {({ active }) => (
                                     <button
                                         onClick={handleEdit}
@@ -144,7 +144,7 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
                                         Edit
                                     </button>
                                 )}
-                            </Menu.Item>
+                            </Menu.Item> */}
                         </div>
                         <div className="px-1 py-1">
                             <Menu.Item>

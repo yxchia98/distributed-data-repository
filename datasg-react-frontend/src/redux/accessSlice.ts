@@ -5,8 +5,8 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 interface AccessState {
     readAccess: Array<ReadAccessDetail>;
     writeAccess: Array<WriteAccessDetail>;
-    requested: Array<AccessRequestDetail>;
-    approvable: Array<AccessRequestDetail>;
+    outgoing: Array<AccessRequestDetail>;
+    incoming: Array<AccessRequestDetail>;
     status: string;
 }
 
@@ -54,8 +54,8 @@ interface FetchWriteAccessResponse {
 const initialState: AccessState = {
     readAccess: [],
     writeAccess: [],
-    requested: [],
-    approvable: [],
+    incoming: [],
+    outgoing: [],
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
 
@@ -65,8 +65,8 @@ export const fetchAccessRequests = createAsyncThunk(
         let res: AccessState = {
             readAccess: [],
             writeAccess: [],
-            requested: [],
-            approvable: [],
+            outgoing: [],
+            incoming: [],
             status: "",
         };
         try {
@@ -93,8 +93,8 @@ export const fetchAccessRequests = createAsyncThunk(
                 await axios(fetchSubmittedAccessRequestConfigurationObject);
             const fetchApprovableRequestAccessResponse: AxiosResponse<FetchAccessRequestResponse> =
                 await axios(fetchApprovableAccessRequestConfigurationObject);
-            res.requested = fetchSubmittedRequestAccessResponse.data.data;
-            res.approvable = fetchApprovableRequestAccessResponse.data.data;
+            res.outgoing = fetchSubmittedRequestAccessResponse.data.data;
+            res.incoming = fetchApprovableRequestAccessResponse.data.data;
             return res;
         } catch (error: any) {
             return res;
@@ -106,8 +106,8 @@ export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
     let res: AccessState = {
         readAccess: [],
         writeAccess: [],
-        requested: [],
-        approvable: [],
+        outgoing: [],
+        incoming: [],
         status: "",
     };
     try {
@@ -159,8 +159,8 @@ export const accessSlice = createSlice({
             })
             .addCase(fetchAccessRequests.fulfilled, (state, action) => {
                 state.status = "succeeded";
-                state.approvable = action.payload.approvable;
-                state.requested = action.payload.requested;
+                state.incoming = action.payload.incoming;
+                state.outgoing = action.payload.outgoing;
             })
             .addCase(fetchAccessRequests.rejected, (state, action) => {
                 state.status = "failed;";
