@@ -299,7 +299,7 @@ const ProfileRequest: React.FC = (props) => {
                                 ))}
                             </Tab.List>
                         </div>
-                        <div className="w-full h-full px-[10%]">
+                        <div className="w-full px-[10%]">
                             <Tab.Panels className="mt-2">
                                 {Object.values(categories).map((request, idx) => (
                                     <Tab.Panel
@@ -357,7 +357,7 @@ const ProfileRequest: React.FC = (props) => {
                                                                         .map((user) => (
                                                                             <div
                                                                                 key={user.user_id}
-                                                                            >{`${user.first_name} ${user.last_name}`}</div>
+                                                                            >{`${user.first_name} ${user.last_name} (${user.email})`}</div>
                                                                         ))}
                                                                 {selectedCategory != "Submitted" &&
                                                                     userSelector.allUsers
@@ -369,7 +369,7 @@ const ProfileRequest: React.FC = (props) => {
                                                                         .map((user) => (
                                                                             <div
                                                                                 key={user.user_id}
-                                                                            >{`${user.first_name} ${user.last_name}`}</div>
+                                                                            >{`${user.first_name} ${user.last_name} (${user.email})`}</div>
                                                                         ))}
                                                                 <div>&middot;</div>
                                                                 {requestDetails.status ===
@@ -380,7 +380,7 @@ const ProfileRequest: React.FC = (props) => {
                                                                 )}
                                                                 {requestDetails.status ===
                                                                     "APPROVED" && (
-                                                                    <div className="bg-green-300 text-black mx-2 rounded-lg shadow text-xs px-2 py-1 lowercase">
+                                                                    <div className="bg-emerald-300 text-black mx-2 rounded-lg shadow text-xs px-2 py-1 lowercase">
                                                                         {requestDetails.status}
                                                                     </div>
                                                                 )}
@@ -400,7 +400,7 @@ const ProfileRequest: React.FC = (props) => {
                                                         {selectedCategory === "Approvable" && (
                                                             <div className="relative flex flex-row">
                                                                 <button
-                                                                    className="text-gray-500 hover:text-green-500 active:text-green-700"
+                                                                    className="text-gray-500 hover:text-emerald-500 active:text-emerald-700"
                                                                     onClick={handleApproveRequestOnClick(
                                                                         requestDetails
                                                                     )}

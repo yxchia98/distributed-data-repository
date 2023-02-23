@@ -3,19 +3,14 @@ import type { PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 interface AccessState {
-    readAccess: Array<ReadAccessDetail>;
-    writeAccess: Array<WriteAccessDetail>;
+    readAccess: Array<AccessDetail>;
+    writeAccess: Array<AccessDetail>;
     outgoing: Array<AccessRequestDetail>;
     incoming: Array<AccessRequestDetail>;
     status: string;
 }
 
-interface ReadAccessDetail {
-    user_id: string;
-    topic_id: string;
-    last_access: string;
-}
-interface WriteAccessDetail {
+export interface AccessDetail {
     user_id: string;
     topic_id: string;
     last_access: string;
@@ -38,16 +33,10 @@ interface FetchAccessRequestResponse {
     data: Array<AccessRequestDetail>;
 }
 
-interface FetchReadAccessResponse {
+export interface FetchAccessResponse {
     error: boolean;
     message: string;
-    data: Array<ReadAccessDetail>;
-}
-
-interface FetchWriteAccessResponse {
-    error: boolean;
-    message: string;
-    data: Array<WriteAccessDetail>;
+    data: Array<AccessDetail>;
 }
 
 // initialize initial state for user in redux store
@@ -123,14 +112,14 @@ export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
             headers: {},
             withCredentials: true,
         };
-        const fetchReadAccessResponse: AxiosResponse<FetchReadAccessResponse> = await axios(
+        const fetchReadAccessResponse: AxiosResponse<FetchAccessResponse> = await axios(
             fetchReadAccessConfigurationObject
         );
-        const FetchWriteAccessResponse: AxiosResponse<FetchWriteAccessResponse> = await axios(
+        const FetchAccessResponse: AxiosResponse<FetchAccessResponse> = await axios(
             fetchWriteAccessConfigurationObject
         );
         res.readAccess = fetchReadAccessResponse.data.data;
-        res.writeAccess = FetchWriteAccessResponse.data.data;
+        res.writeAccess = FetchAccessResponse.data.data;
         return res;
     } catch (error: any) {
         return res;

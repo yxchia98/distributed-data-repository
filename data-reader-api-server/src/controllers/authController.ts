@@ -87,6 +87,47 @@ const topSecretAuth = (req: Request, res: Response) => {
  * Get specific user's read accesses
  * Type: GET
  * InputType: Params
+ * Input: topic_id
+ * Returns: boolean error, string message, obj data
+ */
+const getTopicReadAccess = async (req: Request, res: Response) => {
+    // check for required fields
+    if (!req.query.topic_id) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+            data: [],
+        });
+        return;
+    }
+    const topicId: string = <string>req.query.topic_id;
+
+    try {
+        const queryReadAccess = await ReadAccess.findAll({
+            where: {
+                topic_id: topicId,
+            },
+        });
+        console.log(queryReadAccess);
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved read access for topic",
+            data: queryReadAccess,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error in retrieving read access for topic",
+            data: [],
+        });
+    }
+};
+
+/**
+ * Get specific user's read accesses
+ * Type: GET
+ * InputType: Params
  * Input: user_id
  * Returns: boolean error, string message, obj data
  */
@@ -128,6 +169,47 @@ const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error in granting read access",
+            data: [],
+        });
+    }
+};
+
+/**
+ * Get specific user's write accesses
+ * Type: GET
+ * InputType: Params
+ * Input: topic_id
+ * Returns: boolean error, string message, obj data
+ */
+const getTopicWriteAccess = async (req: Request, res: Response) => {
+    // check for required fields
+    if (!req.query.topic_id) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+            data: [],
+        });
+        return;
+    }
+
+    const topicId: string = <string>req.query.topic_id;
+
+    try {
+        const queryReadAccess = await WriteAccess.findAll({
+            where: {
+                topic_id: topicId,
+            },
+        });
+        res.status(200).send({
+            error: false,
+            message: "Successfully retrieved write access for topic",
+            data: queryReadAccess,
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).send({
+            error: true,
+            message: "Error retrieving write access for topic",
             data: [],
         });
     }
@@ -231,7 +313,7 @@ const getUserSubmittedAccessRequest = async (req: Request, res: Response) => {
         res.status(400).send({
             error: true,
             message: "Error, mandatory fields not set",
-            data: {},
+            data: [],
         });
         return;
     }
@@ -265,6 +347,8 @@ export default module.exports = {
     topSecretAuth,
     getUserReadAccess,
     getUserWriteAccess,
+    getTopicReadAccess,
+    getTopicWriteAccess,
     getUserApprovableAccessRequest,
     getUserSubmittedAccessRequest,
 };

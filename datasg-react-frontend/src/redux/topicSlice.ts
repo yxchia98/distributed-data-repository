@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AccessDetail, FetchAccessResponse } from "./accessSlice";
 
 export interface TopicDetails {
     topic_id: string;
@@ -16,7 +17,21 @@ interface TopicState {
     topics: Array<TopicDetails>;
     search: TopicSearch;
     currentTopic: TopicDetails;
+    currentTopicAccess: CurrentTopicAccess;
     status: string;
+    accessStatus: string;
+}
+
+interface CurrentTopicAccess {
+    read: Array<AccessDetail>;
+    write: Array<AccessDetail>;
+}
+
+interface FetchCurrentTopicAccessReturnType {
+    error: boolean;
+    message: string;
+    read: Array<AccessDetail>;
+    write: Array<AccessDetail>;
 }
 
 interface FetchTopicsResponseType {
@@ -50,7 +65,12 @@ const initialState: TopicState = {
     topics: [],
     search: initialSearchState,
     currentTopic: initialCurrentTopic,
+    currentTopicAccess: {
+        read: [],
+        write: [],
+    },
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
+    accessStatus: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
 
 export const fetchTopics = createAsyncThunk("topics/fetchTopics", async () => {
@@ -78,6 +98,54 @@ export const fetchTopics = createAsyncThunk("topics/fetchTopics", async () => {
     }
 });
 
+export const fetchCurrentTopicAccess = createAsyncThunk(
+    "topics/fetchCurrentTopicAccess",
+    async (topicId: string) => {
+        let res: FetchCurrentTopicAccessReturnType = {
+            error: true,
+            message: "error fetching access for topic",
+            read: [],
+            write: [],
+        };
+        const fetchReadAccessConfigurationObject: AxiosRequestConfig = {
+            method: "get",
+            url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/topicread`,
+            headers: {},
+            params: {
+                topic_id: topicId,
+            },
+            withCredentials: true,
+        };
+        const fetchWriteAccessConfigurationObject: AxiosRequestConfig = {
+            method: "get",
+            url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/topicwrite`,
+            headers: {},
+            params: {
+                topic_id: topicId,
+            },
+            withCredentials: true,
+        };
+        try {
+            const fetchReadAccessResponse: AxiosResponse<FetchAccessResponse> = await axios(
+                fetchReadAccessConfigurationObject
+            );
+            const fetchWriteAccessResponse: AxiosResponse<FetchAccessResponse> = await axios(
+                fetchWriteAccessConfigurationObject
+            );
+            if (fetchReadAccessResponse.data.error || fetchWriteAccessResponse.data.error) {
+                return res;
+            }
+            res.error = false;
+            res.message = "successfully retrieved read and write acceses for topic";
+            res.read = fetchReadAccessResponse.data.data;
+            res.write = fetchWriteAccessResponse.data.data;
+            return res;
+        } catch (error: any) {
+            return res;
+        }
+    }
+);
+
 export const topicsSlice = createSlice({
     name: "topics",
     initialState,
@@ -88,9 +156,12 @@ export const topicsSlice = createSlice({
             state.search.search = searchText;
             state.search.agency_id = searchAgency;
         },
-        setCurrentTopic: (state, action: PayloadAction<string>) => {
+        setCurrentTopicWithId: (state, action: PayloadAction<string>) => {
             let foundTopic = state.topics.find((topic) => topic.topic_id === action.payload);
             state.currentTopic = foundTopic ? foundTopic : initialCurrentTopic;
+        },
+        setCurrentTopicWithDetails: (state, action: PayloadAction<TopicDetails>) => {
+            state.currentTopic = action.payload;
         },
     },
     extraReducers: (builder) => {
@@ -104,11 +175,22 @@ export const topicsSlice = createSlice({
             })
             .addCase(fetchTopics.rejected, (state, action) => {
                 state.status = "failed;";
+            })
+            .addCase(fetchCurrentTopicAccess.pending, (state, action) => {
+                state.accessStatus = "loading";
+            })
+            .addCase(fetchCurrentTopicAccess.fulfilled, (state, action) => {
+                state.accessStatus = "succeeded";
+                state.currentTopicAccess.read = action.payload.read;
+                state.currentTopicAccess.write = action.payload.write;
+            })
+            .addCase(fetchCurrentTopicAccess.rejected, (state, action) => {
+                state.accessStatus = "failed;";
             });
     },
 });
 
 // Action creators are generated for each case reducer function
-export const { setSearch, setCurrentTopic } = topicsSlice.actions;
+export const { setSearch, setCurrentTopicWithId, setCurrentTopicWithDetails } = topicsSlice.actions;
 
 export default topicsSlice.reducer;

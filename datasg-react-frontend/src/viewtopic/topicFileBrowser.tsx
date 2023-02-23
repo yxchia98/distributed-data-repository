@@ -5,7 +5,7 @@ import { fetchSelectedTopicFiles, fetchSelectedTopicOwner } from "../redux/topic
 import { fetchAccess } from "../redux/accessSlice";
 import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
 import TopicFileBrowserContent from "./TopicFileBrowserContent";
-import { setCurrentTopic } from "../redux/topicSlice";
+import { setCurrentTopicWithId } from "../redux/topicSlice";
 import { IconContext } from "react-icons";
 import { CgSpinner } from "react-icons/cg";
 
@@ -31,7 +31,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
         dispatch(fetchAccess());
     };
     const setCurrentTopicRedux = () => {
-        dispatch(setCurrentTopic(props.topic_id));
+        dispatch(setCurrentTopicWithId(props.topic_id));
     };
     const fetchTopicOwnerRedux = (user_id: string) => {
         dispatch(fetchSelectedTopicOwner(user_id));

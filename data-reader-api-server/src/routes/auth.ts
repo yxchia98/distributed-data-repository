@@ -73,6 +73,15 @@ router.get("/logout", (req: Request, res: Response) => {
 router.get("/read", upload.none(), authController.getUserReadAccess);
 
 /**
+ * Get specific user's read accesses
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/topicread", upload.none(), authController.getTopicReadAccess);
+
+/**
  * Get specific user's write accesses
  * Type: GET
  * InputType: Params
@@ -80,6 +89,15 @@ router.get("/read", upload.none(), authController.getUserReadAccess);
  * Returns: boolean error, string message, obj data
  */
 router.get("/write", upload.none(), authController.getUserWriteAccess);
+
+/**
+ * Get specific user's write accesses
+ * Type: GET
+ * InputType: Params
+ * Input: user_id
+ * Returns: boolean error, string message, obj data
+ */
+router.get("/topicwrite", upload.none(), authController.getTopicWriteAccess);
 
 /**
  * Get all access requests approvable by specific user

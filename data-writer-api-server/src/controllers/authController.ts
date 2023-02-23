@@ -262,7 +262,7 @@ const createRequestAccess = async (req: Request, res: Response) => {
                     {
                         status: "PENDING",
                     },
-                    { status: "APPROVED" },
+                    // { status: "APPROVED" },
                 ],
             },
         });
