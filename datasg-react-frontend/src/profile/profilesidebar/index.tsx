@@ -11,6 +11,7 @@ import { MdPendingActions } from "react-icons/md";
 import { SiDatabricks } from "react-icons/si";
 import { IoLogOutOutline } from "react-icons/io5";
 import { NavLink } from "react-router-dom";
+import { googleLogout } from "../../common/googleAuth";
 
 const ProfileSideBar: React.FC = (props) => {
     const userSelector = useAppSelector((state) => state.user);
@@ -96,13 +97,15 @@ const ProfileSideBar: React.FC = (props) => {
                         </NavLink>
                     </li>
                     <li className="w-auto m-2">
-                        <NavLink
-                            to={`logout`}
-                            className={({ isActive, isPending }) =>
-                                isActive
-                                    ? `w-full grid grid-cols-5 py-4 bg-indigo-500 rounded-xl shadow-md text-white`
-                                    : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-indigo-100 active:bg-indigo-300 transition duration-300`
-                            }
+                        <div
+                            // to={`logout`}
+                            // className={({ isActive, isPending }) =>
+                            //     isActive
+                            //         ? `w-full grid grid-cols-5 py-4 bg-red-500 rounded-xl shadow-md text-white`
+                            //         : `w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-red-300 active:bg-red-500 transition duration-300`
+                            // }
+                            onClick={googleLogout}
+                            className={`w-full grid grid-cols-5 py-4 bg-white rounded-xl shadow-md text-gray-700 hover:bg-red-300 active:bg-red-500 transition duration-300`}
                         >
                             <div className="col-start-2 flex">
                                 <IconContext.Provider
@@ -117,7 +120,7 @@ const ProfileSideBar: React.FC = (props) => {
                                 </IconContext.Provider>
                                 <span>Logout</span>
                             </div>
-                        </NavLink>
+                        </div>
                     </li>
                 </ul>
             </nav>
