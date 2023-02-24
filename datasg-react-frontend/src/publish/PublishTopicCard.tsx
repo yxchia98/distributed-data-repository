@@ -88,11 +88,11 @@ const PublishTopicCard: React.FC<PublishTopicCardProps> = (props) => {
                 <div className="font-semibold xl:text-3xl md:text-2xl sm:text-xl text-gray-700">
                     {props.topic_name}
                 </div>
-                <IconContext.Provider value={{ size: "1.5em", color: "rgb(88 80 236)" }}>
+                {/* <IconContext.Provider value={{ size: "1.5em", color: "rgb(88 80 236)" }}>
                     <div className="ml-auto" onClick={handleOptionOnClick}>
                         <SlOptionsVertical />
                     </div>
-                </IconContext.Provider>
+                </IconContext.Provider> */}
             </div>
             <div className="pt-0 pb-2 xl:text-xl md:text-lg sm:text-md text-indigo-600">
                 {

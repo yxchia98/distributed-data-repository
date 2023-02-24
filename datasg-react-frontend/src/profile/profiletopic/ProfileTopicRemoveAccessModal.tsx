@@ -43,7 +43,7 @@ const ProfileTopicRemoveAccessModal: React.FC<ProfileTopicRemoveAccessModalProps
                                         as="h3"
                                         className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
                                     >
-                                        Confirm Delete?
+                                        Confirm Revoke?
                                     </Dialog.Title>
                                     <div className="flex flex-col justify-center rounded-md px-6 pt-5 pb-6 transition text-sm">
                                         This action cannot be undone. Proceed with revoking access

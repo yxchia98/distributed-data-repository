@@ -54,6 +54,8 @@ const ProfileTopic: React.FC = (props) => {
 
     const closeTopicEditModal = () => {
         setShowTopicEditModal(false);
+        setIsLoading(true);
+        fetchRequiredTopicsData();
         return;
     };
 
@@ -99,6 +101,7 @@ const ProfileTopic: React.FC = (props) => {
                         currentTopic={currentTopicDetails}
                         isOpen={showTopicEditModal}
                         handleCloseModal={closeTopicEditModal}
+                        setCurrentTopicDetails={setCurrentTopicDetails}
                     />
                 </div>
             )}

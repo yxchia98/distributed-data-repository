@@ -1,21 +1,50 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Dispatch, Fragment, SetStateAction, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { CgSpinner } from "react-icons/cg";
+import { FaRegSave } from "react-icons/fa";
 import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
-import { TopicDetails } from "../../redux/topicSlice";
-import ProfielTopicAccessContent from "./ProfileTopicAccessContent";
+import { fetchAgencies } from "../../redux/agencySlice";
+import { useAppDispatch, useAppSelector } from "../../redux/hooks";
+import { setCurrentTopicWithDetails, TopicDetails } from "../../redux/topicSlice";
+import ProfileTopicEditForm from "./ProfileTopicEditForm";
 
 interface ProfileTopicEditModalProps {
     currentTopic: TopicDetails;
     isOpen: boolean;
     handleCloseModal: () => void;
+    setCurrentTopicDetails: React.Dispatch<React.SetStateAction<TopicDetails>>;
 }
 
 const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
+    const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const agenciesSelector = useAppSelector((state) => state.agencies);
+    const topicsSelector = useAppSelector((state) => state.topics);
+    const userSelector = useAppSelector((state) => state.user);
+
+    const fetchRequiredDataRedux = () => {
+        dispatch(setCurrentTopicWithDetails(props.currentTopic));
+        dispatch(fetchAgencies());
+    };
+
+    useEffect(() => {
+        if (
+            agenciesSelector.status != "loading" &&
+            topicsSelector.status != "loading" &&
+            userSelector.status != "loading"
+        ) {
+            setIsLoading(false);
+        }
+    }, [agenciesSelector, topicsSelector, userSelector]);
+    useEffect(() => {
+        if (props.isOpen) {
+            setIsLoading(true);
+            fetchRequiredDataRedux();
+        }
+    }, [props.isOpen]);
     return (
-        <>
+        <div className="w-full h-full">
             <Transition appear show={props.isOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={() => {}}>
                     <Transition.Child
@@ -42,37 +71,52 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
                                 leaveFrom="opacity-100 scale-100"
                                 leaveTo="opacity-0 scale-95"
                             >
-                                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                <Dialog.Panel className="w-3/5 transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                                     <Dialog.Title
                                         as="h3"
                                         className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
                                     >
-                                        Edit Topic
+                                        {`Editing ${topicsSelector.topics
+                                            .filter(
+                                                (topic) =>
+                                                    topic.topic_id === props.currentTopic.topic_id
+                                            )
+                                            .map((topic) => topic.topic_name)} Topic`}
                                     </Dialog.Title>
                                     <div className="flex flex-col justify-center rounded-md px-6 pt-5 pb-6 transition">
-                                        {!isLoading && <ProfielTopicAccessContent />}
+                                        {!isLoading && (
+                                            <ProfileTopicEditForm
+                                                currentTopic={props.currentTopic}
+                                                handleCloseModal={props.handleCloseModal}
+                                                setCurrentTopicDetails={
+                                                    props.setCurrentTopicDetails
+                                                }
+                                            />
+                                        )}
                                         {isLoading && (
-                                            <div className="flex justify-center items-center text-red-500">
-                                                <IconContext.Provider
-                                                    value={{
-                                                        size: "5em",
-                                                    }}
-                                                >
-                                                    <div className="mx-2 animate-spin text-indigo-700">
-                                                        <CgSpinner />
-                                                    </div>
-                                                </IconContext.Provider>
+                                            <div className="w-full h-full">
+                                                <div className="flex justify-center items-center text-red-500">
+                                                    <IconContext.Provider
+                                                        value={{
+                                                            size: "5em",
+                                                        }}
+                                                    >
+                                                        <div className="mx-2 animate-spin text-indigo-700">
+                                                            <CgSpinner />
+                                                        </div>
+                                                    </IconContext.Provider>
+                                                </div>
+                                                <div className="flex justify-center items-center">
+                                                    <button
+                                                        type="button"
+                                                        className="m-2 inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
+                                                        onClick={props.handleCloseModal}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                </div>
                                             </div>
                                         )}
-                                    </div>
-                                    <div className="flex justify-center items-center">
-                                        <button
-                                            type="button"
-                                            className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
-                                            onClick={props.handleCloseModal}
-                                        >
-                                            Close
-                                        </button>
                                     </div>
                                 </Dialog.Panel>
                             </Transition.Child>
@@ -80,7 +124,7 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
                     </div>
                 </Dialog>
             </Transition>
-        </>
+        </div>
     );
 };
 export default ProfileTopicEditModal;

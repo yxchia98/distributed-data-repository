@@ -34,6 +34,7 @@ interface FileDataResponse {
 const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) => {
     const dispatch = useAppDispatch();
 
+    const userSelector = useAppSelector((state) => state.user);
     const topicsSelector = useAppSelector((state) => state.topics).topics;
     const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
     const topicFileSelector = useAppSelector((state) => state.topicFiles);
@@ -151,7 +152,7 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                         .map((agency) => agency.long_name)
                 }
             </div>
-            <div className="xl:text-lg md:text-md sm:text-sm">
+            <div className="xl:text-lg md:text-md sm:text-sm text-gray-700">
                 {
                     // filter topics in redux store and get corresponding topics's long description
                     topicsSelector
@@ -159,13 +160,17 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                         .map((topic) => topic.description)
                 }
             </div>
-            <div className="w-full flow-root">
-                <div className="float-right flex flex-row mr-[2%]">
-                    <select className="m-1 inline-flex justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50">
+            <div className="w-full grid grid-cols-6 justify-between items-center">
+                <div className="col-span-2 col-start-1 flex flex-row items-center text-gray-500">{`Topic Owner: `}</div>
+                <div className="col-span-2 col-start-3 flex flex-row justify-center items-center">
+                    sss
+                </div>
+                <div className="flex flex-row justify-self-end mr-[2%] col-start-5 col-span-2 ">
+                    {/* <select className="m-1 inline-flex justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50">
                         <option>Action</option>
                         <option>option2</option>
                         <option>option3</option>
-                    </select>
+                    </select> */}
                     <HeaderDownloadButton
                         isDownloading={isDownloading}
                         setIsDownloading={setIsDownloading}
