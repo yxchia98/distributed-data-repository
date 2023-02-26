@@ -23,13 +23,13 @@ const PublishTopicCard: React.FC<PublishTopicCardProps> = (props) => {
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const topicsSelector = useAppSelector((state) => state.topics);
     const dispatch = useAppDispatch();
-    const fetchTopicFilesRedux = () => {
-        dispatch(fetchSelectedTopicFiles(props.topic_id));
-    };
+    // const fetchTopicFilesRedux = () => {
+    //     dispatch(fetchSelectedTopicFiles(props.topic_id));
+    // };
 
     const handleCardOnClick = () => {
         // pre-emptively fetch topic files for selected topic
-        fetchTopicFilesRedux();
+        // fetchTopicFilesRedux();
         showModal();
         let selectedTopic: TopicDetails | undefined = {
             topic_id: "",

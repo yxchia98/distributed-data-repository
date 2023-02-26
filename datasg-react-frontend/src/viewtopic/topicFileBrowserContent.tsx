@@ -3,6 +3,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
     clearChecked,
     fetchSelectedTopicFiles,
+    FetchSelectedTopicFilesThunkParams,
     setChecked,
     TopicFileDetails,
 } from "../redux/topicFileSlice";
@@ -52,7 +53,12 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
 
     // fetch topic files using redux thunk
     const fetchTopicFilesRedux = () => {
-        dispatch(fetchSelectedTopicFiles(props.topic_id));
+        const findTopic: FetchSelectedTopicFilesThunkParams = {
+            topic_id: props.topic_id,
+            start_date: "2023-02-22",
+            end_date: "2023-02-24",
+        };
+        dispatch(fetchSelectedTopicFiles(findTopic));
     };
     const handleCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
         // add item to checkedTopicFiles if checked, else remove
@@ -97,7 +103,7 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
         setFormattedTopicFiles(topicFiles);
     }, [topicFilesSelector]);
     useEffect(() => {
-        fetchTopicFilesRedux();
+        // fetchTopicFilesRedux();
         dispatch(clearChecked());
     }, []);
 

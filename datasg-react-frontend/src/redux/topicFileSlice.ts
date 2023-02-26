@@ -28,6 +28,13 @@ interface FetchTopicFilesResponseType {
     data: Array<TopicFileDetails> | undefined;
 }
 
+// need to use an object as thunk is only able to receive one object/param
+export interface FetchSelectedTopicFilesThunkParams {
+    topic_id: string;
+    start_date: string;
+    end_date: string;
+}
+
 const initialOwner: FetchUserDetailsData = {
     user_id: "",
     first_name: "",
@@ -47,7 +54,7 @@ const initialState: SelectedTopicFilesState = {
 
 export const fetchSelectedTopicFiles = createAsyncThunk(
     "selectedTopic/fetchSelectedTopicFiles",
-    async (key: string) => {
+    async (key: FetchSelectedTopicFilesThunkParams) => {
         // define response for fetching topic files information
         let res: FetchTopicFilesResponseType = {
             data: [],
@@ -61,12 +68,16 @@ export const fetchSelectedTopicFiles = createAsyncThunk(
                 headers: {},
                 withCredentials: true,
                 params: {
-                    topic_id: key,
+                    topic_id: key.topic_id,
+                    start_date: key.start_date,
+                    end_date: key.end_date,
                 },
             };
             const fetchTopicResponse: AxiosResponse<FetchTopicFilesResponseType> = await axios(
                 fetchTopicsConfigurationObject
             );
+            console.log("DEBUG SCRIPT");
+            console.log(fetchTopicResponse);
             res.data = fetchTopicResponse.data.data ? fetchTopicResponse.data.data : [];
             res.message = fetchTopicResponse.data.message ? fetchTopicResponse.data.message : "";
             res.error = fetchTopicResponse.data.error ? fetchTopicResponse.data.error : true;

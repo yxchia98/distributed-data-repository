@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles, fetchSelectedTopicOwner } from "../redux/topicFileSlice";
+import {
+    fetchSelectedTopicFiles,
+    FetchSelectedTopicFilesThunkParams,
+    fetchSelectedTopicOwner,
+} from "../redux/topicFileSlice";
 import { fetchAccess } from "../redux/accessSlice";
 import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
 import TopicFileBrowserContent from "./TopicFileBrowserContent";
@@ -25,7 +29,13 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
 
     // fetch topic files and access rights using redux thunk
     const fetchTopicFilesRedux = () => {
-        dispatch(fetchSelectedTopicFiles(props.topic_id));
+        console.log("firing");
+        const findTopic: FetchSelectedTopicFilesThunkParams = {
+            topic_id: props.topic_id,
+            start_date: "2023-02-10",
+            end_date: "2023-02-24",
+        };
+        dispatch(fetchSelectedTopicFiles(findTopic));
     };
     const fetchAccessRedux = () => {
         dispatch(fetchAccess());

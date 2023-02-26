@@ -98,11 +98,13 @@ const getSingleTopic = async (req: Request, res: Response) => {
  * InputType: Params
  * Input:
  *      topic_id - The identifier for the specified topic
+ *      start_date - start date of time range to retrieve files
+ *      end_date - end date of time range to retrieve files
  * Returns: boolean error, string message, obj data
  */
 const getAssociatedTopicFiles = async (req: Request, res: Response) => {
     console.log(req.query.topic_id);
-    if (!req.query.topic_id) {
+    if (!(req.query.topic_id && req.query.start_date && req.query.end_date)) {
         res.status(404).send({
             error: true,
             message: "Mandatory fields not set",
@@ -113,12 +115,17 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
     try {
         // check if topic exists
         const topicId = <string>req.query.topic_id;
+        const startDate = <string>req.query.start_date;
+        const endDate = <string>req.query.end_date;
         const queryTopics = await Topic.findByPk(topicId);
         if (queryTopics) {
             // if topic exists, query for all topic files associated
             const queryTopicFiles = await TopicFile.findAll({
                 where: {
                     topic_id: topicId,
+                    file_date: {
+                        $between: [startDate, endDate],
+                    },
                 },
             });
             if (queryTopicFiles) {

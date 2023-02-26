@@ -7,7 +7,11 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import saveAs from "file-saver";
-import { clearChecked, fetchSelectedTopicFiles } from "../redux/topicFileSlice";
+import {
+    clearChecked,
+    fetchSelectedTopicFiles,
+    FetchSelectedTopicFilesThunkParams,
+} from "../redux/topicFileSlice";
 import JSZip from "jszip";
 import { useEffect, useState } from "react";
 import HeaderDownloadButton from "./HeaderDownloadButton";
@@ -99,12 +103,17 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         navigate(-1);
     };
 
-    useEffect(() => {
-        if (!isPublishModalOpen) {
-            setIsPublishing(false);
-            dispatch(fetchSelectedTopicFiles(props.topic_id));
-        }
-    }, [isPublishModalOpen]);
+    // useEffect(() => {
+    //     if (!isPublishModalOpen) {
+    //         setIsPublishing(false);
+    //         const findTopic: FetchSelectedTopicFilesThunkParams = {
+    //             topic_id: props.topic_id,
+    //             start_date: "2023-02-22",
+    //             end_date: "2023-02-24",
+    //         };
+    //         dispatch(fetchSelectedTopicFiles(findTopic));
+    //     }
+    // }, [isPublishModalOpen]);
     return (
         <div id="fileBrowserHeader" className="py-5 px-5 h-[30%]">
             <PublishTopicFileModal
