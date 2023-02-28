@@ -1,16 +1,8 @@
-import {
-    DataTypes,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-} from "sequelize";
+import { DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { sequelize } from "../services/database";
 
 interface ReadAccess
-    extends Model<
-        InferAttributes<ReadAccess>,
-        InferCreationAttributes<ReadAccess>
-    > {
+    extends Model<InferAttributes<ReadAccess>, InferCreationAttributes<ReadAccess>> {
     user_id: string;
     topic_id: string;
     last_access: string;

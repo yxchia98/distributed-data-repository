@@ -36,6 +36,12 @@ export const sequelize: Sequelize = new Sequelize(
             //prevent sequelize from pluralizing table names
             freezeTableName: true,
         },
+        dialectOptions: {
+            // for reading
+            useUTC: false,
+            timezone: "Asia/Singapore",
+        },
+        timezone: "Asia/Singapore", // for writing
     }
 );
 

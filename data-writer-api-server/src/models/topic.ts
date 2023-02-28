@@ -8,7 +8,7 @@ interface Topic extends Model<InferAttributes<Topic>, InferCreationAttributes<To
     topic_name: string;
     topic_url: string;
     description: string;
-    last_update: Date;
+    last_update: string;
 }
 
 export interface TopicType {
@@ -18,7 +18,7 @@ export interface TopicType {
     topic_name: string;
     topic_url?: string;
     description: string;
-    last_update?: Date;
+    last_update?: string;
 }
 
 export const Topic = sequelize.define<Topic>(

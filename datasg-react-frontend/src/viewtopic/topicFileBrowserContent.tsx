@@ -9,10 +9,15 @@ import {
 } from "../redux/topicFileSlice";
 import { fetchAccess } from "../redux/accessSlice";
 import dayjs, { Dayjs } from "dayjs";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import TopicFileActionMenu from "./TopicFileActionMenu";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { saveAs } from "file-saver";
 import MissingReadAccessContent from "./MissingReadAccessContent";
+import { SelectedDateRange } from "./TopicFileBrowser";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 var customParseFormat = require("dayjs/plugin/customParseFormat");
 dayjs.extend(customParseFormat);
@@ -88,13 +93,17 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
     useEffect(() => {
         topicFilesSelector.status === "loading" ? setLoading(true) : setLoading(false);
         let topicFiles: Array<TopicFileType> = [];
+        // example filedate: 2023-02-19T16:00:00.000Z
+        // have to convert into utc before formatting according to timezone
         topicFilesSelector.topicFiles.forEach((topicFile) => {
             topicFiles.push({
                 file_id: topicFile.file_id,
                 topic_id: topicFile.topic_id,
                 agency_id: topicFile.agency_id,
                 file_url: topicFile.file_url,
-                file_date: dayjs(topicFile.file_date, "YYYY-MM-DD"),
+                file_date: dayjs
+                    .utc(topicFile.file_date, "YYYY-MM-DD HH:mm:ss")
+                    .tz("Asia/Singapore"),
             });
         });
         topicFiles.sort((a: TopicFileType, b: TopicFileType) =>
@@ -153,7 +162,9 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
                                                 {topicFile.file_url.split("/").slice(-1)}
                                             </div>
                                             <div className="w-5/12 py-2 px-4 border-r-2">
-                                                {`${topicFile.file_date.format("DD/MM/YYYY")}`}
+                                                {`${topicFile.file_date.format(
+                                                    "DD/MM/YYYY HH:mm"
+                                                )}`}
                                             </div>
                                             <TopicFileActionMenu
                                                 file={topicFile}

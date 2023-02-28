@@ -12,10 +12,16 @@ import TopicFileBrowserContent from "./TopicFileBrowserContent";
 import { setCurrentTopicWithId } from "../redux/topicSlice";
 import { IconContext } from "react-icons";
 import { CgSpinner } from "react-icons/cg";
+import dayjs from "dayjs";
 
 interface TopicFileBrowserProps {
     topic_id: string;
     agency_id: string;
+}
+
+export interface SelectedDateRange {
+    startDate: any;
+    endDate: any;
 }
 
 const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
@@ -26,14 +32,24 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     const userSelector = useAppSelector((state) => state.user);
     const accessSelector = useAppSelector((state) => state.access);
     const topicsSelector = useAppSelector((state) => state.topics);
+    const [selectedDate, setSelectedDate] = useState<SelectedDateRange | null>({
+        startDate: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
+        endDate: dayjs().format("YYYY-MM-DD"),
+    });
 
     // fetch topic files and access rights using redux thunk
     const fetchTopicFilesRedux = () => {
-        console.log("firing");
+        const startDate = selectedDate?.startDate
+            ? dayjs(selectedDate.startDate, "YYYY-M-D").format("YYYY-MM-DD")
+            : dayjs().subtract(1, "month").format("YYYY-MM-DD");
+        const endDate = selectedDate?.endDate
+            ? dayjs(selectedDate.endDate, "YYYY-M-D").add(1, "day").format("YYYY-MM-DD")
+            : dayjs().add(1, "day").format("YYYY-MM-DD");
+        console.log(`fetching files from \nstart date: ${startDate}\nend date: ${endDate}`);
         const findTopic: FetchSelectedTopicFilesThunkParams = {
             topic_id: props.topic_id,
-            start_date: "2023-02-10",
-            end_date: "2023-02-24",
+            start_date: startDate,
+            end_date: endDate,
         };
         dispatch(fetchSelectedTopicFiles(findTopic));
     };
@@ -51,7 +67,6 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     useEffect(() => {
         if (topicsSelector.currentTopic.user_id) {
             fetchTopicOwnerRedux(topicsSelector.currentTopic.user_id);
-            setIsLoading(false);
             return;
         }
     }, [topicsSelector.currentTopic]);
@@ -64,9 +79,23 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
 
     // fetch latest topic and access details
     useEffect(() => {
-        fetchTopicFilesRedux();
         fetchAccessRedux();
     }, []);
+
+    useEffect(() => {
+        fetchTopicFilesRedux();
+    }, [selectedDate]);
+
+    useEffect(() => {
+        if (
+            userSelector.status != "loading" &&
+            accessSelector.status != "loading" &&
+            topicsSelector.accessStatus != "loading" &&
+            topicsSelector.status != "loading"
+        ) {
+            setIsLoading(false);
+        }
+    }, [userSelector, accessSelector, topicsSelector]);
 
     useEffect(() => {
         if (
@@ -98,6 +127,8 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
                         agency_id={props.agency_id}
                         readAccess={hasReadAccess}
                         writeAccess={hasWriteAccess}
+                        datePickerValue={selectedDate}
+                        setDatePickerValue={setSelectedDate}
                     />
                     <TopicFileBrowserContent
                         topic_id={props.topic_id}

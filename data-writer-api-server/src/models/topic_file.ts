@@ -6,7 +6,7 @@ interface TopicFile extends Model<InferAttributes<TopicFile>, InferCreationAttri
     topic_id: string;
     agency_id: string;
     file_url: string;
-    file_date: Date;
+    file_date: string;
 }
 
 export interface TopicFileType {
@@ -14,7 +14,7 @@ export interface TopicFileType {
     topic_id: string;
     agency_id: string;
     file_url: string;
-    file_date?: Date;
+    file_date?: string;
 }
 
 export const TopicFile = sequelize.define<TopicFile>(

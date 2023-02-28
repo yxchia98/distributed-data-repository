@@ -14,7 +14,7 @@ import { Agency } from "../models/agency";
 import { WriteAccess } from "../models/write_access";
 import { ReadAccess } from "../models/read_access";
 import { DataTypes } from "sequelize";
-dotenv.config();
+import dayjs from "dayjs";
 
 interface TypeMap {
     [key: string]: string;
@@ -65,7 +65,7 @@ const publishTopicFile = async (req: TopicFileRequest, res: Response) => {
             });
             const queryTopic = await Topic.findByPk(queryTopicFile.topic_id);
             queryTopic.update({
-                last_update: new Date(),
+                last_update: dayjs(),
             });
         } catch (error) {}
         res.status(200).send({

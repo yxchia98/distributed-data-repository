@@ -76,8 +76,7 @@ export const fetchSelectedTopicFiles = createAsyncThunk(
             const fetchTopicResponse: AxiosResponse<FetchTopicFilesResponseType> = await axios(
                 fetchTopicsConfigurationObject
             );
-            console.log("DEBUG SCRIPT");
-            console.log(fetchTopicResponse);
+            console.log(fetchTopicResponse.data.message);
             res.data = fetchTopicResponse.data.data ? fetchTopicResponse.data.data : [];
             res.message = fetchTopicResponse.data.message ? fetchTopicResponse.data.message : "";
             res.error = fetchTopicResponse.data.error ? fetchTopicResponse.data.error : true;

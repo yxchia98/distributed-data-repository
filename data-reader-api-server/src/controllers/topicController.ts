@@ -7,7 +7,12 @@ import { downloadSingleFileS3 } from "../services/awsbucket";
 dotenv.config();
 import fs from "fs";
 import { GetObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
-
+import { Op } from "sequelize";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+import timezone from "dayjs/plugin/timezone";
+dayjs.extend(utc);
+dayjs.extend(timezone);
 /**
  * Get information of all Topics endpoint
  * Type: GET
@@ -59,7 +64,6 @@ const getAllTopics = async (req: Request, res: Response) => {
  * Returns: boolean error, string message, obj data
  */
 const getSingleTopic = async (req: Request, res: Response) => {
-    console.log(req.query.topic_id);
     if (!req.query.topic_id) {
         res.status(404).send({
             error: true,
@@ -103,7 +107,6 @@ const getSingleTopic = async (req: Request, res: Response) => {
  * Returns: boolean error, string message, obj data
  */
 const getAssociatedTopicFiles = async (req: Request, res: Response) => {
-    console.log(req.query.topic_id);
     if (!(req.query.topic_id && req.query.start_date && req.query.end_date)) {
         res.status(404).send({
             error: true,
@@ -115,8 +118,10 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
     try {
         // check if topic exists
         const topicId = <string>req.query.topic_id;
-        const startDate = <string>req.query.start_date;
-        const endDate = <string>req.query.end_date;
+        const startDate = dayjs(<string>req.query.start_date, "YYYY-MM-DD").toDate();
+        const endDate = dayjs(<string>req.query.end_date, "YYYY-MM-DD").toDate();
+        // const startDate = dayjs.utc(<string>req.query.start_date, "YYYY-MM-DD").toDate();
+        // const endDate = dayjs.utc(<string>req.query.end_date, "YYYY-MM-DD").toDate();
         const queryTopics = await Topic.findByPk(topicId);
         if (queryTopics) {
             // if topic exists, query for all topic files associated
@@ -124,14 +129,14 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
                 where: {
                     topic_id: topicId,
                     file_date: {
-                        $between: [startDate, endDate],
+                        [Op.between]: [startDate, endDate],
                     },
                 },
             });
             if (queryTopicFiles) {
                 res.status(200).send({
                     error: false,
-                    message: "Successfully retrieved files in topic",
+                    message: `Successfully retrieved files in topic from ${startDate} to ${endDate}`,
                     data: queryTopicFiles,
                 });
             } else {
@@ -166,7 +171,6 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
  * Returns: boolean error, string message, obj data
  */
 const getSingleTopicFile = async (req: Request, res: Response) => {
-    console.log(req.query.file_id);
     if (!req.query.file_id) {
         res.status(404).send({
             error: true,
@@ -209,7 +213,6 @@ const getSingleTopicFile = async (req: Request, res: Response) => {
  * Returns: boolean error, string message, obj data
  */
 const downloadSingleTopicFile = async (req: Request, res: Response) => {
-    console.log(req.query.file_id);
     if (!req.query.file_id) {
         res.status(404).send({
             error: true,

@@ -17,12 +17,18 @@ import { useEffect, useState } from "react";
 import HeaderDownloadButton from "./HeaderDownloadButton";
 import HeaderPublishButton from "./HeaderPublishButton";
 import PublishTopicFileModal from "./PublishTopicFileModal";
+import Datepicker from "react-tailwindcss-datepicker";
+import { SelectedDateRange } from "./TopicFileBrowser";
+import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
+import dayjs from "dayjs";
 
 interface TopicFileBrowserHeaderProps {
     topic_id: string;
     agency_id: string;
     readAccess: boolean;
     writeAccess: boolean;
+    datePickerValue: SelectedDateRange | null;
+    setDatePickerValue: React.Dispatch<React.SetStateAction<SelectedDateRange | null>>;
 }
 
 interface DownloadTopicFileResponse {
@@ -46,6 +52,14 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
     const navigate = useNavigate();
+
+    const handleDatePickerValueChange = (
+        newValue: DateValueType,
+        e?: HTMLInputElement | null | undefined
+    ) => {
+        console.log("newValue:", newValue);
+        props.setDatePickerValue(newValue);
+    };
 
     const handleDownloadOnClick = async () => {
         setIsDownloading(true);
@@ -153,26 +167,42 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                     }
                 </div>
             </div>
-            <div className="pt-0 pb-2 xl:text-xl md:text-lg sm:text-md text-indigo-600">
-                {
-                    // filter agency list and get corresponding agency's long description
-                    agenciesSelector
-                        .filter((agency) => agency.agency_id === props.agency_id)
-                        .map((agency) => agency.long_name)
-                }
-            </div>
-            <div className="xl:text-lg md:text-md sm:text-sm text-gray-700">
-                {
-                    // filter topics in redux store and get corresponding topics's long description
-                    topicsSelector
-                        .filter((topic) => topic.topic_id === props.topic_id)
-                        .map((topic) => topic.description)
-                }
+            <div className="grid grid-rows-2 grid-cols-3">
+                <div className="row-start-1 col-span-1 row-span-1 pt-0 pb-2 xl:text-xl md:text-lg sm:text-md text-indigo-600">
+                    {
+                        // filter agency list and get corresponding agency's long description
+                        agenciesSelector
+                            .filter((agency) => agency.agency_id === props.agency_id)
+                            .map((agency) => agency.long_name)
+                    }
+                </div>
+                <div className="row-start-2 w-full flex items-center justify-between">
+                    <div className="xl:text-lg md:text-md sm:text-sm text-gray-700">
+                        {
+                            // filter topics in redux store and get corresponding topics's long description
+                            topicsSelector
+                                .filter((topic) => topic.topic_id === props.topic_id)
+                                .map((topic) => topic.description)
+                        }
+                    </div>
+                </div>
+                <div className="row-start-1 col-start-3 row-span-2 flex items-center justify-self-end mr-[2%]">
+                    <div>
+                        <Datepicker
+                            value={props.datePickerValue}
+                            onChange={handleDatePickerValueChange}
+                            primaryColor={"indigo"}
+                            showShortcuts={true}
+                            displayFormat={"DD/MM/YY"}
+                            startFrom={dayjs().subtract(1, "month").toDate()}
+                        />
+                    </div>
+                </div>
             </div>
             <div className="w-full grid grid-cols-6 justify-between items-center">
                 <div className="col-span-2 col-start-1 flex flex-row items-center text-gray-500">{`Topic Owner: `}</div>
                 <div className="col-span-2 col-start-3 flex flex-row justify-center items-center">
-                    sss
+                    --group by tab here--
                 </div>
                 <div className="flex flex-row justify-self-end mr-[2%] col-start-5 col-span-2 ">
                     {/* <select className="m-1 inline-flex justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50">
