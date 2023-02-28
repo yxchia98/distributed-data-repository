@@ -1,4 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Dispatch, Fragment, SetStateAction, useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { BiTrash } from "react-icons/bi";
@@ -18,10 +19,18 @@ interface ProfileTopicEditModalProps {
     setCurrentTopicDetails: React.Dispatch<React.SetStateAction<TopicDetails>>;
 }
 
+interface DeleteTopicResponseType {
+    error: boolean;
+    message: string;
+}
+
 const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
     const dispatch = useAppDispatch();
     const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isDeleting, setIsDeleting] = useState<boolean>(false);
     const [showDeleteModal, setShowDeleteModal] = useState<boolean>(false);
+    const [isDeleteSuccess, setIsDeleteSuccess] = useState<boolean>(false);
+    const [isDeleteError, setIsDeleteError] = useState<boolean>(false);
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const topicsSelector = useAppSelector((state) => state.topics);
     const userSelector = useAppSelector((state) => state.user);
@@ -36,13 +45,52 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
         return;
     };
 
-    const confirmDeleteModal = () => {
-        setShowDeleteModal(false);
+    // delete topic via DELETE api call
+    const confirmDeleteModal = async () => {
+        setIsDeleting(true);
+        const deleteFormData: FormData = new FormData();
+        deleteFormData.append("topic_id", props.currentTopic.topic_id);
+        const deleteTopicConfigObject: AxiosRequestConfig = {
+            method: "delete",
+            url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/delete`,
+            headers: {},
+            data: deleteFormData,
+            withCredentials: true,
+        };
+        try {
+            // set on success
+            const deleteTopicResponse: AxiosResponse<DeleteTopicResponseType> = await axios(
+                deleteTopicConfigObject
+            );
+            if (deleteTopicResponse.data.error) {
+                setIsDeleting(false);
+                setIsDeleteSuccess(false);
+                setIsDeleteError(true);
+            }
+            setIsDeleting(false);
+            setIsDeleteSuccess(true);
+            setIsDeleteError(false);
+        } catch (error: any) {
+            // set on error
+            setIsDeleting(false);
+            setIsDeleteSuccess(false);
+            setIsDeleteError(true);
+        }
         return;
     };
 
     const handleDeleteOnClick = () => {
+        setIsDeleteSuccess(false);
+        setIsDeleteError(false);
+        setIsDeleting(false);
         setShowDeleteModal(true);
+    };
+
+    const handleSuccessCloseModal = () => {
+        // close current modal and reset states
+        setShowDeleteModal(false);
+        props.handleCloseModal();
+        setIsLoading(true);
     };
 
     useEffect(() => {
@@ -64,10 +112,13 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
         <div className="w-full h-full">
             <ProfileTopicDeleteModal
                 topic={props.currentTopic}
-                isLoading={false}
+                isLoading={isDeleting}
                 isOpen={showDeleteModal}
+                isSuccess={isDeleteSuccess}
+                isError={isDeleteError}
                 handleCancelModal={cancelDeleteModal}
-                handleConfirmModal={confirmDeleteModal}
+                handleConfirmDelete={confirmDeleteModal}
+                handleSuccessCloseModal={handleSuccessCloseModal}
             />
             <Transition appear show={props.isOpen} as={Fragment}>
                 <Dialog as="div" className="relative z-10" onClose={() => {}}>

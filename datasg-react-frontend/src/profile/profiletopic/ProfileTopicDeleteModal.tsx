@@ -3,14 +3,18 @@ import { Fragment } from "react";
 import { IconContext } from "react-icons";
 import { BiError } from "react-icons/bi";
 import { CgSpinner } from "react-icons/cg";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import { TopicDetails } from "../../redux/topicSlice";
 
 interface ProfileTopicDeleteModalProps {
     isOpen: boolean;
     isLoading: boolean;
+    isSuccess: boolean;
+    isError: boolean;
     topic: TopicDetails;
     handleCancelModal: () => void;
-    handleConfirmModal: () => void;
+    handleConfirmDelete: () => void;
+    handleSuccessCloseModal: () => void;
 }
 
 const ProfileTopicDeleteModal: React.FC<ProfileTopicDeleteModalProps> = (props) => {
@@ -47,40 +51,72 @@ const ProfileTopicDeleteModal: React.FC<ProfileTopicDeleteModalProps> = (props) 
                                         as="h3"
                                         className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
                                     >
-                                        <div className="mx-2 text-amber-500">
-                                            <IconContext.Provider
-                                                value={{
-                                                    size: "1.75em",
-                                                }}
-                                            >
-                                                <div className="">
-                                                    <BiError />
-                                                </div>
-                                            </IconContext.Provider>
-                                        </div>
                                         {`Delete ${props.topic.topic_name}`}
-                                        <div className="mx-2 text-amber-500">
-                                            <IconContext.Provider
-                                                value={{
-                                                    size: "1.75em",
-                                                }}
-                                            >
-                                                <div className="">
-                                                    <BiError />
-                                                </div>
-                                            </IconContext.Provider>
-                                        </div>
                                     </Dialog.Title>
-                                    <div className="flex flex-col items-center justify-center rounded-md px-6 pt-5 pb-6 transition text-sm">
-                                        <span>
-                                            All related accesses, files and keys will be deleted.{" "}
-                                        </span>
-                                        <span className="font-bold">
-                                            This action cannot be undone.
-                                        </span>
-                                        <span>Are you sure?</span>
-                                    </div>
-                                    {!props.isLoading && (
+                                    {!props.isSuccess && !props.isError && (
+                                        <div className="flex flex-col items-center justify-center rounded-md px-6 py-4 transition text-sm">
+                                            <div className="mb-2 text-amber-500">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                    }}
+                                                >
+                                                    <div className="">
+                                                        <BiError />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <span>
+                                                All related accesses, files and keys will be
+                                                deleted.{" "}
+                                            </span>
+                                            <span className="font-bold">
+                                                This action cannot be undone.
+                                            </span>
+                                            <span>Are you sure?</span>
+                                        </div>
+                                    )}
+                                    {props.isSuccess && (
+                                        <div className="flex flex-col items-center justify-center rounded-md px-6 py-4 transition text-sm">
+                                            <div className="mb-2 text-emerald-500">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                    }}
+                                                >
+                                                    <div className="">
+                                                        <FiCheckCircle />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <span>
+                                                All related accesses, files and keys have been
+                                            </span>
+                                            <span>successfully revoked and deleted.</span>
+                                        </div>
+                                    )}
+                                    {props.isError && (
+                                        <div className="flex flex-col items-center justify-center rounded-md px-6 py-4 transition text-sm">
+                                            <div className="mx-2 text-red-500">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                    }}
+                                                >
+                                                    <div className="">
+                                                        <FiAlertCircle />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <span>
+                                                Oops! There seem to be a problem deleting this
+                                                topic...
+                                            </span>
+                                            <span>Please try again later.</span>
+                                        </div>
+                                    )}
+
+                                    {!props.isLoading && !props.isSuccess && !props.isError && (
                                         <div className="flex justify-center items-center">
                                             <button
                                                 className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-gray-100 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-500 focus-visible:ring-offset-2"
@@ -90,22 +126,51 @@ const ProfileTopicDeleteModal: React.FC<ProfileTopicDeleteModalProps> = (props) 
                                             </button>
                                             <button
                                                 className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"
-                                                onClick={props.handleConfirmModal}
+                                                onClick={props.handleConfirmDelete}
                                             >
                                                 Delete
                                             </button>
                                         </div>
                                     )}
-                                    {props.isLoading && (
+                                    {props.isLoading && !props.isSuccess && !props.isError && (
                                         <div className="flex justify-center items-center">
                                             <button
-                                                className="mx-2 inline-flex justify-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-800 focus-visible:ring-offset-2"
-                                                onClick={props.handleConfirmModal}
+                                                className="mx-2 inline-flex justify-center items-center rounded-md border border-transparent bg-red-600 px-4 py-2 text-sm font-medium text-white"
+                                                onClick={props.handleConfirmDelete}
+                                                disabled={true}
                                             >
-                                                <div className="mx-2 animate-spin text-white">
-                                                    <CgSpinner />
+                                                <div className="mr-2 animate-spin text-white">
+                                                    <IconContext.Provider
+                                                        value={{
+                                                            size: "1.5em",
+                                                        }}
+                                                    >
+                                                        <div className="">
+                                                            <CgSpinner />
+                                                        </div>
+                                                    </IconContext.Provider>
                                                 </div>
-                                                Confirm
+                                                Deleting...
+                                            </button>
+                                        </div>
+                                    )}
+                                    {!props.isLoading && props.isError && (
+                                        <div className="flex justify-center items-center">
+                                            <button
+                                                className="mx-2 inline-flex justify-center items-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium"
+                                                onClick={props.handleCancelModal}
+                                            >
+                                                Got it
+                                            </button>
+                                        </div>
+                                    )}
+                                    {!props.isLoading && props.isSuccess && (
+                                        <div className="flex justify-center items-center">
+                                            <button
+                                                className="mx-2 inline-flex justify-center items-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium"
+                                                onClick={props.handleCancelModal}
+                                            >
+                                                Got it
                                             </button>
                                         </div>
                                     )}
