@@ -68,7 +68,7 @@ const ProfileTopic: React.FC = (props) => {
                 )
             );
         }
-    }, [topicsSelector]);
+    }, [topicsSelector, agenciesSelector]);
 
     useEffect(() => {
         setIsLoading(true);
@@ -91,18 +91,18 @@ const ProfileTopic: React.FC = (props) => {
                                 handleOpenTopicEditModal={openTopicEditModal}
                             />
                         ))}
+                        <ProfileTopicAccessModal
+                            currentTopic={currentTopicDetails}
+                            isOpen={showTopicAccessModal}
+                            handleCloseModal={closeTopicAccessModal}
+                        />
+                        <ProfileTopicEditModal
+                            currentTopic={currentTopicDetails}
+                            isOpen={showTopicEditModal}
+                            handleCloseModal={closeTopicEditModal}
+                            setCurrentTopicDetails={setCurrentTopicDetails}
+                        />
                     </div>
-                    <ProfileTopicAccessModal
-                        currentTopic={currentTopicDetails}
-                        isOpen={showTopicAccessModal}
-                        handleCloseModal={closeTopicAccessModal}
-                    />
-                    <ProfileTopicEditModal
-                        currentTopic={currentTopicDetails}
-                        isOpen={showTopicEditModal}
-                        handleCloseModal={closeTopicEditModal}
-                        setCurrentTopicDetails={setCurrentTopicDetails}
-                    />
                 </div>
             )}
             {isLoading && (

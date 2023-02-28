@@ -43,7 +43,7 @@ export const fetchAgencies = createAsyncThunk("agencies/fetchAgencies", async ()
         );
         res.data = fetchTopicResponse.data.data ? fetchTopicResponse.data.data : [];
         res.message = fetchTopicResponse.data.message ? fetchTopicResponse.data.message : "";
-        res.error = fetchTopicResponse.data.error ? fetchTopicResponse.data.error : true;
+        res.error = fetchTopicResponse.data.error;
         return res;
     } catch (error) {
         return res;

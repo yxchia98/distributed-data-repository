@@ -189,12 +189,15 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                 <div className="row-start-1 col-start-3 row-span-2 flex items-center justify-self-end mr-[2%]">
                     <div>
                         <Datepicker
+                            placeholder="Select date"
                             value={props.datePickerValue}
                             onChange={handleDatePickerValueChange}
                             primaryColor={"indigo"}
-                            showShortcuts={true}
                             displayFormat={"DD/MM/YY"}
                             startFrom={dayjs().subtract(1, "month").toDate()}
+                            showShortcuts={true}
+                            readOnly={true}
+                            disabled={!props.readAccess}
                         />
                     </div>
                 </div>
