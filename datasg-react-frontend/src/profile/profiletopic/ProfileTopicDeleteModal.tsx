@@ -168,7 +168,7 @@ const ProfileTopicDeleteModal: React.FC<ProfileTopicDeleteModalProps> = (props) 
                                         <div className="flex justify-center items-center">
                                             <button
                                                 className="mx-2 inline-flex justify-center items-center rounded-md border border-transparent bg-gray-200 px-4 py-2 text-sm font-medium"
-                                                onClick={props.handleCancelModal}
+                                                onClick={props.handleSuccessCloseModal}
                                             >
                                                 Got it
                                             </button>

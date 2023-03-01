@@ -17,6 +17,7 @@ interface ProfileTopicCardProps {
 }
 
 const ProfileTopicCard: React.FC<ProfileTopicCardProps> = (props) => {
+    const navigate = useNavigate();
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const handleTopicAccessOnClick = () => {
         props.setCurrentTopicDetails(props.topic);
@@ -26,6 +27,18 @@ const ProfileTopicCard: React.FC<ProfileTopicCardProps> = (props) => {
         props.setCurrentTopicDetails(props.topic);
         props.handleOpenTopicEditModal();
     };
+
+    const handleToTopicOnClick = () => {
+        return navigate("/viewTopic", {
+            state: {
+                topic_id: props.topic.topic_id,
+                topic_name: props.topic.topic_name,
+                agency_id: props.topic.agency_id,
+                description: props.topic.description,
+            },
+        });
+    };
+
     return (
         <div className="bg-white mx-[5%] flex flex-row justify-between items-center rounded-xl p-4 shadow my-2">
             <div className="flex flex-col">
@@ -68,7 +81,10 @@ const ProfileTopicCard: React.FC<ProfileTopicCardProps> = (props) => {
                         </div>
                     </IconContext.Provider>
                 </button>
-                <button className="flex flex-row justify-center items-center mx-2 text-gray-500 hover:text-indigo-500 active:text-indigo-700">
+                <button
+                    onClick={handleToTopicOnClick}
+                    className="flex flex-row justify-center items-center mx-2 text-gray-500 hover:text-indigo-500 active:text-indigo-700"
+                >
                     <IconContext.Provider
                         value={{
                             size: "2em",

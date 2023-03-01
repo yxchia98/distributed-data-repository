@@ -87,7 +87,7 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
     };
 
     const handleSuccessCloseModal = () => {
-        // close current modal and reset states
+        // close delete modal and current edit topic modal
         setShowDeleteModal(false);
         props.handleCloseModal();
         setIsLoading(true);
