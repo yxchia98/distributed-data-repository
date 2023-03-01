@@ -6,6 +6,8 @@ import { BiDownload, BiEdit, BiTrash } from "react-icons/bi";
 import { TopicFileType } from "./TopicFileBrowserContent";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import saveAs from "file-saver";
+import { useAppDispatch } from "../redux/hooks";
+import { setRefresh } from "../redux/topicFileSlice";
 
 interface TopicFileActionMenuProps {
     file: TopicFileType;
@@ -23,7 +25,13 @@ interface FileDataResponse {
     blobString: string;
 }
 
+interface DeleteFileResponse {
+    error: boolean;
+    message: string;
+}
+
 const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
+    const dispatch = useAppDispatch();
     const handleDownloadSingleFile = async (e: any) => {
         // fetch blob of single respective file
         const downloadTopicFileConfigurationObject: AxiosRequestConfig = {
@@ -50,9 +58,48 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
     //     console.log(`downloading file for file_id: ${props.file.file_id}`);
     //     window.open(props.file.file_url);
     // };
-    const handleDelete = () => {
-        console.log(`deleting file for file_id: ${props.file.file_id}`);
+
+    const deleteFile = async () => {
+        console.log(`deleting file:`);
+        console.log(props.file);
+        let res: DeleteFileResponse = {
+            error: true,
+            message: "",
+        };
+        // structure and send delete API request
+        const deleteFileFormData: FormData = new FormData();
+        deleteFileFormData.append("file_id", props.file.file_id);
+        const deleteFileConfigObject: AxiosRequestConfig = {
+            method: "delete",
+            url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/deletefile`,
+            data: deleteFileFormData,
+            withCredentials: true,
+        };
+        try {
+            const deleteFileResponse: AxiosResponse<DeleteFileResponse> = await axios(
+                deleteFileConfigObject
+            );
+            console.log(deleteFileResponse.data);
+            res.error = deleteFileResponse.data.error;
+            res.message = deleteFileResponse.data.message;
+            if (res.error) {
+                res.message = "Error deleting file";
+                return false;
+            }
+            return true;
+        } catch (error: any) {
+            console.log(error.message);
+            res.message = error.message;
+            return false;
+        }
     };
+    const handleDeleteOnClick = async () => {
+        const deleteSuccess = await deleteFile();
+        if (deleteSuccess) {
+            dispatch(setRefresh(true));
+        }
+    };
+
     // const handleEdit = () => {
     //     console.log(`editing file for file_id: ${props.file.file_id}`);
     // };
@@ -150,7 +197,7 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
                             <Menu.Item>
                                 {({ active }) => (
                                     <button
-                                        onClick={handleDelete}
+                                        onClick={handleDeleteOnClick}
                                         className={`${
                                             active ? "bg-indigo-500 text-white" : "text-gray-900"
                                         } group flex w-full items-center rounded-md px-2 py-2 text-sm`}

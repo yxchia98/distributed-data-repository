@@ -4,7 +4,6 @@ import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchSelectedTopicFiles, fetchSelectedTopicOwner } from "../redux/topicFileSlice";
 import { fetchTopics, setCurrentTopicWithId, TopicDetails } from "../redux/topicSlice";
 
 interface TopicCardProps {

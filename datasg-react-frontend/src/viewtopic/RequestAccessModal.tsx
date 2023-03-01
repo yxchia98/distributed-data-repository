@@ -153,13 +153,15 @@ const RequestAccessModal: React.FC<RequestAccessModalProps> = (props) => {
                                                 <div className="flex flex-row items-center justify-center">
                                                     <input
                                                         type="text"
-                                                        value={`${topicFileSelector.owner.first_name} ${topicFileSelector.owner.last_name}`}
+                                                        value={`${topicsSelector.currentTopicOwner.first_name} ${topicsSelector.currentTopicOwner.last_name}`}
                                                         disabled={true}
                                                         className={`m-1 p-2 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
                                                     />
                                                     <input
                                                         type="text"
-                                                        value={topicFileSelector.owner.email}
+                                                        value={
+                                                            topicsSelector.currentTopicOwner.email
+                                                        }
                                                         disabled={true}
                                                         className={`m-1 p-2 block w-full bg-gray-100 rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm`}
                                                     />
@@ -172,7 +174,8 @@ const RequestAccessModal: React.FC<RequestAccessModalProps> = (props) => {
                                                         agenciesSelector.agencies.find(
                                                             (agency) =>
                                                                 agency.agency_id ===
-                                                                topicFileSelector.owner.agency_id
+                                                                topicsSelector.currentTopicOwner
+                                                                    .agency_id
                                                         )?.long_name
                                                     }
                                                     disabled={true}

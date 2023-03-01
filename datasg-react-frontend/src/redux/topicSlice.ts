@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { AccessDetail, FetchAccessResponse } from "./accessSlice";
+import { FetchUserDetailsData, FetchUserDetailsResponseType } from "./userSlice";
 
 export interface TopicDetails {
     topic_id: string;
@@ -18,8 +19,10 @@ interface TopicState {
     search: TopicSearch;
     currentTopic: TopicDetails;
     currentTopicAccess: CurrentTopicAccess;
+    currentTopicOwner: FetchUserDetailsData;
     status: string;
     accessStatus: string;
+    currentTopicOwnerStatus: string;
 }
 
 interface CurrentTopicAccess {
@@ -32,6 +35,12 @@ interface FetchCurrentTopicAccessReturnType {
     message: string;
     read: Array<AccessDetail>;
     write: Array<AccessDetail>;
+}
+
+interface fetchCurrentTopicOwnerResponseType {
+    error: boolean;
+    message: string;
+    data: FetchUserDetailsData;
 }
 
 interface FetchTopicsResponseType {
@@ -59,6 +68,14 @@ const initialCurrentTopic: TopicDetails = {
     description: "",
     last_update: "",
 };
+const initialTopicOwnerDetails: FetchUserDetailsData = {
+    user_id: "",
+    first_name: "",
+    last_name: "",
+    email: "",
+    contact: "",
+    agency_id: "",
+};
 
 // initialize initial state for user in redux store
 const initialState: TopicState = {
@@ -69,8 +86,10 @@ const initialState: TopicState = {
         read: [],
         write: [],
     },
+    currentTopicOwner: initialTopicOwnerDetails,
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
     accessStatus: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
+    currentTopicOwnerStatus: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
 };
 
 export const fetchTopics = createAsyncThunk("topics/fetchTopics", async () => {
@@ -97,6 +116,40 @@ export const fetchTopics = createAsyncThunk("topics/fetchTopics", async () => {
         return res;
     }
 });
+
+export const fetchCurrentTopicOwner = createAsyncThunk(
+    "topics/fetchCurrentTopicOwner",
+    async (user_id: string) => {
+        // define respose for fetching topic owner's information
+        const owner_id = user_id;
+        let res: FetchUserDetailsResponseType = {
+            error: false,
+            message: "",
+            data: initialTopicOwnerDetails,
+        };
+        try {
+            const fetchOwnerConfigurationObject: AxiosRequestConfig = {
+                method: "get",
+                url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/user`,
+                headers: {},
+                withCredentials: true,
+                params: {
+                    user_id: owner_id,
+                },
+            };
+
+            const fetchOwnerResponse: AxiosResponse<FetchUserDetailsResponseType> = await axios(
+                fetchOwnerConfigurationObject
+            );
+            res.data = fetchOwnerResponse.data.data ? fetchOwnerResponse.data.data : res.data;
+            res.message = fetchOwnerResponse.data.message ? fetchOwnerResponse.data.message : "";
+            res.error = fetchOwnerResponse.data.error ? fetchOwnerResponse.data.error : true;
+            return res;
+        } catch (error) {
+            return res;
+        }
+    }
+);
 
 export const fetchCurrentTopicAccess = createAsyncThunk(
     "topics/fetchCurrentTopicAccess",
@@ -176,6 +229,16 @@ export const topicsSlice = createSlice({
             .addCase(fetchTopics.rejected, (state, action) => {
                 state.status = "failed;";
             })
+            .addCase(fetchCurrentTopicOwner.pending, (state, action) => {
+                state.currentTopicOwnerStatus = "loading";
+            })
+            .addCase(fetchCurrentTopicOwner.fulfilled, (state, action) => {
+                state.currentTopicOwnerStatus = "succeeded";
+                state.currentTopicOwner = action.payload.data;
+            })
+            .addCase(fetchCurrentTopicOwner.rejected, (state, action) => {
+                state.currentTopicOwnerStatus = "failed;";
+            })
             .addCase(fetchCurrentTopicAccess.pending, (state, action) => {
                 state.accessStatus = "loading";
             })
@@ -189,7 +252,6 @@ export const topicsSlice = createSlice({
             });
     },
 });
-
 // Action creators are generated for each case reducer function
 export const { setSearch, setCurrentTopicWithId, setCurrentTopicWithDetails } = topicsSlice.actions;
 

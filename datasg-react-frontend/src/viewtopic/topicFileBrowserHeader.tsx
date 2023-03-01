@@ -1,17 +1,11 @@
 import { IconContext } from "react-icons";
 import { BiShareAlt } from "react-icons/bi";
 import { IoChevronBackOutline } from "react-icons/io5";
-import { FiArrowDownCircle, FiArrowUpCircle } from "react-icons/fi";
-import { TbCircleDotted } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import saveAs from "file-saver";
-import {
-    clearChecked,
-    fetchSelectedTopicFiles,
-    FetchSelectedTopicFilesThunkParams,
-} from "../redux/topicFileSlice";
+import { clearChecked } from "../redux/topicFileSlice";
 import JSZip from "jszip";
 import { useEffect, useState } from "react";
 import HeaderDownloadButton from "./HeaderDownloadButton";
@@ -21,6 +15,7 @@ import Datepicker from "react-tailwindcss-datepicker";
 import { SelectedDateRange } from "./TopicFileBrowser";
 import { DateValueType } from "react-tailwindcss-datepicker/dist/types";
 import dayjs from "dayjs";
+import { FetchUserDetailsData } from "../redux/userSlice";
 
 interface TopicFileBrowserHeaderProps {
     topic_id: string;
@@ -45,12 +40,13 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     const dispatch = useAppDispatch();
 
     const userSelector = useAppSelector((state) => state.user);
-    const topicsSelector = useAppSelector((state) => state.topics).topics;
+    const topicsSelector = useAppSelector((state) => state.topics);
     const agenciesSelector = useAppSelector((state) => state.agencies).agencies;
     const topicFileSelector = useAppSelector((state) => state.topicFiles);
     const [isDownloading, setIsDownloading] = useState<boolean>(false);
     const [isPublishing, setIsPublishing] = useState<boolean>(false);
     const [isPublishModalOpen, setIsPublishModalOpen] = useState<boolean>(false);
+    const [topicOwner, setTopicOwner] = useState<FetchUserDetailsData | null>(null);
     const navigate = useNavigate();
 
     const handleDatePickerValueChange = (
@@ -73,7 +69,7 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         var zip = new JSZip();
 
         // get current topic name to set in downloaded file
-        const topicName = topicsSelector
+        const topicName = topicsSelector.topics
             .filter((topic) => topic.topic_id === props.topic_id)
             .map((topic) => topic.topic_name);
 
@@ -117,6 +113,10 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         navigate(-1);
     };
 
+    useEffect(() => {
+        // setTopicOwner(user);
+    }, [props.topic_id]);
+
     // useEffect(() => {
     //     if (!isPublishModalOpen) {
     //         setIsPublishing(false);
@@ -131,7 +131,9 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
     return (
         <div id="fileBrowserHeader" className="py-5 px-5 h-[30%]">
             <PublishTopicFileModal
-                topicDetails={topicsSelector.find((topic) => topic.topic_id === props.topic_id)}
+                topicDetails={topicsSelector.topics.find(
+                    (topic) => topic.topic_id === props.topic_id
+                )}
                 isOpen={isPublishModalOpen}
                 setIsOpen={setIsPublishModalOpen}
             />
@@ -161,14 +163,14 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                 <div className="font-semibold xl:text-3xl md:text-2xl sm:text-xl text-gray-700">
                     {
                         // filter topics in redux store and retrieve topic name
-                        topicsSelector
+                        topicsSelector.topics
                             .filter((topic) => topic.topic_id === props.topic_id)
                             .map((topic) => topic.topic_name)
                     }
                 </div>
             </div>
-            <div className="grid grid-rows-2 grid-cols-3">
-                <div className="row-start-1 col-span-1 row-span-1 pt-0 pb-2 xl:text-xl md:text-lg sm:text-md text-indigo-600">
+            <div className="grid grid-rows-2 grid-cols-3 h-[35%]">
+                <div className="row-start-1 col-span-2 row-span-1 flex items-center xl:text-xl md:text-lg sm:text-md text-indigo-600">
                     {
                         // filter agency list and get corresponding agency's long description
                         agenciesSelector
@@ -176,11 +178,11 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                             .map((agency) => agency.long_name)
                     }
                 </div>
-                <div className="row-start-2 w-full flex items-center justify-between">
-                    <div className="xl:text-lg md:text-md sm:text-sm text-gray-700">
+                <div className="row-start-2 row-span-1 col-span-2 w-full flex items-center justify-between whitespace-nowrap">
+                    <div className="w-full h-full xl:text-lg md:text-md sm:text-sm text-gray-700 overflow-x-auto inline-block">
                         {
                             // filter topics in redux store and get corresponding topics's long description
-                            topicsSelector
+                            topicsSelector.topics
                                 .filter((topic) => topic.topic_id === props.topic_id)
                                 .map((topic) => topic.description)
                         }
@@ -203,7 +205,7 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
                 </div>
             </div>
             <div className="w-full grid grid-cols-6 justify-between items-center">
-                <div className="col-span-2 col-start-1 flex flex-row items-center text-gray-500">{`Topic Owner: `}</div>
+                <div className="col-span-2 col-start-1 flex flex-row items-center text-gray-500">{`Topic Owner: ${topicsSelector.currentTopicOwner.first_name} ${topicsSelector.currentTopicOwner.last_name} (${topicsSelector.currentTopicOwner.email})`}</div>
                 <div className="col-span-2 col-start-3 flex flex-row justify-center items-center">
                     --group by tab here--
                 </div>

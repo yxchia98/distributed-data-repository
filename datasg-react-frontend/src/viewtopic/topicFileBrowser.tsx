@@ -4,12 +4,12 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import {
     fetchSelectedTopicFiles,
     FetchSelectedTopicFilesThunkParams,
-    fetchSelectedTopicOwner,
+    setRefresh,
 } from "../redux/topicFileSlice";
 import { fetchAccess } from "../redux/accessSlice";
 import TopicFileBrowserHeader from "./TopicFileBrowserHeader";
 import TopicFileBrowserContent from "./TopicFileBrowserContent";
-import { setCurrentTopicWithId } from "../redux/topicSlice";
+import { fetchCurrentTopicOwner, setCurrentTopicWithId } from "../redux/topicSlice";
 import { IconContext } from "react-icons";
 import { CgSpinner } from "react-icons/cg";
 import dayjs from "dayjs";
@@ -32,6 +32,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     const userSelector = useAppSelector((state) => state.user);
     const accessSelector = useAppSelector((state) => state.access);
     const topicsSelector = useAppSelector((state) => state.topics);
+    const topicFilesSelector = useAppSelector((state) => state.topicFiles);
     const [selectedDate, setSelectedDate] = useState<SelectedDateRange | null>({
         startDate: dayjs().subtract(1, "month").format("YYYY-MM-DD"),
         endDate: dayjs().format("YYYY-MM-DD"),
@@ -60,7 +61,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
         dispatch(setCurrentTopicWithId(props.topic_id));
     };
     const fetchTopicOwnerRedux = (user_id: string) => {
-        dispatch(fetchSelectedTopicOwner(user_id));
+        dispatch(fetchCurrentTopicOwner(user_id));
     };
 
     // fetch topic owner's details after setting current topic
@@ -85,6 +86,13 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
     useEffect(() => {
         fetchTopicFilesRedux();
     }, [selectedDate]);
+
+    useEffect(() => {
+        if (topicFilesSelector.refresh == true) {
+            fetchTopicFilesRedux();
+            dispatch(setRefresh(false));
+        }
+    }, [topicFilesSelector.refresh]);
 
     useEffect(() => {
         if (

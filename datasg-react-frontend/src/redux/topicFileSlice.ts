@@ -16,10 +16,10 @@ export interface TopicFileDetails {
 }
 
 interface SelectedTopicFilesState {
-    owner: FetchUserDetailsData;
     topicFiles: Array<TopicFileDetails>;
     checked: Array<string>;
     status: string;
+    refresh: boolean;
 }
 
 interface FetchTopicFilesResponseType {
@@ -35,21 +35,12 @@ export interface FetchSelectedTopicFilesThunkParams {
     end_date: string;
 }
 
-const initialOwner: FetchUserDetailsData = {
-    user_id: "",
-    first_name: "",
-    last_name: "",
-    email: "",
-    contact: "",
-    agency_id: "",
-};
-
 // initialize initial state for user in redux store
 const initialState: SelectedTopicFilesState = {
-    owner: initialOwner,
     topicFiles: [],
     checked: [],
     status: "idle", //'idle' | 'loading' | 'succeeded' | 'failed'
+    refresh: false,
 };
 
 export const fetchSelectedTopicFiles = createAsyncThunk(
@@ -87,47 +78,47 @@ export const fetchSelectedTopicFiles = createAsyncThunk(
     }
 );
 
-export const fetchSelectedTopicOwner = createAsyncThunk(
-    "selectedTopic/fetchSelectedTopicOwner",
-    async (user_id: string) => {
-        // define respose for fetching topic owner's information
-        const owner_id = user_id;
-        let topicOwner: FetchUserDetailsData = {
-            user_id: "",
-            first_name: "",
-            last_name: "",
-            email: "",
-            contact: "",
-            agency_id: "",
-        };
-        let res: FetchUserDetailsResponseType = {
-            error: false,
-            message: "",
-            data: topicOwner,
-        };
-        try {
-            const fetchOwnerConfigurationObject: AxiosRequestConfig = {
-                method: "get",
-                url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/user`,
-                headers: {},
-                withCredentials: true,
-                params: {
-                    user_id: owner_id,
-                },
-            };
+// export const fetchSelectedTopicOwner = createAsyncThunk(
+//     "selectedTopic/fetchSelectedTopicOwner",
+//     async (user_id: string) => {
+//         // define respose for fetching topic owner's information
+//         const owner_id = user_id;
+//         let topicOwner: FetchUserDetailsData = {
+//             user_id: "",
+//             first_name: "",
+//             last_name: "",
+//             email: "",
+//             contact: "",
+//             agency_id: "",
+//         };
+//         let res: FetchUserDetailsResponseType = {
+//             error: false,
+//             message: "",
+//             data: topicOwner,
+//         };
+//         try {
+//             const fetchOwnerConfigurationObject: AxiosRequestConfig = {
+//                 method: "get",
+//                 url: `${process.env.REACT_APP_DATA_READER_API_URL}profile/user`,
+//                 headers: {},
+//                 withCredentials: true,
+//                 params: {
+//                     user_id: owner_id,
+//                 },
+//             };
 
-            const fetchOwnerResponse: AxiosResponse<FetchUserDetailsResponseType> = await axios(
-                fetchOwnerConfigurationObject
-            );
-            res.data = fetchOwnerResponse.data.data ? fetchOwnerResponse.data.data : res.data;
-            res.message = fetchOwnerResponse.data.message ? fetchOwnerResponse.data.message : "";
-            res.error = fetchOwnerResponse.data.error ? fetchOwnerResponse.data.error : true;
-            return res;
-        } catch (error) {
-            return res;
-        }
-    }
-);
+//             const fetchOwnerResponse: AxiosResponse<FetchUserDetailsResponseType> = await axios(
+//                 fetchOwnerConfigurationObject
+//             );
+//             res.data = fetchOwnerResponse.data.data ? fetchOwnerResponse.data.data : res.data;
+//             res.message = fetchOwnerResponse.data.message ? fetchOwnerResponse.data.message : "";
+//             res.error = fetchOwnerResponse.data.error ? fetchOwnerResponse.data.error : true;
+//             return res;
+//         } catch (error) {
+//             return res;
+//         }
+//     }
+// );
 
 export const selectedTopicSlice = createSlice({
     name: "selectedTopic",
@@ -139,6 +130,10 @@ export const selectedTopicSlice = createSlice({
         },
         clearChecked: (state) => {
             state.checked = [];
+        },
+        setRefresh: (state, action: PayloadAction<boolean>) => {
+            const refreshState = action.payload;
+            state.refresh = refreshState;
         },
     },
     extraReducers: (builder) => {
@@ -152,21 +147,11 @@ export const selectedTopicSlice = createSlice({
             })
             .addCase(fetchSelectedTopicFiles.rejected, (state, action) => {
                 state.status = "failed;";
-            })
-            .addCase(fetchSelectedTopicOwner.pending, (state, action) => {
-                state.status = "loading";
-            })
-            .addCase(fetchSelectedTopicOwner.fulfilled, (state, action) => {
-                state.status = "succeeded";
-                state.owner = action.payload.data;
-            })
-            .addCase(fetchSelectedTopicOwner.rejected, (state, action) => {
-                state.status = "failed;";
             });
     },
 });
 
 // Action creators are generated for each case reducer function
-export const { setChecked, clearChecked } = selectedTopicSlice.actions;
+export const { setChecked, clearChecked, setRefresh } = selectedTopicSlice.actions;
 
 export default selectedTopicSlice.reducer;
