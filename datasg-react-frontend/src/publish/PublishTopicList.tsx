@@ -76,7 +76,7 @@ const PublishTopicList = () => {
                 <div className="text-3xl font-semibold px-5">Publish Files to a Topic</div>
                 <button
                     onClick={handleCreateButtonOnClick}
-                    className="flex justify-between items-center rounded p-2 text-sm-bold border border-indigo-500 bg-indigo-500 text-white ransition duration-300 ease select-none hover:bg-indigo-600 focus:outline-none focus:shadow-outline"
+                    className="flex justify-between items-center rounded p-2 text-sm-bold border border-indigo-500 bg-indigo-500 text-white transition ease select-none hover:bg-indigo-600 active:bg-indigo-700 focus:outline-none focus:shadow-outline"
                 >
                     <IconContext.Provider value={{ size: "1.5em", color: "white" }}>
                         <div className="px-1">

@@ -15,7 +15,7 @@ const PublishTopicEmptyPage = () => {
                 Looks like you dont have any topics to publish to...
             </h1>
             <p className="text-lg p-4">
-                <i>request access to topics to start publishing files</i>
+                <i>Request access to topics to start publishing files. Or create your own!</i>
             </p>
             <button
                 onClick={toExplorePage}

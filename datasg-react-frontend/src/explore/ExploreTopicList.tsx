@@ -9,7 +9,6 @@ import ExploreTopicCard from "./ExploreTopicCard";
 import ExploreTopicEmptyPage from "./ExploreTopicEmptyPage";
 
 const ExploreTopicList = () => {
-    const navigate = useNavigate();
     const topicsSelector = useAppSelector((state) => state.topics);
     const agenciesSelector = useAppSelector((state) => state.agencies);
     const user = useAppSelector((state) => state.user);
