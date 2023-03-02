@@ -443,8 +443,9 @@ const createApiKey = async (req: Request, res: Response) => {
             user_id: req.body.user_id,
             topic_id: req.body.topic_id,
         });
+        output.error = false;
         output.key = createAPIKey.key_id;
-        res.send(output);
+        res.status(200).send(output);
         return;
     } catch (error) {
         res.send(output);
