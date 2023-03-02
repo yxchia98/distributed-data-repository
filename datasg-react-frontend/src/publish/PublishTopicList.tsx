@@ -9,6 +9,7 @@ import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics, TopicDetails } from "../redux/topicSlice";
 import CreateTopicModal from "./CreateTopicModal";
 import PublishTopicCard from "./PublishTopicCard";
+import PublishTopicEmptyPage from "./PublishTopicEmptyPage";
 import QuickPublishFileModal from "./QuickPublishFileModal";
 
 const PublishTopicList = () => {
@@ -65,7 +66,7 @@ const PublishTopicList = () => {
     }, [topicsSelector, accessSelector]);
 
     return (
-        <div className="topicList">
+        <div className="topicList h-[86%] border-none w-full">
             <QuickPublishFileModal
                 topicDetails={selectedTopic}
                 isOpen={showPublishNewTopicFile}
@@ -87,6 +88,7 @@ const PublishTopicList = () => {
                 </button>
             </div>
             {writeableTopics &&
+                writeableTopics.length > 0 &&
                 agenciesSelector.agencies &&
                 writeableTopics
                     .filter((topic) => {
@@ -115,6 +117,7 @@ const PublishTopicList = () => {
                             />
                         );
                     })}
+            {writeableTopics && writeableTopics.length <= 0 && <PublishTopicEmptyPage />}
         </div>
     );
 };

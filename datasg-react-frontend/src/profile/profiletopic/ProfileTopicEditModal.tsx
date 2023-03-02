@@ -72,6 +72,7 @@ const ProfileTopicEditModal: React.FC<ProfileTopicEditModalProps> = (props) => {
             setIsDeleteError(false);
         } catch (error: any) {
             // set on error
+            console.log(error.message);
             setIsDeleting(false);
             setIsDeleteSuccess(false);
             setIsDeleteError(true);

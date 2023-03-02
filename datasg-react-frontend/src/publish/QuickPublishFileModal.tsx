@@ -1,6 +1,6 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { Dispatch, Fragment, SetStateAction, useEffect, useRef, useState } from "react";
-import { TopicDetails } from "../redux/topicSlice";
+import { setCurrentTopicWithDetails, TopicDetails } from "../redux/topicSlice";
 import { UserDetails } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import dayjs from "dayjs";
@@ -18,6 +18,7 @@ interface QuickPublishFileModalProps {
 }
 
 const QuickPublishFileModal: React.FC<QuickPublishFileModalProps> = (props) => {
+    const dispatch = useAppDispatch();
     const agenciesSelector = useAppSelector((state) => state.agencies);
     // for drag and drop into modal
     // handle drag events
@@ -74,6 +75,7 @@ const QuickPublishFileModal: React.FC<QuickPublishFileModalProps> = (props) => {
         setIsSubmitted(false);
     };
     const handleToTopicDetails = () => {
+        dispatch(setCurrentTopicWithDetails(props.topicDetails!));
         return navigate("/viewTopic", {
             state: {
                 topic_id: props.topicDetails!.topic_id,

@@ -22,8 +22,6 @@ const ExploreTopicSearchBar = () => {
             agency_id: e.target.value ? e.target.value : "",
         };
         dispatch(setSearch(input));
-        console.log("changed agency!");
-        console.log(topicsSelector.search);
     };
     const onSubmitHandler = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // 👈️ prevent page refresh

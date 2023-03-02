@@ -13,6 +13,7 @@ import { AppUser } from "../models/app_user";
 import { Agency } from "../models/agency";
 import { WriteAccess } from "../models/write_access";
 import { ReadAccess } from "../models/read_access";
+import { AccessRequest } from "../models/request";
 import { DataTypes } from "sequelize";
 import dayjs from "dayjs";
 
@@ -333,6 +334,11 @@ const deleteTopic = async (req: Request, res: Response) => {
                             topic_id: queryTopicResponse.topic_id,
                         },
                     });
+                    await AccessRequest.destroy({
+                        where: {
+                            topic_id: queryTopicResponse.topic_id,
+                        },
+                    });
                     await WriteAccess.destroy({
                         where: {
                             topic_id: queryTopicResponse.topic_id,
@@ -356,9 +362,30 @@ const deleteTopic = async (req: Request, res: Response) => {
                 }
             } else {
                 // delete record in db
+                // delete all dependencies of the topic before deleting the actual topic record in db
+                await TopicFile.destroy({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
+                await AccessRequest.destroy({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
+                await WriteAccess.destroy({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
+                await ReadAccess.destroy({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
                 await queryTopicResponse.destroy();
                 res.status(500).send({
-                    error: true,
+                    error: false,
                     message: "Successfully deleted topic",
                 });
             }

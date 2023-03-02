@@ -11,7 +11,7 @@ const Publish: React.FC = (props) => {
     const userSelector = useAppSelector((state) => state.user);
 
     return (
-        <div className="explore bg-gray-100 h-screen">
+        <div className="explore bg-gray-100 h-screen overflow-y-auto overflow-x-hidden">
             <NavigationBar current="publish" />
             {/* <p>{JSON.stringify(userSelector)}</p> */}
             {(!userSelector.user.user_id ||

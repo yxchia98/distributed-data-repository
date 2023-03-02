@@ -6,6 +6,7 @@ import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { fetchTopics } from "../redux/topicSlice";
 import ExploreTopicCard from "./ExploreTopicCard";
+import ExploreTopicEmptyPage from "./ExploreTopicEmptyPage";
 
 const ExploreTopicList = () => {
     const navigate = useNavigate();
@@ -28,11 +29,12 @@ const ExploreTopicList = () => {
     }, []);
 
     return (
-        <div className="topicList">
-            <div className="flex justify-between max-w mx-[10%] my-[1%] overflow-hidden bg-local bg-origin-content">
+        <div className="topicList h-[86%] w-full">
+            <div className="flex justify-between max-w mx-[10%] my-[1%] overflow-auto bg-local bg-origin-content">
                 <div className="text-3xl font-semibold px-5">Explore Topics</div>
-            </div>{" "}
+            </div>
             {topicsSelector.topics &&
+                topicsSelector.topics.length > 0 &&
                 agenciesSelector.agencies &&
                 topicsSelector.topics
                     .filter((topic) => {
@@ -58,6 +60,7 @@ const ExploreTopicList = () => {
                             />
                         );
                     })}
+            {topicsSelector && topicsSelector.topics.length <= 0 && <ExploreTopicEmptyPage />}
         </div>
     );
 };

@@ -4,7 +4,12 @@ import { BiShareAlt } from "react-icons/bi";
 import { useNavigate } from "react-router-dom";
 import { fetchAgencies } from "../redux/agencySlice";
 import { useAppDispatch, useAppSelector } from "../redux/hooks";
-import { fetchTopics, setCurrentTopicWithId, TopicDetails } from "../redux/topicSlice";
+import {
+    fetchTopics,
+    setCurrentTopicWithDetails,
+    setCurrentTopicWithId,
+    TopicDetails,
+} from "../redux/topicSlice";
 
 interface TopicCardProps {
     key: string;
@@ -36,6 +41,7 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
         };
         const foundTopic = topicsSelector.topics.find((topic) => topic.topic_id === props.topic_id);
         selectedTopic = foundTopic ? foundTopic : selectedTopic;
+        dispatch(setCurrentTopicWithDetails(selectedTopic));
     };
     useEffect(() => {
         fetchAgenciesRedux();
@@ -64,11 +70,6 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
                 <div className="font-semibold xl:text-3xl md:text-2xl sm:text-xl text-gray-700">
                     {props.topic_name}
                 </div>
-                <IconContext.Provider value={{ size: "2em", color: "rgb(88 80 236)" }}>
-                    <div className="ml-auto">
-                        <BiShareAlt />
-                    </div>
-                </IconContext.Provider>
             </div>
             <div className="pt-0 pb-2 xl:text-xl md:text-lg sm:text-md text-indigo-600">
                 {
@@ -78,7 +79,9 @@ const TopicCard: React.FC<TopicCardProps> = (props) => {
                         .map((agency) => agency.long_name)
                 }
             </div>
-            <div className="xl:text-lg md:text-md sm:text-sm">{props.description}</div>
+            <div className="xl:text-lg md:text-md sm:text-sm whitespace-nowrap overflow-x-hidden text-ellipsis">
+                {props.description}
+            </div>
         </div>
     );
 };
