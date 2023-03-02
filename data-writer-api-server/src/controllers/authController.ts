@@ -8,6 +8,7 @@ import { ReadAccess } from "../models/read_access";
 import { WriteAccess } from "../models/write_access";
 import { AccessRequest, AccessRequestType } from "../models/request";
 import { Topic } from "../models/topic";
+import { APIKey } from "../models/apikey";
 dotenv.config();
 
 /**
@@ -405,6 +406,85 @@ const deleteAccessRequest = async (req: Request, res: Response) => {
     }
 };
 
+/**
+ * Generate new API Key Request endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier that is generating the key
+ *      topic_id - Topic identifier that the key points to
+ *
+ * Returns: boolean error, string message, string key
+ */
+const createApiKey = async (req: Request, res: Response) => {
+    // Check if required fields are present
+    let output = {
+        error: true,
+        message: "Error creating api key",
+        key: "",
+    };
+    if (!req.body.user_id || !req.body.topic_id) {
+        output.message = "Error, mandatory fields not set";
+        res.status(400).send(output);
+        return;
+    }
+    try {
+        const queryExistingKey = await APIKey.findAll({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
+        if (queryExistingKey.length > 0) {
+            queryExistingKey.forEach(async (element) => await element.destroy());
+        }
+        const createAPIKey = await APIKey.create({
+            user_id: req.body.user_id,
+            topic_id: req.body.topic_id,
+        });
+        output.key = createAPIKey.key_id;
+        res.send(output);
+        return;
+    } catch (error) {
+        res.send(output);
+        return;
+    }
+};
+
+/**
+ * Delete API Key Request endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      key_id - Key identifier that is granting the access
+ *
+ * Returns: boolean error, string message
+ */
+const deleteApiKey = async (req: Request, res: Response) => {
+    // Check if required fields are present
+    let output = {
+        error: true,
+        message: "Error deleting api key",
+    };
+    if (!req.body.key_id) {
+        output.message = "Error, mandatory fields not set";
+        res.status(400).send(output);
+        return;
+    }
+    try {
+        const queryExistingKey = await APIKey.findByPk(req.body.key_id);
+        await queryExistingKey.destroy();
+        output.message = "successfully deleted api key";
+        res.send(output);
+        return;
+    } catch (error) {
+        res.send(output);
+        return;
+    }
+};
+
 export default module.exports = {
     isLoggedIn,
     checkLoginSuccess,
@@ -416,4 +496,6 @@ export default module.exports = {
     createRequestAccess,
     updateRequestAccess,
     deleteAccessRequest,
+    createApiKey,
+    deleteApiKey,
 };

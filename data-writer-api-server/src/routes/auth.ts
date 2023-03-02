@@ -220,4 +220,29 @@ router.put("/accessrequest", upload.none(), authController.updateRequestAccess);
  */
 router.delete("/accessrequest", upload.none(), authController.deleteAccessRequest);
 
+/**
+ * Generate new API Key Request endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier that is generating the key
+ *      topic_id - Topic identifier that the key points to
+ *
+ * Returns: boolean error, string message, string key
+ */
+router.post("/apikey", upload.none(), authController.createApiKey);
+
+/**
+ * Delete API Key Request endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      key_id - Key identifier that is granting the access
+ *
+ * Returns: boolean error, string message
+ */
+router.delete("/apikey", upload.none(), authController.deleteApiKey);
+
 export default router;
