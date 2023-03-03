@@ -103,8 +103,9 @@ const uploadS3WithKey = multer({
             // const topicFolder = "topics/" + req.body.topic + "/";
             let uploadError = new Error("topic not found or invalid file type");
             try {
+                const request_key = <string>req.query.key_id;
                 const isValid = FILE_TYPE_MAP[file.mimetype];
-                const queryAPIKey = await APIKey.findByPk(req.params.key_id);
+                const queryAPIKey = await APIKey.findByPk(request_key);
                 const queryUser = await AppUser.findByPk(queryAPIKey.user_id);
                 const queryTopic = await Topic.findByPk(queryAPIKey.topic_id);
                 if (queryAPIKey && queryUser && queryTopic && isValid) {
