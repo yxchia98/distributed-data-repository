@@ -207,7 +207,7 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
             <div className="w-full grid grid-cols-6 justify-between items-center">
                 <div className="col-span-2 col-start-1 flex flex-row items-center text-gray-500">{`Topic Owner: ${topicsSelector.currentTopicOwner.first_name} ${topicsSelector.currentTopicOwner.last_name} (${topicsSelector.currentTopicOwner.email})`}</div>
                 <div className="col-span-2 col-start-3 flex flex-row justify-center items-center">
-                    --group by tab here--
+                    {/* group by tab */}
                 </div>
                 <div className="flex flex-row justify-self-end mr-[2%] col-start-5 col-span-2 ">
                     {/* <select className="m-1 inline-flex justify-center rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-50">

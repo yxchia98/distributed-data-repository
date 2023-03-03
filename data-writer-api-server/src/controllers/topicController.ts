@@ -16,6 +16,7 @@ import { ReadAccess } from "../models/read_access";
 import { AccessRequest } from "../models/request";
 import { DataTypes } from "sequelize";
 import dayjs from "dayjs";
+import { APIKey } from "../models/apikey";
 
 interface TypeMap {
     [key: string]: string;
@@ -54,6 +55,44 @@ const s3 = new S3Client({
  * Returns: boolean error, string message
  */
 const publishTopicFile = async (req: TopicFileRequest, res: Response) => {
+    let fileName: string = "";
+    const file: any = req.file;
+    if (file) {
+        // get file URI
+        fileName = file.location;
+        try {
+            const queryTopicFile = await TopicFile.findByPk(req.file_id);
+            queryTopicFile.update({
+                file_url: fileName,
+            });
+            const queryTopic = await Topic.findByPk(queryTopicFile.topic_id);
+            queryTopic.update({
+                last_update: dayjs(),
+            });
+        } catch (error) {}
+        res.status(200).send({
+            error: false,
+            message: `Successfully uploaded file. URI: ${fileName}`,
+        });
+    } else {
+        res.status(500).send({
+            error: true,
+            message: `error uploading file to ${req.body.topic} topic`,
+        });
+    }
+};
+
+/**
+ * Publish Topic File with API Key endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      key_id - the identifier for the API Key to publish files into
+ *      uploaded_file - .csv file to be uploaded into that topic
+ * Returns: boolean error, string message
+ */
+const publishTopicFileWithKey = async (req: TopicFileRequest, res: Response) => {
     let fileName: string = "";
     const file: any = req.file;
     if (file) {
@@ -334,6 +373,11 @@ const deleteTopic = async (req: Request, res: Response) => {
                             topic_id: queryTopicResponse.topic_id,
                         },
                     });
+                    await APIKey.destroy({
+                        where: {
+                            topic_id: queryTopicResponse.topic_id,
+                        },
+                    });
                     await AccessRequest.destroy({
                         where: {
                             topic_id: queryTopicResponse.topic_id,
@@ -364,6 +408,11 @@ const deleteTopic = async (req: Request, res: Response) => {
                 // delete record in db
                 // delete all dependencies of the topic before deleting the actual topic record in db
                 await TopicFile.destroy({
+                    where: {
+                        topic_id: queryTopicResponse.topic_id,
+                    },
+                });
+                await APIKey.destroy({
                     where: {
                         topic_id: queryTopicResponse.topic_id,
                     },
@@ -458,6 +507,7 @@ const deleteTopicFile = async (req: Request, res: Response) => {
 
 export default module.exports = {
     publishTopicFile,
+    publishTopicFileWithKey,
     createTopic,
     updateTopic,
     deleteTopic,

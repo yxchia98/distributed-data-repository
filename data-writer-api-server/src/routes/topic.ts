@@ -15,6 +15,7 @@ import { TopicFile, TopicFileType } from "../models/topic_file";
 import { AppUser } from "../models/app_user";
 import { Agency } from "../models/agency";
 import topicController from "../controllers/topicController";
+import { APIKey } from "../models/apikey";
 dotenv.config();
 
 interface TypeMap {
@@ -92,6 +93,56 @@ const uploadS3 = multer({
     }),
 });
 
+const uploadS3WithKey = multer({
+    storage: multerS3({
+        s3: s3,
+        bucket: process.env.AWS_S3_BUCKET_NAME,
+        acl: "public-read",
+        // metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {},
+        key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
+            // const topicFolder = "topics/" + req.body.topic + "/";
+            let uploadError = new Error("topic not found or invalid file type");
+            try {
+                const isValid = FILE_TYPE_MAP[file.mimetype];
+                const queryAPIKey = await APIKey.findByPk(req.params.key_id);
+                const queryUser = await AppUser.findByPk(queryAPIKey.user_id);
+                const queryTopic = await Topic.findByPk(queryAPIKey.topic_id);
+                if (queryAPIKey && queryUser && queryTopic && isValid) {
+                    uploadError = null;
+                    // set found topic uri into req object
+                    req.topicFolder = queryTopic.dataValues.topic_url;
+                    await initBucket(s3);
+                    // insert incoming topic file record into database
+
+                    // check if topic folder exists in s3
+                    const topicExist = await checkBucketFolder(
+                        s3,
+                        process.env.AWS_S3_BUCKET_NAME,
+                        req.topicFolder
+                    );
+                    // if topic exists, insert record into DB before uploading
+                    if (topicExist.success) {
+                        const record: TopicFileType = {
+                            topic_id: queryTopic.topic_id,
+                            agency_id: queryTopic.agency_id,
+                            file_url: "pending",
+                        };
+                        const insertedRecord = await TopicFile.create(record);
+                        req.file_id = insertedRecord.dataValues.file_id;
+                        cb(null, req.topicFolder + Date.now().toString() + "-" + file.originalname);
+                    } else {
+                        cb(uploadError.message, { fieldname: null });
+                    }
+                } else {
+                    cb(uploadError.message, { fieldname: null });
+                }
+            } catch (error) {
+                cb(uploadError.message, { fieldname: null });
+            }
+        },
+    }),
+});
+
 /*-------------------- TOPIC API START ---------------*/
 
 /**
@@ -107,6 +158,23 @@ const uploadS3 = multer({
  * Returns: boolean error, string message
  */
 router.post("/publish", uploadS3.single("uploaded_file"), topicController.publishTopicFile);
+
+/**
+ * Publish Topic File with API Key endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      key_id - the identifier for the API Key to publish files into
+ *      uploaded_file - .csv file to be uploaded into that topic
+ *
+ * Returns: boolean error, string message
+ */
+router.post(
+    "/keypublish",
+    uploadS3WithKey.single("uploaded_file"),
+    topicController.publishTopicFileWithKey
+);
 
 /**
  * Create new topic endpoint
