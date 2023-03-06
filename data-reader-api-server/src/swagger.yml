@@ -758,7 +758,7 @@ paths:
                 - Profile
             responses:
                 "200": # status code
-                    description: Object containing response details, and object containing user details
+                    description: Object containing response details, and object containing agency details
                     content:
                         application/json:
                             schema:
@@ -789,3 +789,240 @@ paths:
                                     data:
                                         type: array
                                         example: []
+    topic/topics:
+        get:
+            summary: Get all topics and their details
+            description: Retrieves all topics along with their details
+            tags:
+                - Topic
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing array of topic details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved all topics
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Topic"
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving topics
+                                    data:
+                                        type: array
+                                        example: []
+    topic/topic:
+        get:
+            summary: Get specified topic and it's details
+            description: Retrieves specified topics along with their details
+            tags:
+                - Topic
+            parameters:
+                - in: query
+                  name: "topic_id"
+                  description: The topic identifier for the specified topic to retrieve
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid                
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing topic details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved topic details
+                                    data:
+                                        type: object
+                                        $ref: "#/components/schemas/Topic"
+                "404": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set
+                                    data:
+                                        type: object
+                                        example: {}
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving topic
+                                    data:
+                                        type: object
+                                        example: {}
+    topic/topicfiles:
+        get:
+            summary: Get topic files of respective topic
+            description: Given start and end date, fetch all topic files in the specified topic within these dates
+            tags:
+                - Topic
+            parameters:
+                - in: query
+                  name: "topic_id"
+                  description: The topic identifier for the specified topic to retrieve files from
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+                - in: query
+                  name: "start_date"
+                  description: The start date range of retrieving files
+                  required: true
+                  schema:
+                      type: string
+                      format: date-time
+                - in: query
+                  name: "end_date"
+                  description: The end date range of retrieving files
+                  required: true
+                  schema:
+                      type: string
+                      format: date-time    
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of objects containing topic file details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved files in topic from ${startDate} to ${endDate}
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/TopicFile"
+                "404": #status code
+                    description: Error, mandatory fields not set / No topic file found in topic / No existing topics
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: mandatory fields not set / No topic file found in topic / No existing topics
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving files in topic
+                                    data:
+                                        type: array
+                                        example: []
+    topic/singlefile:
+        get:
+            summary: Get a single specific topic file
+            description: Fetch the specified topic file by file_id
+            tags:
+                - Topic
+            parameters:
+                - in: query
+                  name: "file_id"
+                  description: The topic file identifier to retrieve details from
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid    
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing topic file details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved Topic File
+                                    data:
+                                        type: object
+                                        $ref: "#/components/schemas/TopicFile"
+                "404": #status code
+                    description: Error, Mandatory fields not set / No Topic File found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set / No Topic File found
+                                    data:
+                                        type: object
+                                        example: {}
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving topic file
+                                    data:
+                                        type: object
+                                        example: {}

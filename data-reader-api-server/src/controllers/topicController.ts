@@ -36,21 +36,21 @@ const getAllTopics = async (req: Request, res: Response) => {
         if (queryTopics) {
             res.status(200).send({
                 error: false,
-                message: "Successfully retrieved topics",
+                message: "Successfully retrieved all topics",
                 data: queryTopics,
             });
         } else {
             res.status(200).send({
                 error: true,
                 message: "No existing topics",
-                data: {},
+                data: [],
             });
         }
     } catch (error) {
         res.status(500).send({
             error: true,
             message: "Error retrieving topics",
-            data: {},
+            data: [],
         });
     }
 };
@@ -111,7 +111,7 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
         res.status(404).send({
             error: true,
             message: "Mandatory fields not set",
-            data: {},
+            data: [],
         });
         return;
     }
@@ -143,21 +143,21 @@ const getAssociatedTopicFiles = async (req: Request, res: Response) => {
                 res.status(404).send({
                     error: true,
                     message: "No topic file found in topic",
-                    data: {},
+                    data: [],
                 });
             }
         } else {
             res.status(404).send({
                 error: true,
                 message: "No existing topics",
-                data: {},
+                data: [],
             });
         }
     } catch (error) {
         res.status(500).send({
             error: true,
-            message: "Error retrieving topics",
-            data: {},
+            message: "Error retrieving files in topic",
+            data: [],
         });
     }
 };
@@ -198,7 +198,7 @@ const getSingleTopicFile = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).send({
             error: true,
-            message: "Error retrieving topics",
+            message: "Error retrieving topic file",
             data: {},
         });
     }
