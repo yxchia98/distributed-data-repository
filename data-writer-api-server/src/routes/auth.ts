@@ -60,29 +60,29 @@ router.get(
  */
 router.get("/failure", authController.authFailure);
 
-router.get("/protected", authController.isLoggedIn, (req: Request, res: Response) => {
-    console.log(req.user);
-    if (req.user) {
-        const currUser: Express.User = req.user;
-        res.status(200).send({
-            error: false,
-            message: "Success",
-            data: currUser,
-        });
-    }
-});
+// router.get("/protected", authController.isLoggedIn, (req: Request, res: Response) => {
+//     console.log(req.user);
+//     if (req.user) {
+//         const currUser: Express.User = req.user;
+//         res.status(200).send({
+//             error: false,
+//             message: "Success",
+//             data: currUser,
+//         });
+//     }
+// });
 
-router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
-    console.log(req.user);
-    if (req.user) {
-        const currUser: Express.User = req.user;
-        res.status(200).send({
-            error: false,
-            message: "Success",
-            data: currUser,
-        });
-    }
-});
+// router.get("/topSecret", isHighestPrivilege, (req: Request, res: Response) => {
+//     console.log(req.user);
+//     if (req.user) {
+//         const currUser: Express.User = req.user;
+//         res.status(200).send({
+//             error: false,
+//             message: "Success",
+//             data: currUser,
+//         });
+//     }
+// });
 /**
  * Logout endpoint
  * Type: GET

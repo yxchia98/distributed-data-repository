@@ -1,13 +1,7 @@
-import {
-    DataTypes,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-} from "sequelize";
+import { DataTypes, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { sequelize } from "../services/database";
 
-interface AppUser
-    extends Model<InferAttributes<AppUser>, InferCreationAttributes<AppUser>> {
+interface AppUser extends Model<InferAttributes<AppUser>, InferCreationAttributes<AppUser>> {
     user_id: string;
     first_name: string;
     last_name: string;

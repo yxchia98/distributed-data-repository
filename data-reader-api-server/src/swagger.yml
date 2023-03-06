@@ -1,0 +1,791 @@
+openapi: 3.0.0
+info:
+    title: Data Reader API
+    description: API documentation for Distributed Data Repository's Data Reader API calls. Mainly purposed for reading. Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+    version: 1.0.0
+servers:
+    - url: http://api.example.com/v1
+      description: Optional server description, e.g. Main (production) server
+    - url: http://staging-api.example.com
+      description: Optional server description, e.g. Internal staging server for testing
+
+components:
+    securitySchemes:
+        oauth2:
+            type: oauth2
+            flows:
+                authorizationCode:
+                    authorizationUrl: /oauth/dialog
+                    tokenUrl: /oauth/token
+    schemas:
+        Agency:
+            type: object
+            properties:
+                agency_id:
+                    type: string
+                    format: uuid
+                short_name:
+                    type: string
+                    example: "GVT"
+                long_name:
+                    type: string
+                    example: "Government Technology Agency"
+        AppUser:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                first_name:
+                    type: string
+                    example: "hello"
+                last_name:
+                    type: string
+                    example: "kitty"
+                email:
+                    type: string
+                    format: email
+                    example: "hellokitty@gmail.com"
+                contact:
+                    nullable: true
+                    type: string
+                    example: "12345678"
+                agency_id:
+                    type: string
+                    format: uuid
+        AccessRequest:
+            type: object
+            properties:
+                request_id:
+                    type: string
+                    format: uuid
+                requestor_id:
+                    type: string
+                    example: "111458345663774056386"
+                approver_id:
+                    type: string
+                    example: "112801211278652817894"
+                topic_id:
+                    type: string
+                    format: uuid
+                access_type:
+                    type: string
+                    example: "READ"
+                status:
+                    type: string
+                    example: "PENDING"
+                description:
+                    type: string
+                    nullable: true
+                    example: "this is a description for read access request"
+                request_date:
+                    type: string
+                    format: date-time
+        TopicFile:
+            type: object
+            properties:
+                file_id:
+                    type: string
+                    format: uuid
+                topic_id:
+                    type: string
+                    format: uuid
+                agency_id:
+                    type: string
+                    format: uuid
+                file_url:
+                    type: string
+                    example: "https://datasg-bucket.s3.ap-southeast-1.amazonaws.com/topics/TestTopic/1676857229690-testcsv1.csv"
+                file_date:
+                    type: string
+                    format: date-time
+        Topic:
+            type: object
+            properties:
+                topic_id:
+                    type: string
+                    format: uuid
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                agency_id:
+                    type: string
+                    format: uuid
+                topic_name:
+                    type: string
+                    example: TestTopic
+                topic_url:
+                    type: string
+                    example: topics/TestToipc/
+                description:
+                    type: string
+                    example: this is a description for TestTopic
+                last_update:
+                    type: string
+                    format: date-time
+        ReadAccess:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                topic_id:
+                    type: string
+                    format: uuid
+                last_access:
+                    type: string
+                    format: date-time
+        WriteAccess:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                topic_id:
+                    type: string
+                    format: uuid
+                last_access:
+                    type: string
+                    format: date-time
+
+paths:
+    /users:
+        get:
+            summary: Returns a list of users.
+            description: Optional extended description in CommonMark or HTML.
+            responses:
+                "200": # status code
+                    description: A JSON array of user names
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        username:
+                                            type: string
+
+    auth/google/callback:
+        get:
+            summary: OAuth2.0 API endpoint for Google, using PassportJS
+            description: Redirects user to Google OAuth2.0 screen, and redirects to eventual page depending on success or failure
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Redirects to landing page /
+                "401": # status code
+                    description: Redirects to failure API - /auth/failure
+    auth/logout:
+        get:
+            summary: Logout API for users
+            description: Destroys the current user session and redirects users back to landing page.
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Destroys current user's session and redirects to landing page /
+    auth/login/success:
+        get:
+            summary: OAuth2.0 API endpoint for Google
+            description: Checks if user is logged in or not
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Object of user email and id with response messages
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                    userId:
+                                        type: string
+                                    userEmail:
+                                        type: string
+    auth/read:
+        get:
+            summary: Get specific user's read accesses (currently logged in user)
+            description: retrieves and returns currently logged in user's read accesses for topics
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of read accesses
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/ReadAccess"
+                "403": #status code
+                    description: Error, not authorized
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, no user logged in
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving read access
+                                    data:
+                                        type: array
+                                        example: []
+    auth/topicread:
+        get:
+            summary: Get all read accesses for a particular topic
+            description: Retrieves all users that have read access pertaining to the specified topic
+            tags:
+                - Authentication
+            parameters:
+                - in: query
+                  name: "topic_id"
+                  description: The topic identifier for the specified topic to retrieve all users that have read access to
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of read accesses
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved read access for topic
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/ReadAccess"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving read access for topic
+                                    data:
+                                        type: array
+                                        example: []
+    auth/write:
+        get:
+            summary: Get specific user's write accesses (currently logged in user)
+            description: retrieves and returns currently logged in user's write accesses for topics
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of write accesses
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/WriteAccess"
+                "403": #status code
+                    description: Error, not authorized
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, no user logged in
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving write access
+                                    data:
+                                        type: array
+                                        example: []
+    auth/topicwrite:
+        get:
+            summary: Get all write accesses for a particular topic
+            description: Retrieves all users that have write access pertaining to the specified topic
+            tags:
+                - Authentication
+            parameters:
+                - in: query
+                  name: "topic_id"
+                  description: The topic identifier for the specified topic to retrieve all users that have write access to
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of write accesses
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved write access for topic
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/WriteAccess"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving write access for topic
+                                    data:
+                                        type: array
+                                        example: []
+    auth/requestapproval:
+        get:
+            summary: Get all access requests approvable by specific user
+            description: Retrieves all requests that have been approved by the specified user, or is awaiting approval
+            tags:
+                - Authentication
+            parameters:
+                - in: query
+                  name: "user_id"
+                  description: The user identifier for the specified user to retrieve all request approvals
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of access requests approvable by specified user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved access requests for user
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/AccessRequest"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving write access for topic
+                                    data:
+                                        type: array
+                                        example: []
+    auth/submittedrequest:
+        get:
+            summary: Get all access requests submitted by specific user
+            description: Retrieves all requests that are submitted by the specified user
+            tags:
+                - Authentication
+            parameters:
+                - in: query
+                  name: "user_id"
+                  description: The user identifier for the specified user to retrieve all requests submitted by user
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                "200": # status code
+                    description: Object containing response details, and array of access requests submitted by specified user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved access requests for user
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/AccessRequest"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in retrieving write access for topic
+                                    data:
+                                        type: array
+                                        example: []
+    profile/user:
+        get:
+            summary: Get user's details
+            description: Retrieves all of a user's details of the specified user_id
+            tags:
+                - Profile
+            parameters:
+                - in: query
+                  name: "user_id"
+                  description: The user identifier for the specified user to retrieve user data of
+                  required: true
+                  schema:
+                      type: string
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing user details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved user information
+                                    data:
+                                        type: object
+                                        $ref: "#/components/schemas/AppUser"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: object
+                                        example: {}
+                "404": #status code
+                    description: Error, specified user not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, specified user not found
+                                    data:
+                                        type: object
+                                        example: {}
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving user info
+                                    data:
+                                        type: object
+                                        example: {}
+    profile/users:
+        get:
+            summary: Get all users and their details
+            description: Retrieves all users along with their details
+            tags:
+                - Profile
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing user details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved all users
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/AppUser"
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error fetching users
+                                    data:
+                                        type: array
+                                        example: []
+    profile/agency:
+        get:
+            summary: Get agency's details
+            description: Retrieves all of a agency's details of the specified agency_id
+            tags:
+                - Profile
+            parameters:
+                - in: query
+                  name: "agency_id"
+                  description: The agency identifier for the specified agency to retrieve agency data of
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing agency details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved agency information
+                                    data:
+                                        type: object
+                                        $ref: "#/components/schemas/Agency"
+                "400": #status code
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    data:
+                                        type: object
+                                        example: {}
+                "404": #status code
+                    description: Error, specified agency not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, specified agency not found
+                                    data:
+                                        type: object
+                                        example: {}
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving agency info
+                                    data:
+                                        type: object
+                                        example: {}
+    profile/agencies:
+        get:
+            summary: Get all agencies and their details
+            description: Retrieves all agencies along with their details
+            tags:
+                - Profile
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing user details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved all agencies
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/Agency"
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error fetching agencies
+                                    data:
+                                        type: array
+                                        example: []

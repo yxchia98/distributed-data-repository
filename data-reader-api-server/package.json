@@ -26,7 +26,10 @@
     "passport-google-oauth2": "^0.2.0",
     "pg": "^8.8.0",
     "pg-hstore": "^2.3.4",
-    "sequelize": "^6.28.0"
+    "sequelize": "^6.28.0",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^4.6.2",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "@types/aws-sdk": "^2.7.0",
@@ -40,6 +43,9 @@
     "@types/node": "^16.18.9",
     "@types/passport": "^1.0.11",
     "@types/passport-google-oauth2": "^0.1.5",
+    "@types/swagger-jsdoc": "^6.0.1",
+    "@types/swagger-ui-express": "^4.1.3",
+    "@types/yamljs": "^0.2.31",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",

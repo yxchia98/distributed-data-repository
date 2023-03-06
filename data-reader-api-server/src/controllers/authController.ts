@@ -20,10 +20,10 @@ const isLoggedIn = (req: Request, res: Response, next: NextFunction) => {
     req.user ? next() : res.sendStatus(401);
 };
 
-const isHighestPrivilege = (req: Request, res: Response, next: NextFunction) => {
-    // @ts-ignore
-    req.user && req.user.email == "yxchia98@gmail.com" ? next() : res.sendStatus(401);
-};
+// const isHighestPrivilege = (req: Request, res: Response, next: NextFunction) => {
+//     // @ts-ignore
+//     req.user && req.user.email == "yxchia98@gmail.com" ? next() : res.sendStatus(401);
+// };
 
 /**
  * Endpoint for OAuth2.0 login (Google/Azure)
@@ -56,17 +56,17 @@ const authFailure = (req: Request, res: Response) => {
 /**
  * test page for protected authentication
  */
-const protectedAuth = (req: Request, res: Response) => {
-    console.log(req.user);
-    if (req.user) {
-        const currUser: Express.User = req.user;
-        res.status(200).send({
-            error: false,
-            message: "Success",
-            data: currUser,
-        });
-    }
-};
+// const protectedAuth = (req: Request, res: Response) => {
+//     console.log(req.user);
+//     if (req.user) {
+//         const currUser: Express.User = req.user;
+//         res.status(200).send({
+//             error: false,
+//             message: "Success",
+//             data: currUser,
+//         });
+//     }
+// };
 
 /**
  * test page for highest privilege authentication
@@ -84,7 +84,7 @@ const topSecretAuth = (req: Request, res: Response) => {
 };
 
 /**
- * Get specific user's read accesses
+ * Get all user's read accesses for a certain topic
  * Type: GET
  * InputType: Params
  * Input: topic_id
@@ -128,7 +128,6 @@ const getTopicReadAccess = async (req: Request, res: Response) => {
  * Get specific user's read accesses
  * Type: GET
  * InputType: Params
- * Input: user_id
  * Returns: boolean error, string message, obj data
  */
 const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
@@ -168,7 +167,7 @@ const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
         console.log(error);
         res.status(500).send({
             error: true,
-            message: "Error in granting read access",
+            message: "Error in retrieving read access",
             data: [],
         });
     }
@@ -219,7 +218,6 @@ const getTopicWriteAccess = async (req: Request, res: Response) => {
  * Get specific user's write accesses
  * Type: GET
  * InputType: Params
- * Input: user_id
  * Returns: boolean error, string message, obj data
  */
 const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
@@ -249,14 +247,14 @@ const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
         });
         res.status(200).send({
             error: false,
-            message: "Successfully retrieved read access for user",
+            message: "Successfully retrieved write access for user",
             data: queryReadAccess,
         });
     } catch (error) {
         console.log(error);
         res.status(500).send({
             error: true,
-            message: "Error in granting read access",
+            message: "Error in retrieving write access",
             data: [],
         });
     }
@@ -275,7 +273,7 @@ const getUserApprovableAccessRequest = async (req: Request, res: Response) => {
         res.status(400).send({
             error: true,
             message: "Error, mandatory fields not set",
-            data: {},
+            data: [],
         });
         return;
     }
@@ -296,6 +294,7 @@ const getUserApprovableAccessRequest = async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error in granting read access",
+            data: [],
         });
     }
 };
@@ -334,16 +333,15 @@ const getUserSubmittedAccessRequest = async (req: Request, res: Response) => {
         res.status(500).send({
             error: true,
             message: "Error in granting read access",
+            data: [],
         });
     }
 };
 
 export default module.exports = {
     isLoggedIn,
-    isHighestPrivilege,
     checkLoginSuccess,
     authFailure,
-    protectedAuth,
     topSecretAuth,
     getUserReadAccess,
     getUserWriteAccess,

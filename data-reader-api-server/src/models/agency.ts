@@ -8,8 +8,7 @@ import {
 } from "sequelize";
 import { sequelize } from "../services/database";
 
-interface Agency
-    extends Model<InferAttributes<Agency>, InferCreationAttributes<Agency>> {
+interface Agency extends Model<InferAttributes<Agency>, InferCreationAttributes<Agency>> {
     agency_id: string;
     short_name: string;
     long_name: string;

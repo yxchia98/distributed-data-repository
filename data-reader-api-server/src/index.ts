@@ -13,6 +13,7 @@ dotenv.config();
 
 const app: Express = express();
 const port: number = parseInt(<string>process.env.PORT) || 8080;
+
 // app.use(
 //     session({
 //         name: "session",
@@ -65,6 +66,13 @@ app.use(express.json());
 app.use(`/profile`, profileRouter);
 app.use(`/auth`, authRouter);
 app.use(`/topic`, topicRouter);
+
+// setup swagger documentation
+import YAML from "yamljs";
+import swaggerUi from "swagger-ui-express";
+import path from "path";
+const swaggerDocument = YAML.load(path.resolve("./src/swagger.yml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
