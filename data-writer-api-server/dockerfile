@@ -1,0 +1,15 @@
+# use nodejs latest docker image
+FROM node:latest
+
+# specify app directory
+WORKDIR /app
+
+# copy and install dependencies
+COPY package*.json ./
+RUN npm install
+
+# bundle app source
+COPY . .
+
+EXPOSE 8080
+CMD [ "npm", "run", "start" ]
