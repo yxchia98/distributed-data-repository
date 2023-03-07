@@ -1237,3 +1237,393 @@ paths:
                                     message:
                                         type: string
                                         example: Error deleting agency.
+    topic/create:
+        post:
+            summary: Create new Topic
+            description: Create a new Topic on the platform. Inserts a new topic record in the db.
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                topic_name:
+                                    type: string
+                                    description: The name of the topic
+                                    example: "TestTopic"
+                                user_id:
+                                    type: string
+                                    description: The owner of the topic (user creating the topic)
+                                    example: "111458345663774056386"
+                                agency_id:
+                                    type: string
+                                    format: uuid
+                                    description: The agency which the topic belongs to
+                                topic_description:
+                                    type: string
+                                    description: The long description for the topic
+                                    example: "Test description for Test Topic."
+            responses:
+                "200":
+                    description: Successfully created topic.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Topic created.
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: no topic specified
+                "404":
+                    description: Error, topic already exists
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, topic already exists
+                "500":
+                    description: Internal Error creating topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error creating topic.
+    topic/update:
+        put:
+            summary: Update a specified Topic
+            description: Update the specified topic by topic identifier
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                topic_id:
+                                    type: string
+                                    format: uuid
+                                    description: The identifier of the topic
+                                topic_name:
+                                    type: string
+                                    description: The name of the topic (optional)
+                                    example: "TestTopic"
+                                user_id:
+                                    type: string
+                                    description: The user identifier for the owner of the topic (optional)
+                                    example: "111458345663774056386"
+                                agency_id:
+                                    type: string
+                                    format: uuid
+                                    description: The agency identifier for the associated agency (optional)
+                                topic_description:
+                                    type: string
+                                    description: Brief description of the topic (optional)
+                                    example: "Test description for Test Topic."
+            responses:
+                "200":
+                    description: Successfully updated topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully updated topic
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set
+                "404":
+                    description: Error, specified user does not exist / Error, specified agency does not exist / Error, topic not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, specified user does not exist / Error, specified agency does not exist / Error, topic not found
+                "500":
+                    description: Internal Error updating topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating topic.
+    topic/delete:
+        delete:
+            summary: Delete a specified Topic
+            description: Delete the specified topic by topic identifier. Also deletes all dependencies of topic (access/requests/keys/files)
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                topic_id:
+                                    type: string
+                                    format: uuid
+                                    description: The identifier of the topic
+            responses:
+                "200":
+                    description: Successfully deleted topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted topic
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: no topic specified
+                "404":
+                    description: Error, topic not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, topic not found
+                "500":
+                    description: Internal Error deleting topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting topic.
+    topic/publish:
+        post:
+            summary: Publish Topic File
+            description: Publish topic file under a specified topic, file will be uploaded to S3 and a corresponding record will be inserted into db.
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: The user ID of the current user uploading the file
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    format: uuid
+                                    description: The identifier of the Topic
+                                uploaded_file:
+                                    type: string
+                                    description: .csv file to be uploaded into that topic
+                                    format: binary
+                                    example: file binary string
+            responses:
+                "200":
+                    description: Successfully uploaded file.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully uploaded file.
+                "500":
+                    description: Internal Error uploading file to topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error uploading file to topic.
+    topic/keypublish:
+        post:
+            summary: Publish Topic File with an API Key
+            description: Publish topic file under a specified topic, file will be uploaded to S3 and a corresponding record will be inserted into db. The parsed API Key will be used to determine the user and topics.
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                key_id:
+                                    type: string
+                                    format: uuid
+                                    description: The identifier of the key
+                                uploaded_file:
+                                    type: string
+                                    description: .csv file to be uploaded into that topic
+                                    format: binary
+                                    example: file binary string
+            responses:
+                "200":
+                    description: Successfully uploaded file.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully uploaded file.
+                "500":
+                    description: Internal Error uploading file to topic
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error uploading file to topic.
+    topic/deletefile:
+        delete:
+            summary: Delete a specified Topic File
+            description: Delete a topic file specified by the given topic_id. Deletes file in S3 and in db.
+            tags:
+                - Topic
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                file_id:
+                                    type: string
+                                    format: uuid
+                                    description: The identifier of the topic file
+            responses:
+                "200":
+                    description: Successfully deleted file
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted file
+                "400":
+                    description: Error, Missing mandatory fields
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Missing mandatory fields
+                "404":
+                    description: Error, file not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, file not found
+                "500":
+                    description: Internal Error deleting file
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting file

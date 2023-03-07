@@ -77,7 +77,7 @@ const publishTopicFile = async (req: TopicFileRequest, res: Response) => {
     } else {
         res.status(500).send({
             error: true,
-            message: `error uploading file to ${req.body.topic} topic`,
+            message: `Error uploading file to ${req.body.topic} topic`,
         });
     }
 };
@@ -115,7 +115,7 @@ const publishTopicFileWithKey = async (req: TopicFileRequest, res: Response) => 
     } else {
         res.status(500).send({
             error: true,
-            message: `error uploading file to ${req.body.topic} topic`,
+            message: `Error uploading file to ${req.body.topic} topic`,
         });
     }
 };
@@ -137,7 +137,7 @@ const createTopic = async (req: Request, res: Response) => {
     console.log(req.body);
     // check for compulsory fields
     if (!(req.body.topic_name || req.body.user_id || req.body.agency_id)) {
-        res.send({
+        res.status(400).send({
             error: true,
             message: "no topic specified",
         });
@@ -175,7 +175,7 @@ const createTopic = async (req: Request, res: Response) => {
                 if (insertTopic) {
                     res.status(200).send({
                         error: false,
-                        message: "Topic created!",
+                        message: "Successfully created topic.",
                         topic_id: insertTopic.topic_id,
                     });
                 } else {
@@ -195,7 +195,7 @@ const createTopic = async (req: Request, res: Response) => {
                 });
             }
         } else {
-            res.status(400).send({
+            res.status(404).send({
                 error: false,
                 message: "Error, topic already exists",
                 topic_id: "",
@@ -245,7 +245,7 @@ const createTopic = async (req: Request, res: Response) => {
 const updateTopic = async (req: Request, res: Response) => {
     // check if mandatory fields are sent
     if (!req.body.topic_id) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "Mandatory fields not set",
         });
@@ -275,7 +275,7 @@ const updateTopic = async (req: Request, res: Response) => {
             if (!queryUser.dataValues) {
                 res.status(404).send({
                     error: true,
-                    message: "Error, specified User does not exist",
+                    message: "Error, specified user does not exist",
                 });
                 return;
             }
@@ -283,7 +283,7 @@ const updateTopic = async (req: Request, res: Response) => {
             if (!queryAgency.dataValues) {
                 res.status(404).send({
                     error: true,
-                    message: "Error, specified User does not exist",
+                    message: "Error, specified agency does not exist",
                 });
                 return;
             }
@@ -318,7 +318,7 @@ const updateTopic = async (req: Request, res: Response) => {
  */
 const deleteTopic = async (req: Request, res: Response) => {
     if (!req.body.topic_id) {
-        res.send({
+        res.status(400).send({
             error: true,
             message: "no topic specified",
         });
@@ -396,7 +396,7 @@ const deleteTopic = async (req: Request, res: Response) => {
                     await queryTopicResponse.destroy();
                     res.status(200).send({
                         error: false,
-                        message: "Successfully deleted topic!",
+                        message: "Successfully deleted topic",
                     });
                 } else {
                     res.send({
@@ -439,7 +439,7 @@ const deleteTopic = async (req: Request, res: Response) => {
                 });
             }
         } else {
-            res.status(400).send({
+            res.status(404).send({
                 error: true,
                 message: "Error, topic not found",
             });
@@ -465,7 +465,7 @@ const deleteTopic = async (req: Request, res: Response) => {
 const deleteTopicFile = async (req: Request, res: Response) => {
     // check for mandatory fields
     if (!req.body.file_id) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
             message: "Missing mandatory fields",
         });

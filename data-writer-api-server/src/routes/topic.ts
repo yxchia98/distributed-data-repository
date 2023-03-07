@@ -147,37 +147,6 @@ const uploadS3WithKey = multer({
 /*-------------------- TOPIC API START ---------------*/
 
 /**
- * Publish Topic File endpoint
- * Type: POST
- * InputType: form-body
- *
- * Input:
- *      user_id - The user ID of the current user uploading the file
- *      topic_id - The identifier of the Topic
- *      uploaded_file - .csv file to be uploaded into that topic
- *
- * Returns: boolean error, string message
- */
-router.post("/publish", uploadS3.single("uploaded_file"), topicController.publishTopicFile);
-
-/**
- * Publish Topic File with API Key endpoint
- * Type: POST
- * InputType: form-body
- *
- * Input:
- *      key_id - the identifier for the API Key to publish files into
- *      uploaded_file - .csv file to be uploaded into that topic
- *
- * Returns: boolean error, string message
- */
-router.post(
-    "/keypublish",
-    uploadS3WithKey.single("uploaded_file"),
-    topicController.publishTopicFileWithKey
-);
-
-/**
  * Create new topic endpoint
  * Type: POST
  * InputType: form-body
@@ -219,6 +188,37 @@ router.put("/update", upload.none(), topicController.updateTopic);
  * Returns: boolean error, string message
  */
 router.delete("/delete", upload.none(), topicController.deleteTopic);
+
+/**
+ * Publish Topic File endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - The user ID of the current user uploading the file
+ *      topic_id - The identifier of the Topic
+ *      uploaded_file - .csv file to be uploaded into that topic
+ *
+ * Returns: boolean error, string message
+ */
+router.post("/publish", uploadS3.single("uploaded_file"), topicController.publishTopicFile);
+
+/**
+ * Publish Topic File with API Key endpoint
+ * Type: POST
+ * InputType: form-body
+ *
+ * Input:
+ *      key_id - the identifier for the API Key to publish files into
+ *      uploaded_file - .csv file to be uploaded into that topic
+ *
+ * Returns: boolean error, string message
+ */
+router.post(
+    "/keypublish",
+    uploadS3WithKey.single("uploaded_file"),
+    topicController.publishTopicFileWithKey
+);
 
 /**
  * Delete topic file endpoint
