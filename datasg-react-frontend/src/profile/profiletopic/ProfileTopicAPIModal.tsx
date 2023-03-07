@@ -1,5 +1,5 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { BiCopy, BiError } from "react-icons/bi";
 import { CgSpinner } from "react-icons/cg";
@@ -23,6 +23,11 @@ const ProfileTopicAPIModal: React.FC<ProfileTopicAPIModalProps> = (props) => {
         navigator.clipboard.writeText(props.keyString);
         setIsCopied(true);
     };
+    useEffect(() => {
+        if (props.isOpen) {
+            setIsCopied(false);
+        }
+    }, [props.isOpen]);
     return (
         <>
             <Transition appear show={props.isOpen} as={Fragment}>
@@ -91,13 +96,13 @@ const ProfileTopicAPIModal: React.FC<ProfileTopicAPIModalProps> = (props) => {
                                                     </div>
                                                 </IconContext.Provider>
                                             </div>
-                                            <div className="grid grid-rows-1 grid-cols-5 rounded-lg border border-gray-500 items-center justify-center">
-                                                <div className="col-span-4 col-start-1 p-2 flex justify-center items-center">
+                                            <div className="grid grid-rows-1 grid-cols-8 rounded-lg border border-gray-500 items-center justify-center">
+                                                <div className="col-span-6 col-start-1 p-2 flex justify-center items-center">
                                                     <span>{props.keyString}</span>
                                                 </div>
                                                 <button
                                                     onClick={handleCopyOnClick}
-                                                    className="col-start-5 col-span-1 w-full h-full flex justify-center items-center p-2 rounded-r-lg border-l bg-gray-100 hover:bg-gray-200 active:bg-gray-300"
+                                                    className="col-start-7 col-span-2 w-full h-full flex justify-center items-center p-2 rounded-r-lg border-l bg-gray-100 hover:bg-gray-200 active:bg-gray-300"
                                                 >
                                                     <div className="pr-1">
                                                         <IconContext.Provider

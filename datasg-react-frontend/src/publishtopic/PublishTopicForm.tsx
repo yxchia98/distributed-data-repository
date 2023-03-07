@@ -115,9 +115,11 @@ const PublishTopicForm: React.FC = () => {
 
     // Handle partial validity checks when users blur fields
     const handleTopicNameBlur = (e: React.ChangeEvent<HTMLInputElement>) => {
+        // check if field is populated, and does not match any existing topics, and does not contain spaces
         if (
             e.target.value &&
-            !topicsSelector.topics.find((topic) => topic.topic_name === e.target.value)
+            !topicsSelector.topics.find((topic) => topic.topic_name === e.target.value) &&
+            /^[a-zA-Z0-9_]*$/.test(e.target.value)
         ) {
             setIsTopicNameValid(true);
             setTopicNameBorderColor("gray-300");
@@ -154,6 +156,7 @@ const PublishTopicForm: React.FC = () => {
         // check for any invalid form inputs and show modal
         if (!(isTopicNameValid || isTopicDescValid || isTopicAgencyValid)) {
             console.log("Not all fields properly filled up!");
+            setIsSubmitting(false);
             return false;
         }
         console.log("submitting...");
