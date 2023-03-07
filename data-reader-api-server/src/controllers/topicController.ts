@@ -247,7 +247,7 @@ const downloadSingleTopicFile = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).send({
             error: true,
-            message: "Error retrieving topics",
+            message: "Error retrieving topic file",
             data: {},
         });
     }

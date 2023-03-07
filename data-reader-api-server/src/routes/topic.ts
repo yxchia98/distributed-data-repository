@@ -61,7 +61,7 @@ router.get("/singlefile", upload.none(), topicController.getSingleTopicFile);
  *      file_id - The identifier for the specified file
  * Returns: boolean error, string message, obj data
  */
-router.get("/downloadSingleFile", upload.none(), topicController.downloadSingleTopicFile);
+router.get("/downloadsinglefile", upload.none(), topicController.downloadSingleTopicFile);
 
 /**
  * Get all existing Topic Files endpoint

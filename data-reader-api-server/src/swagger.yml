@@ -841,7 +841,7 @@ paths:
                   required: true
                   schema:
                       type: string
-                      format: uuid                
+                      format: uuid
             responses:
                 "200": # status code
                     description: Object containing response details, and object containing topic details
@@ -916,7 +916,7 @@ paths:
                   required: true
                   schema:
                       type: string
-                      format: date-time    
+                      format: date-time
             responses:
                 "200": # status code
                     description: Object containing response details, and array of objects containing topic file details
@@ -978,7 +978,7 @@ paths:
                   required: true
                   schema:
                       type: string
-                      format: uuid    
+                      format: uuid
             responses:
                 "200": # status code
                     description: Object containing response details, and object containing topic file details
@@ -996,6 +996,135 @@ paths:
                                     data:
                                         type: object
                                         $ref: "#/components/schemas/TopicFile"
+                "404": #status code
+                    description: Error, Mandatory fields not set / No Topic File found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set / No Topic File found
+                                    data:
+                                        type: object
+                                        example: {}
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving topic file
+                                    data:
+                                        type: object
+                                        example: {}
+    topic/allfiles:
+        get:
+            summary: Get a all existing topic files
+            description: Fetch all current topic files that has a record in db.
+            tags:
+                - Topic
+            parameters:
+                - in: query
+                  name: "file_id"
+                  description: The topic file identifier to retrieve details from
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing topic file details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved Topic File
+                                    data:
+                                        type: array
+                                        items:
+                                            $ref: "#/components/schemas/TopicFile"
+                "404": #status code
+                    description: Error, Mandatory fields not set / No Topic File found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set / No Topic File found
+                                    data:
+                                        type: array
+                                        example: []
+                "500": #status code
+                    description: Internal Error, item not found or problem finding
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error retrieving topic file
+                                    data:
+                                        type: array
+                                        example: []
+    topic/downloadsinglefile:
+        get:
+            summary: Get a single specific topic file's blob string, for file downloads
+            description: Fetch the specified topic file by file_id, with it's blob data converted into string from aws s3
+            tags:
+                - Topic
+            parameters:
+                - in: query
+                  name: "file_id"
+                  description: The topic file identifier to retrieve details from
+                  required: true
+                  schema:
+                      type: string
+                      format: uuid
+            responses:
+                "200": # status code
+                    description: Object containing response details, and object containing topic file details
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully retrieved Topic File
+                                    data:
+                                        type: object
+                                        properties:
+                                            filename:
+                                                type: string
+                                                example: 1676857229690-testcsv1.csv
+                                            blobString:
+                                                type: string
+                                                example: field1,field2,field3,field4,field5\ntext1,text2,text3,text4,text5
                 "404": #status code
                     description: Error, Mandatory fields not set / No Topic File found
                     content:
