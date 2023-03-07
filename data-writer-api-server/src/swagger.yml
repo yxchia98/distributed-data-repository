@@ -1,0 +1,807 @@
+openapi: 3.0.0
+info:
+    title: Data Writer API
+    description: API documentation for Distributed Data Repository's Data Writer API calls. Mainly purposed for reading. Optional multiline or single-line description in [CommonMark](http://commonmark.org/help/) or HTML.
+    version: 1.0.0
+servers:
+    - url: http://api.example.com/v1
+      description: Optional server description, e.g. Main (production) server
+    - url: http://staging-api.example.com
+      description: Optional server description, e.g. Internal staging server for testing
+
+components:
+    securitySchemes:
+        oauth2:
+            type: oauth2
+            flows:
+                authorizationCode:
+                    authorizationUrl: /oauth/dialog
+                    tokenUrl: /oauth/token
+    schemas:
+        Agency:
+            type: object
+            properties:
+                agency_id:
+                    type: string
+                    format: uuid
+                short_name:
+                    type: string
+                    example: "GVT"
+                long_name:
+                    type: string
+                    example: "Government Technology Agency"
+        AppUser:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                first_name:
+                    type: string
+                    example: "hello"
+                last_name:
+                    type: string
+                    example: "kitty"
+                email:
+                    type: string
+                    format: email
+                    example: "hellokitty@gmail.com"
+                contact:
+                    nullable: true
+                    type: string
+                    example: "12345678"
+                agency_id:
+                    type: string
+                    format: uuid
+        AccessRequest:
+            type: object
+            properties:
+                request_id:
+                    type: string
+                    format: uuid
+                requestor_id:
+                    type: string
+                    example: "111458345663774056386"
+                approver_id:
+                    type: string
+                    example: "112801211278652817894"
+                topic_id:
+                    type: string
+                    format: uuid
+                access_type:
+                    type: string
+                    example: "READ"
+                status:
+                    type: string
+                    example: "PENDING"
+                description:
+                    type: string
+                    nullable: true
+                    example: "this is a description for read access request"
+                request_date:
+                    type: string
+                    format: date-time
+        TopicFile:
+            type: object
+            properties:
+                file_id:
+                    type: string
+                    format: uuid
+                topic_id:
+                    type: string
+                    format: uuid
+                agency_id:
+                    type: string
+                    format: uuid
+                file_url:
+                    type: string
+                    example: "https://datasg-bucket.s3.ap-southeast-1.amazonaws.com/topics/TestTopic/1676857229690-testcsv1.csv"
+                file_date:
+                    type: string
+                    format: date-time
+        Topic:
+            type: object
+            properties:
+                topic_id:
+                    type: string
+                    format: uuid
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                agency_id:
+                    type: string
+                    format: uuid
+                topic_name:
+                    type: string
+                    example: TestTopic
+                topic_url:
+                    type: string
+                    example: topics/TestToipc/
+                description:
+                    type: string
+                    example: this is a description for TestTopic
+                last_update:
+                    type: string
+                    format: date-time
+        ReadAccess:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                topic_id:
+                    type: string
+                    format: uuid
+                last_access:
+                    type: string
+                    format: date-time
+        WriteAccess:
+            type: object
+            properties:
+                user_id:
+                    type: string
+                    example: "111458345663774056386"
+                topic_id:
+                    type: string
+                    format: uuid
+                last_access:
+                    type: string
+                    format: date-time
+paths:
+    /users:
+        get:
+            summary: Returns a list of users.
+            description: Optional extended description in CommonMark or HTML.
+            responses:
+                "200": # status code
+                    description: A JSON array of user names
+                    content:
+                        application/json:
+                            schema:
+                                type: array
+                                items:
+                                    type: object
+                                    properties:
+                                        username:
+                                            type: string
+    auth/google/callback:
+        get:
+            summary: OAuth2.0 API for Google, using PassportJS
+            description: Redirects user to Google OAuth2.0 screen, and redirects to eventual page depending on success or failure
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Redirects to landing page /
+                "401": # status code
+                    description: Redirects to failure API - /auth/failure
+    auth/logout:
+        get:
+            summary: Logout API for users
+            description: Destroys the current user session and redirects users back to landing page.
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Destroys current user's session and redirects to landing page /
+    auth/login/success:
+        get:
+            summary: OAuth2.0 API for Google
+            description: Checks if user is logged in or not
+            tags:
+                - Authentication
+            responses:
+                "200": # status code
+                    description: Object of user email and id with response messages
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                    userId:
+                                        type: string
+                                    userEmail:
+                                        type: string
+    auth/read:
+        post:
+            summary: Add new read access
+            description: Inserts a new read access into db
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: user identifier
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    description: topic identifier
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully added and granted read access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: successfully granted read access
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "500":
+                    description: Internal Error, Failed to add and grant read access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in granting read access
+        delete:
+            summary: Delete / Revoke read access
+            description: Deletes read access from db, which revokes read access for specified user
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: user identifier
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    description: topic identifier
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully removed and revoked read access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted read access
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "404":
+                    description: Error, Read access does not exist
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Read access does not exist
+                "500":
+                    description: Internal Error, Failed to delete read access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting read access
+    auth/write:
+        post:
+            summary: Add new write access
+            description: Inserts a new write access into db
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: user identifier
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    description: topic identifier
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully added and granted write access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: successfully granted write access
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "500":
+                    description: Internal Error, Failed to add and grant write access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in granting write access
+        delete:
+            summary: Delete / Revoke write access
+            description: Deletes write access from db, which revokes write access for specified user
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: user identifier
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    description: topic identifier
+                                    format: uuid
+
+            responses:
+                "200":
+                    description: Successfully removed and revoked write access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted write access
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "404":
+                    description: Error, Read access does not exist
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Write access does not exist
+                "500":
+                    description: Internal Error, Failed to delete write access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting write access
+    auth/accessrequest:
+        post:
+            summary: Add / Submit a new request access
+            description: Inserts a new request access into db
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                requestor_id:
+                                    type: string
+                                    description: User identifier that is requesting the access
+                                    example: "111458345663774056386"
+                                approver_id:
+                                    type: string
+                                    description: User identifier that is granting the access
+                                    example: "294719205662816283019"
+                                topic_id:
+                                    type: string
+                                    description: Topic identifier to be requesting access to
+                                    format: uuid
+                                access_type:
+                                    type: string
+                                    description: Type of access. READ/WRITE
+                                    example: READ
+                                description:
+                                    type: string
+                                    description: Brief description for requesting access (optional)
+                                    example: "need read access for report generating purposes"
+            responses:
+                "200":
+                    description: Successfully created access request / Error, request already exists or user already has access
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully created access request / Error, request already exists or user already has access
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "404":
+                    description: Error, topic not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, topic not found
+                "500":
+                    description: Internal Error, Failed to submit new access request
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error submitting new access request
+        put:
+            summary: Update status of specific access request
+            description: Updates status of access request in db. Used for approval / rejection of access requests
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                request_id:
+                                    type: string
+                                    description: Identifier of the request to be updated
+                                    format: uuid
+                                access_type:
+                                    type: string
+                                    description: Type of access. READ/WRITE (optional)
+                                    example: READ
+                                status:
+                                    type: string
+                                    description: Status of request. PENDING/APPROVED/REJECTED (optional)
+                                    example: APPROVED
+                                description:
+                                    type: string
+                                    description: Brief description for requesting access (optional)
+                                    example: "need read access for report generating purposes"
+            responses:
+                "200":
+                    description: Successfully updated access request
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully updated access request
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "404":
+                    description: Error, access request not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, access request not found
+                "500":
+                    description: Internal Error, Failed to update access request
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating access request
+        delete:
+            summary: Delete specified access request
+            description: deletes the specified access request from db
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                request_id:
+                                    type: string
+                                    description: Identifier of the request to be updated
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully deleted access request
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted access request
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "404":
+                    description: Error, access request not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, access request not found
+                "500":
+                    description: Internal Error, Failed to delete access request
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting access request
+    auth/apikey:
+        post:
+            summary: Generate new API Key
+            description: Generates a new API Key and inserts it into db, returning the newly generated key as response
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: User identifier that is generating the key
+                                    example: "111458345663774056386"
+                                topic_id:
+                                    type: string
+                                    description: Topic identifier that the key points to
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully generated API Key
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully generated API Key
+                                    key:
+                                        type: string
+                                        format: uuid
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                                    key:
+                                        type: string
+                                        example: ""
+                "500":
+                    description: Internal Error creating API Key
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error creating API Key
+                                    key:
+                                        type: string
+                                        example: ""
+        delete:
+            summary: Delete / Revoke API Key
+            description: Deletes API Key from db, revoking access by any user that used to hold the key
+            tags:
+                - Authentication
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                key_id:
+                                    type: string
+                                    description: Key identifier that is granting the access
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully deleted API Key
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted API Key
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, mandatory fields not set
+                "500":
+                    description: Internal Error deleting API Key
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting API Key

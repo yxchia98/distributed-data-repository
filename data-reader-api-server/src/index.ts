@@ -67,7 +67,7 @@ app.use(`/profile`, profileRouter);
 app.use(`/auth`, authRouter);
 app.use(`/topic`, topicRouter);
 
-// setup swagger documentation
+// setup swagger api documentation page
 import YAML from "yamljs";
 import swaggerUi from "swagger-ui-express";
 import path from "path";

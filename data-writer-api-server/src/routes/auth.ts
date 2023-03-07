@@ -139,43 +139,7 @@ router.post("/write", upload.none(), authController.createWriteAccess);
  *
  * Returns: boolean error, string message
  */
-router.delete("/write", upload.none(), async (req: Request, res: Response) => {
-    // Check for required fields
-    if (!(req.body.user_id && req.body.topic_id)) {
-        res.status(400).send({
-            error: true,
-            message: "Error, mandatory fields not set",
-        });
-        return;
-    }
-    // Search for access record, use findOne for composite key
-    try {
-        const queryRead = await WriteAccess.findOne({
-            where: {
-                user_id: req.body.user_id,
-                topic_id: req.body.topic_id,
-            },
-        });
-        // delete if record match, else show error
-        if (queryRead) {
-            await queryRead.destroy();
-            res.status(200).send({
-                error: false,
-                message: "Successfully deleted  write access",
-            });
-        } else {
-            res.status(404).send({
-                error: true,
-                message: "Write access does not exist",
-            });
-        }
-    } catch (error) {
-        res.status(500).send({
-            error: true,
-            message: "Error deleting read access",
-        });
-    }
-});
+router.delete("/write", upload.none(), authController.deleteWriteAccess);
 
 /**
  * Add new Access Request endpoint
@@ -184,7 +148,7 @@ router.delete("/write", upload.none(), async (req: Request, res: Response) => {
  *
  * Input:
  *      requestor_id - User identifier that is requesting the access
- *      approver_id User identifier that is granting the access
+ *      approver_id - User identifier that is granting the access
  *      topic_id - Topic identifier to be requesting access to
  *      access_type - Type of access. READ/WRITE
  *      description - Brief description for requesting access (optional)
@@ -209,7 +173,7 @@ router.post("/accessrequest", upload.none(), authController.createRequestAccess)
 router.put("/accessrequest", upload.none(), authController.updateRequestAccess);
 
 /**
- * Delete pending access request endpoint
+ * Delete specified access request endpoint
  * Type: DELETE
  * InputType: form-body
  *
@@ -235,7 +199,7 @@ router.post("/apikey", upload.none(), authController.createApiKey);
 
 /**
  * Delete API Key Request endpoint
- * Type: POST
+ * Type: DELETE
  * InputType: form-body
  *
  * Input:

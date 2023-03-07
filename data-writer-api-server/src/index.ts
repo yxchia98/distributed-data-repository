@@ -67,6 +67,13 @@ app.use(`/auth`, authRouter);
 app.use(`/topic`, topicRouter);
 app.use(`/profile`, profileRouter);
 
+// setup swagger api documentation page
+import YAML from "yamljs";
+import swaggerUi from "swagger-ui-express";
+import path from "path";
+const swaggerDocument = YAML.load(path.resolve("./src/swagger.yml"));
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
 });

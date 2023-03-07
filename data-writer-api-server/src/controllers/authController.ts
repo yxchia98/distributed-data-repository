@@ -150,7 +150,7 @@ const deleteReadAccess = async (req: Request, res: Response) => {
             await queryRead.destroy();
             res.status(200).send({
                 error: false,
-                message: "Successfully deleted access",
+                message: "Successfully deleted read access",
             });
         } else {
             res.status(404).send({
@@ -216,6 +216,55 @@ const createWriteAccess = async (req: Request, res: Response) => {
         res.send({
             error: true,
             message: "Error in granting write access",
+        });
+    }
+};
+
+/**
+ * Delete / Revoke Write Access endpoint
+ * Type: DELETE
+ * InputType: form-body
+ *
+ * Input:
+ *      user_id - User identifier to be revoked access
+ *      topic_id - Topic identifier to be revoked access from
+ *
+ * Returns: boolean error, string message
+ */
+const deleteWriteAccess = async (req: Request, res: Response) => {
+    // Check for required fields
+    if (!(req.body.user_id && req.body.topic_id)) {
+        res.status(400).send({
+            error: true,
+            message: "Error, mandatory fields not set",
+        });
+        return;
+    }
+    // Search for access record, use findOne for composite key
+    try {
+        const queryRead = await WriteAccess.findOne({
+            where: {
+                user_id: req.body.user_id,
+                topic_id: req.body.topic_id,
+            },
+        });
+        // delete if record match, else show error
+        if (queryRead) {
+            await queryRead.destroy();
+            res.status(200).send({
+                error: false,
+                message: "Successfully deleted write access",
+            });
+        } else {
+            res.status(404).send({
+                error: true,
+                message: "Write access does not exist",
+            });
+        }
+    } catch (error) {
+        res.status(500).send({
+            error: true,
+            message: "Error deleting write access",
         });
     }
 };
@@ -359,13 +408,13 @@ const updateRequestAccess = async (req: Request, res: Response) => {
     } catch (error) {
         res.status(500).send({
             error: true,
-            message: "Error deleting access request",
+            message: "Error updating access request",
         });
     }
 };
 
 /**
- * Delete pending access request endpoint
+ * Delete specified access request endpoint
  * Type: DELETE
  * InputType: form-body
  *
@@ -421,7 +470,7 @@ const createApiKey = async (req: Request, res: Response) => {
     // Check if required fields are present
     let output = {
         error: true,
-        message: "Error creating api key",
+        message: "Error creating API Key",
         key: "",
     };
     if (!req.body.user_id || !req.body.topic_id) {
@@ -444,6 +493,7 @@ const createApiKey = async (req: Request, res: Response) => {
             topic_id: req.body.topic_id,
         });
         output.error = false;
+        output.message = "Successfully generated API Key";
         output.key = createAPIKey.key_id;
         res.status(200).send(output);
         return;
@@ -467,7 +517,7 @@ const deleteApiKey = async (req: Request, res: Response) => {
     // Check if required fields are present
     let output = {
         error: true,
-        message: "Error deleting api key",
+        message: "Error deleting API Key",
     };
     if (!req.body.key_id) {
         output.message = "Error, mandatory fields not set";
@@ -477,8 +527,8 @@ const deleteApiKey = async (req: Request, res: Response) => {
     try {
         const queryExistingKey = await APIKey.findByPk(req.body.key_id);
         await queryExistingKey.destroy();
-        output.message = "successfully deleted api key";
-        res.send(output);
+        output.message = "Successfully deleted API Key";
+        res.status(200).send(output);
         return;
     } catch (error) {
         res.send(output);
@@ -494,6 +544,7 @@ export default module.exports = {
     createReadAccess,
     deleteReadAccess,
     createWriteAccess,
+    deleteWriteAccess,
     createRequestAccess,
     updateRequestAccess,
     deleteAccessRequest,
