@@ -805,3 +805,435 @@ paths:
                                     message:
                                         type: string
                                         example: Error deleting API Key
+    profile/user:
+        post:
+            summary: Register User
+            description: Create and Inserts a new user record on the platform, and in db.
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: The user ID parsed from OAuth2.0 or SSO (Google/Azure)
+                                    example: "111458345663774056386"
+                                first_name:
+                                    type: string
+                                    description: The first name of the user
+                                    example: "hello"
+                                last_name:
+                                    type: string
+                                    description: The last name of the user
+                                    example: "kitty"
+                                email:
+                                    type: string
+                                    description: The email address of the user
+                                    example: "hellokitty@gmail.com"
+                                contact:
+                                    type: string
+                                    description: Contact number of the user
+                                    example: "81928391"
+                                agency_id:
+                                    type: string
+                                    description: Agency identifier the user associates with
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully registered user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully registered user.
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error registering user, missing fields.
+                "404":
+                    description: Error registering user, agency specified does not exist or user is already registered
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error registering user, agency specified does not exist or user is already registered.
+                "500":
+                    description: Internal Error registering user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error registering user.
+        put:
+            summary: Update specific User
+            description: Updates a user record on the platform, and in db.
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: The user ID parsed from OAuth2.0 or SSO (Google/Azure)
+                                    example: "111458345663774056386"
+                                first_name:
+                                    type: string
+                                    description: The first name of the user
+                                    example: "hello"
+                                last_name:
+                                    type: string
+                                    description: The last name of the user
+                                    example: "kitty"
+                                email:
+                                    type: string
+                                    description: The email address of the user
+                                    example: "hellokitty@gmail.com"
+                                contact:
+                                    type: string
+                                    description: Contact number of the user
+                                    example: "81928391"
+                                agency_id:
+                                    type: string
+                                    description: Agency identifier the user associates with
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully updated user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully updated user.
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error, user not specified
+                "404":
+                    description: Error updating user, user not found
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating user, user not found
+                "500":
+                    description: Internal Error registering user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating user.
+        delete:
+            summary: Delete / De-register a specific User
+            description: De-registers a user record on the platform, and deletes the respective record in db.
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                user_id:
+                                    type: string
+                                    description: The user ID parsed from OAuth2.0 or SSO (Google/Azure)
+                                    example: "111458345663774056386"
+            responses:
+                "200":
+                    description: Successfully deleted user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted user.
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: No user specified.
+                "404":
+                    description: Error in deleting user, user not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error in deleting user, user not found.
+                "500":
+                    description: Internal Error deleting user
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting user
+    profile/agency:
+        post:
+            summary: Register / Add a new Agency
+            description: Create and Inserts a new agency record on the platform, and in db.
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                short_name:
+                                    type: string
+                                    description: Agency's abbreviated name
+                                    example: GovTech
+                                long_name:
+                                    type: string
+                                    description: Agency's full name
+                                    example: Government Technology Agency
+            responses:
+                "200":
+                    description: Successfully created agency.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully created agency.
+                "400":
+                    description: Error, mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set
+                "500":
+                    description: Internal Error creating agency
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error creating agency.
+        put:
+            summary: Update an existing Agency
+            description: Update an existing agency record
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                agency_id:
+                                    type: string
+                                    description: The agency ID of agency to be updated
+                                    format: uuid
+                                short_name:
+                                    type: string
+                                    description: Agency's abbreviated name
+                                    example: GovTech
+                                long_name:
+                                    type: string
+                                    description: Agency's full name
+                                    example: Government Technology Agency
+            responses:
+                "200":
+                    description: Successfully updated agency.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully updated agency.
+                "400":
+                    description: Error, No fields specified to be updated
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: No fields specified to be updated.
+                "404":
+                    description: Error updating agency, no record found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating agency, no record found.
+                "500":
+                    description: Internal Error updating agency
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error updating agency.
+        delete:
+            summary: Delete / De-register an existing Agency
+            description: De-register an existing agency and delete it's corresponding record
+            tags:
+                - Profile
+            requestBody:
+                required: true
+                content:
+                    "multipart/form-data":
+                        schema:
+                            properties:
+                                agency_id:
+                                    type: string
+                                    description: The agency ID of agency to be deleted
+                                    format: uuid
+            responses:
+                "200":
+                    description: Successfully deleted agency.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                        example: false
+                                    message:
+                                        type: string
+                                        example: Successfully deleted agency.
+                "400":
+                    description: Error, Mandatory fields not set
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Mandatory fields not set.
+                "404":
+                    description: Error deleting agency, agency not found.
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting agency, agency not found.
+                "500":
+                    description: Internal Error deleting agency
+                    content:
+                        application/json:
+                            schema:
+                                type: object
+                                properties:
+                                    error:
+                                        type: boolean
+                                    message:
+                                        type: string
+                                        example: Error deleting agency.

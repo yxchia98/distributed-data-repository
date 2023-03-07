@@ -68,7 +68,7 @@ const registerUser = async (req: Request, res: Response) => {
         }
     } else {
         // error registering user as agency does not exist
-        res.status(400).send({
+        res.status(404).send({
             error: true,
             message:
                 "Error registering user, agency specified does not exist or user is already registered.",
@@ -124,9 +124,9 @@ const updateUser = async (req: Request, res: Response) => {
                 message: `Successfully updated user.`,
             });
         } else {
-            res.status(400).send({
+            res.status(404).send({
                 error: true,
-                message: "Error updating user.",
+                message: "Error updating user, user not found",
             });
         }
     } catch (error) {
@@ -174,9 +174,9 @@ const deregisterUser = async (req: Request, res: Response) => {
                 message: "Successfully deleted user.",
             });
         } else {
-            res.status(500).send({
+            res.status(404).send({
                 error: true,
-                message: "Error deleting user.",
+                message: "Error in deleting user, user not found.",
             });
         }
     } catch (error) {
@@ -252,7 +252,7 @@ const registerAgency = async (req: Request, res: Response) => {
  * InputType: form-body
  *
  * Input:
- *      agency_id - The user ID of user to be de-registered
+ *      agency_id - The agency ID of agency to be updated
  *      short_name - The abbreviated name of the Agency (optional)
  *      long_name - Full name of Agency (optional)
  *
@@ -261,9 +261,9 @@ const registerAgency = async (req: Request, res: Response) => {
 const updateAgency = async (req: Request, res: Response) => {
     // return if no fields set to be updated
     if (!(req.body.short_name || req.body.long_name) && !req.body.agency_id) {
-        res.status(404).send({
+        res.status(400).send({
             error: true,
-            message: "No fields specified to be updated",
+            message: "No fields specified to be updated.",
         });
         return;
     }
@@ -287,7 +287,7 @@ const updateAgency = async (req: Request, res: Response) => {
             if (updateResult![0]) {
                 res.status(200).send({
                     error: false,
-                    message: `Successfully updated agency! ${JSON.stringify(
+                    message: `Successfully updated agency. ${JSON.stringify(
                         queryResult!.agency_id
                     )}.`,
                 });
@@ -299,7 +299,7 @@ const updateAgency = async (req: Request, res: Response) => {
             }
         } else {
             // no record found
-            res.status(400).send({
+            res.status(404).send({
                 error: true,
                 message: "Error updating agency, no record found.",
             });
@@ -308,7 +308,7 @@ const updateAgency = async (req: Request, res: Response) => {
         console.log(error);
         res.status(500).send({
             error: true,
-            message: "Error deleting agency.",
+            message: "Error updating agency.",
         });
     }
 };
@@ -342,12 +342,12 @@ const deregisterAgency = async (req: Request, res: Response) => {
             console.log(`Successfully deleted agency: ${JSON.stringify(queryResult)}.`);
             res.status(200).send({
                 error: false,
-                message: "Successfully deleted agency!",
+                message: "Successfully deleted agency.",
             });
         } else {
-            res.status(500).send({
+            res.status(404).send({
                 error: true,
-                message: "Error deleting agency.",
+                message: "Error deleting agency, agency not found",
             });
         }
     } catch (error) {
