@@ -129,13 +129,13 @@ const PublishTopicForm: React.FC = () => {
         }
     };
     const handleTopicDescBlur = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-        if (e.target.value) {
-            setIsTopicDescValid(true);
-            setTopicDescBorderColor("gray-300");
-        } else {
-            setIsTopicDescValid(false);
-            setTopicDescBorderColor("red-500");
-        }
+        // if (e.target.value) {
+        //     setIsTopicDescValid(true);
+        //     setTopicDescBorderColor("gray-300");
+        // } else {
+        //     setIsTopicDescValid(false);
+        //     setTopicDescBorderColor("red-500");
+        // }
     };
     const handleTopicAgencyBlur = (e: React.ChangeEvent<HTMLSelectElement>) => {
         if (e.target.value) {
@@ -154,8 +154,8 @@ const PublishTopicForm: React.FC = () => {
         e.preventDefault(); // 👈️ prevent page refresh
         setIsSubmitting(true);
         // check for any invalid form inputs and show modal
-        if (!(isTopicNameValid || isTopicDescValid || isTopicAgencyValid)) {
-            console.log("Not all fields properly filled up!");
+        if (!(isTopicNameValid || isTopicAgencyValid)) {
+            console.log("Not all mandatory fields properly filled up!");
             setIsSubmitting(false);
             return false;
         }
@@ -300,6 +300,10 @@ const PublishTopicForm: React.FC = () => {
                                                     onBlur={handleTopicNameBlur}
                                                 />
                                             </div>
+                                            <p className="mt-2 text-sm text-gray-500">
+                                                Topic name should not contain any spaces or special
+                                                characters.
+                                            </p>
                                         </div>
                                         <div className="col-span-1">
                                             <label className="block text-sm font-medium text-gray-700">

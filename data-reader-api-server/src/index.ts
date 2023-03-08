@@ -69,10 +69,15 @@ app.use(`/topic`, topicRouter);
 
 // setup swagger api documentation page
 import YAML from "yamljs";
-import swaggerUi from "swagger-ui-express";
+import swaggerUi, { SwaggerOptions } from "swagger-ui-express";
 import path from "path";
 const swaggerDocument = YAML.load(path.resolve("./src/swagger.yml"));
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+const options: SwaggerOptions = {
+    swaggerOptions: {
+        supportedSubmitMethods: [],
+    },
+};
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
 app.listen(port, () => {
     console.log(`listening on port: ${port}`);
