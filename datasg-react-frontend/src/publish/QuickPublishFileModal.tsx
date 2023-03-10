@@ -69,10 +69,6 @@ const QuickPublishFileModal: React.FC<QuickPublishFileModalProps> = (props) => {
     };
     const handleCloseModal = () => {
         props.setIsOpen(false);
-        setTopicFileList(null);
-        setFormattedTopicFiles([]);
-        setIsSubmitting(false);
-        setIsSubmitted(false);
     };
     const handleToTopicDetails = () => {
         dispatch(setCurrentTopicWithDetails(props.topicDetails!));
@@ -121,6 +117,12 @@ const QuickPublishFileModal: React.FC<QuickPublishFileModalProps> = (props) => {
     // utiliastion of 2 useEffects to workaround delayed referencing by useRef
     useEffect(() => {
         setReferencing(!referencing);
+        if (props.isOpen) {
+            setTopicFileList(null);
+            setFormattedTopicFiles([]);
+            setIsSubmitting(false);
+            setIsSubmitted(false);
+        }
     }, [props.isOpen]);
     useEffect(() => {
         if (drop.current) {
@@ -129,7 +131,10 @@ const QuickPublishFileModal: React.FC<QuickPublishFileModalProps> = (props) => {
         }
     }, [referencing]);
     useEffect(() => {
-        setFormattedTopicFiles(Array.from(topicFileList ? topicFileList : []));
+        const length = topicFileList ? topicFileList.length : 0;
+        if (length > 0) {
+            setFormattedTopicFiles(Array.from(topicFileList ? topicFileList : []));
+        }
     }, [topicFileList]);
     return (
         <>

@@ -122,7 +122,11 @@ const TopicFileBrowserHeader: React.FC<TopicFileBrowserHeaderProps> = (props) =>
         dispatch(clearChecked());
         navigate(-1);
     };
-
+    useEffect(() => {
+        if (!isPublishModalOpen) {
+            setIsPublishing(false);
+        }
+    }, [isPublishModalOpen]);
     useEffect(() => {
         // setTopicOwner(user);
     }, [props.topic_id]);

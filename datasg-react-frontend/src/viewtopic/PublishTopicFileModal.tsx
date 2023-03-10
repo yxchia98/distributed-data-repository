@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import axios, { AxiosRequestConfig } from "axios";
 import { CgSpinner } from "react-icons/cg";
 import { FiCheckCircle } from "react-icons/fi";
+import { setRefresh } from "../redux/topicFileSlice";
 
 interface PublishTopicFileModalProps {
     topicDetails: TopicDetails | undefined;
@@ -18,7 +19,9 @@ interface PublishTopicFileModalProps {
 }
 
 const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
+    const dispatch = useAppDispatch();
     const agenciesSelector = useAppSelector((state) => state.agencies);
+    const topicFilesSelector = useAppSelector((state) => state.topicFiles);
     // for drag and drop into modal
     // handle drag events
     const drop = useRef<any>(null);
@@ -71,8 +74,9 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
         props.setIsOpen(false);
         setTopicFileList(null);
         setFormattedTopicFiles([]);
-        setIsSubmitting(false);
-        setIsSubmitted(false);
+        dispatch(setRefresh(true));
+        // setIsSubmitting(false);
+        // setIsSubmitted(false);
     };
     const handleToTopicDetails = () => {
         return navigate("/viewTopic", {
@@ -84,6 +88,13 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
             },
         });
     };
+    useEffect(() => {
+        if (props.isOpen) {
+            setIsSubmitting(false);
+            setIsSubmitted(false);
+        }
+    }, [props.isOpen]);
+
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // 👈️ prevent page refresh
         setIsSubmitting(true);
@@ -91,9 +102,6 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
             setIsSubmitting(false);
             return false;
         }
-        console.log(
-            `adding ${formattedTopicFiles.length} files to topic ${props.topicDetails!.topic_id}`
-        );
         try {
             formattedTopicFiles.forEach(async (file) => {
                 const uploadTopicFileFormData: FormData = new FormData();
@@ -128,7 +136,10 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
         }
     }, [referencing]);
     useEffect(() => {
-        setFormattedTopicFiles(Array.from(topicFileList ? topicFileList : []));
+        const length = topicFileList ? topicFileList.length : 0;
+        if (length > 0) {
+            setFormattedTopicFiles(Array.from(topicFileList ? topicFileList : []));
+        }
     }, [topicFileList]);
     return (
         <>
@@ -166,15 +177,15 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                                             >
                                                 {props.topicDetails?.topic_name}
                                             </Dialog.Title>
-                                            <button
+                                            {/* <button
                                                 type="button"
                                                 className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
                                                 onClick={handleToTopicDetails}
                                             >
                                                 Topic Details {`>`}
-                                            </button>
+                                            </button> */}
                                         </div>
-                                        <div className="mt-1 flex flex-col justify-center rounded-md border-2 border-gray-300 px-6 pt-5 pb-6 transition">
+                                        <div className="mt-1 flex flex-col justify-center rounded-md px-6 pt-5 pb-6 transition">
                                             <div className="flex justify-center items-center space-y-1 text-center">
                                                 <IconContext.Provider
                                                     value={{
