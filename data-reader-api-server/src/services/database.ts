@@ -26,9 +26,9 @@ dotenv.config();
 // };
 
 export const sequelize: Sequelize = new Sequelize(
-    process.env.AWS_RDS_DB,
-    process.env.AWS_RDS_USERNAME,
-    process.env.AWS_RDS_PASSWORD,
+    JSON.parse(process.env.AWS_RDS_SECRETS).AWS_RDS_DB,
+    JSON.parse(process.env.AWS_RDS_SECRETS).AWS_RDS_USERNAME,
+    JSON.parse(process.env.AWS_RDS_SECRETS).AWS_RDS_PASSWORD,
     {
         host: process.env.AWS_RDS_URL,
         dialect: "postgres",

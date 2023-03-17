@@ -36,10 +36,10 @@ const FILE_TYPE_MAP: TypeMap = {
 };
 
 const s3 = new S3Client({
-    region: process.env.AWS_S3_BUCKET_REGION,
+    region: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_S3_ACCESS_SECRET,
+        accessKeyId: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_KEY,
+        secretAccessKey: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_SECRET,
     },
 });
 
@@ -48,7 +48,7 @@ const upload = multer();
 const uploadS3 = multer({
     storage: multerS3({
         s3: s3,
-        bucket: process.env.AWS_S3_BUCKET_NAME,
+        bucket: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
         acl: "public-read",
         // metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {},
         key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
@@ -67,7 +67,7 @@ const uploadS3 = multer({
                     // check if topic folder exists in s3
                     const topicExist = await checkBucketFolder(
                         s3,
-                        process.env.AWS_S3_BUCKET_NAME,
+                        JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
                         req.topicFolder
                     );
                     // if topic exists, insert record into DB before uploading
@@ -96,7 +96,7 @@ const uploadS3 = multer({
 const uploadS3WithKey = multer({
     storage: multerS3({
         s3: s3,
-        bucket: process.env.AWS_S3_BUCKET_NAME,
+        bucket: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
         acl: "public-read",
         // metadata: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {},
         key: async function (req: TopicFileRequest, file: Express.Multer.File, cb: any) {
@@ -118,7 +118,7 @@ const uploadS3WithKey = multer({
                     // check if topic folder exists in s3
                     const topicExist = await checkBucketFolder(
                         s3,
-                        process.env.AWS_S3_BUCKET_NAME,
+                        JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
                         req.topicFolder
                     );
                     // if topic exists, insert record into DB before uploading

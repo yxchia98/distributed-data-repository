@@ -4,6 +4,9 @@
 /data-writer-api-server/.env
 /data-reader-api-server/.env
 /datasg-react-frontend/.env
+/data-writer-api-server/ssl
+/data-reader-api-server/ssl
+/datasg-react-frontend/ssl
 /docker-setup/.ddr-data-reader-env
 /docker-setup/.ddr-data-writer-env
 /docker-setup/.ddr-react-frontend-env

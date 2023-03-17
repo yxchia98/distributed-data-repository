@@ -1,5 +1,5 @@
 # use nodejs latest docker image
-FROM node:latest
+FROM --platform=linux/amd64 node:latest
 
 # specify app directory
 WORKDIR /app
@@ -11,5 +11,9 @@ RUN npm install
 # bundle app source
 COPY . .
 
+EXPOSE 80
+EXPOSE 443
+EXPOSE 8443
+EXPOSE 8080
 EXPOSE 8081
 CMD [ "npm", "run", "start" ]

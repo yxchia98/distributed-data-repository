@@ -31,7 +31,7 @@ router.get(
     "/google/callback",
     passport.authenticate("google", {
         // successRedirect: <string>process.env.CLIENT_URL,
-        successRedirect: "http://localhost:3000",
+        successRedirect: `${process.env.CLIENT_URL}`,
         failureRedirect: "/auth/failure",
     })
 );
@@ -120,7 +120,7 @@ router.get("/test", upload.none(), async (req: Request, res: Response) => {
     // check for required fields
     res.status(200).send({
         error: false,
-        message: "Successfully retrieved access requests for user",
+        message: `Successfully retrieved access requests for user \n processenv check: ${process.env.CLIENT_URL}`,
         data: req.user ? req.user : {},
     });
 });

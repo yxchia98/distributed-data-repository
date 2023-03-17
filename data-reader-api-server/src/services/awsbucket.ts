@@ -139,10 +139,10 @@ export const deleteBucketFolder = async (s3: S3Client, bucket: string, folder: s
  */
 export const createBucket = async (s3: S3Client) => {
     const params: CreateBucketRequest = {
-        Bucket: process.env.AWS_S3_BUCKET_NAME,
+        Bucket: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
         CreateBucketConfiguration: {
             // Set your region here
-            LocationConstraint: process.env.AWS_S3_BUCKET_REGION,
+            LocationConstraint: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_REGION,
         },
     };
 
@@ -179,7 +179,7 @@ export const uploadToS3 = async (s3: S3, fileData?: Express.Multer.File) => {
         const fileContent = fs.readFileSync(fileData!.path);
 
         const params = {
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Bucket: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
             Key: fileData!.originalname,
             Body: fileContent,
         };
@@ -220,7 +220,7 @@ export const downloadSingleFileS3 = async (s3: S3Client, key: string) => {
     try {
         // const res = await s3.headBucket({ Bucket: bucket }).promise();
         const input: GetObjectCommandInput = {
-            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Bucket: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
             Key: key,
         };
         const res: GetObjectCommandOutput = await s3.send(new GetObjectCommand(input));
@@ -244,7 +244,10 @@ export const downloadSingleFileS3 = async (s3: S3Client, key: string) => {
  * @returns {void}
  */
 export const initBucket = async (s3: S3Client) => {
-    const bucketStatus = await checkBucket(s3, process.env.AWS_S3_BUCKET_NAME);
+    const bucketStatus = await checkBucket(
+        s3,
+        JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME
+    );
 
     if (!bucketStatus.success) {
         // check if the bucket don't exist

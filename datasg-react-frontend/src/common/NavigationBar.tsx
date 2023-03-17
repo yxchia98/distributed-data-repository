@@ -26,7 +26,6 @@ const NavigationBar: React.FC<NavigationBarProps> = (props) => {
         // dispatch redux thunk to fetch session and
         // chain mandatory redirect to register page if not registered
         dispatch(fetchUser()).then((action: any) => {
-            // console.log(action);
             if (action.payload.data.loggedIn && !action.payload.data.registered) {
                 return navigate("/register");
             }

@@ -49,7 +49,7 @@ router.get(
     "/google/callback",
     passport.authenticate("google", {
         // successRedirect: <string>process.env.CLIENT_URL,
-        successRedirect: "http://localhost:3000",
+        successRedirect: `${process.env.CLIENT_URL}`,
         failureRedirect: "/auth/failure",
     })
 );

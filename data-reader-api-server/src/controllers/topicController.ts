@@ -23,10 +23,10 @@ dayjs.extend(timezone);
 
 // AWS S3 client instance
 const s3 = new S3Client({
-    region: process.env.AWS_S3_BUCKET_REGION,
+    region: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_S3_ACCESS_SECRET,
+        accessKeyId: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_KEY,
+        secretAccessKey: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_SECRET,
     },
 });
 

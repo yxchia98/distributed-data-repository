@@ -8,12 +8,16 @@ import dotenv from "dotenv";
 import authRouter from "./routes/auth";
 import topicRouter from "./routes/topic";
 import profileRouter from "./routes/profile";
+import * as http from "http";
+import * as https from "https";
+import * as fs from "fs";
 // import { setup } from "./services/database";
 import "./services/database";
 dotenv.config();
 
 const app: Express = express();
 const port: number = parseInt(<string>process.env.PORT) || 8080;
+// const hostname: string = <string>process.env.HOSTNAME || "localhost";
 // app.use(
 //     session({
 //         name: "session",
@@ -79,6 +83,25 @@ const options: SwaggerOptions = {
 };
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
-app.listen(port, () => {
-    console.log(`listening on port: ${port}`);
+// http and https configuration
+const privateKey = fs.readFileSync("./ssl/private.key");
+const certificate = fs.readFileSync("./ssl/certificate.crt");
+const certificateAuthority = fs.readFileSync("./ssl/ca_bundle.crt");
+const credentials = { key: privateKey, cert: certificate, ca: certificateAuthority };
+
+// run https server
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
 });
+
+// if you want to revert back to http-based server
+// WARNING: Google OAuth wont work with http-based servers
+// const httpServer = http.createServer(app);
+// httpServer.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
+
+// app.listen(port, () => {
+//     console.log(`listening on port: ${port}`);
+// });

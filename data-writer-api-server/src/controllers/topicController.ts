@@ -35,10 +35,10 @@ interface TopicFileRequest extends Request {
 
 // AWS S3 client instance
 const s3 = new S3Client({
-    region: process.env.AWS_S3_BUCKET_REGION,
+    region: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_REGION,
     credentials: {
-        accessKeyId: process.env.AWS_S3_ACCESS_KEY,
-        secretAccessKey: process.env.AWS_S3_ACCESS_SECRET,
+        accessKeyId: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_KEY,
+        secretAccessKey: JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_ACCESS_SECRET,
     },
 });
 
@@ -148,7 +148,7 @@ const createTopic = async (req: Request, res: Response) => {
         // check if topic folder already exists in S3
         const topicExistResponse = await checkBucketFolder(
             s3,
-            process.env.AWS_S3_BUCKET_NAME,
+            JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
             folder
         );
         // check if record already exists
@@ -159,10 +159,12 @@ const createTopic = async (req: Request, res: Response) => {
         });
         if (!queryTopic.length && !topicExistResponse.success) {
             // create folder in S3
-            const result = await createBucketFolder(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+            const result = await createBucketFolder(
+                s3,
+                JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
+                folder
+            );
             if (result.success) {
-                // create topic record after creating s3 topic folder
-                // const topicURI = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_S3_BUCKET_REGION}.amazonaws.com/${folder}`;
                 const topicURI = `${folder}`;
                 const topicDesc = req.body.topic_description ? req.body.topic_description : "";
                 const insertTopic = await Topic.create({
@@ -180,7 +182,11 @@ const createTopic = async (req: Request, res: Response) => {
                     });
                 } else {
                     // if cant insert into db, delete the previously created s3 topic folder
-                    await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+                    await deleteBucketItem(
+                        s3,
+                        JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
+                        folder
+                    );
                     res.send({
                         error: true,
                         message: "Error creating topic",
@@ -205,7 +211,11 @@ const createTopic = async (req: Request, res: Response) => {
         // delete record and created s3 topic folders, if error
         console.log(error);
         try {
-            await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, folder);
+            await deleteBucketItem(
+                s3,
+                JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
+                folder
+            );
             await Topic.destroy({
                 where: {
                     user_id: req.body.user_id,
@@ -332,7 +342,7 @@ const deleteTopic = async (req: Request, res: Response) => {
             folder = queryTopicResponse.topic_url;
             const topicExistResponse = await checkBucketFolder(
                 s3,
-                process.env.AWS_S3_BUCKET_NAME,
+                JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
                 folder
             );
             if (topicExistResponse.success) {
@@ -357,13 +367,13 @@ const deleteTopic = async (req: Request, res: Response) => {
                 const deleteBucketItems: Delete = fileUrls;
                 const deleteBucketItemsResult = await deleteFilesInBucket(
                     s3,
-                    process.env.AWS_S3_BUCKET_NAME,
+                    JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
                     deleteBucketItems
                 );
                 // delete folder in S3
                 const deleteBucketResult = await deleteBucketItem(
                     s3,
-                    process.env.AWS_S3_BUCKET_NAME,
+                    JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
                     folder
                 );
                 if (deleteBucketResult.success) {
@@ -477,7 +487,11 @@ const deleteTopicFile = async (req: Request, res: Response) => {
             // get relative path of specified file from s3
             const fileURI = queryTopicFile.dataValues.file_url.split("/").slice(3).join("/");
             console.log(fileURI);
-            const deleteFile = await deleteBucketItem(s3, process.env.AWS_S3_BUCKET_NAME, fileURI);
+            const deleteFile = await deleteBucketItem(
+                s3,
+                JSON.parse(process.env.AWS_S3_SECRETS).AWS_S3_BUCKET_NAME,
+                fileURI
+            );
             // delete record from database if s3 deletion successful
             if (deleteFile.success) {
                 await queryTopicFile.destroy();

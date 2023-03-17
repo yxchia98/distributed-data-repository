@@ -1,5 +1,5 @@
 # use nodejs latest docker image
-FROM node:latest
+FROM --platform=linux/amd64 node:latest
 
 # specify app directory
 WORKDIR /app
@@ -7,9 +7,14 @@ WORKDIR /app
 # copy and install dependencies
 COPY package*.json ./
 RUN npm install
+RUN npm install serve -g
 
 # bundle app source
 COPY . .
 
+EXPOSE 80
+EXPOSE 443
+EXPOSE 8443
+EXPOSE 8080
 EXPOSE 3000
-CMD [ "npm", "run", "start" ]
+CMD [ "serve", "-l", "80", "-s", "build" ]
