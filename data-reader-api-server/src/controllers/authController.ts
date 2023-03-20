@@ -241,7 +241,7 @@ const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
     //     return;
     // }
     // const userId: string = <string>req.user.id;
-    const userId: string = <string>req.query.id;
+    const userId: string = <string>req.query.user_id;
     try {
         const queryReadAccess = await WriteAccess.findAll({
             where: {
