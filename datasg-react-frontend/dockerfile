@@ -17,4 +17,4 @@ EXPOSE 443
 EXPOSE 8443
 EXPOSE 8080
 EXPOSE 3000
-CMD [ "serve", "-l", "80", "-s", "build" ]
+CMD [ "serve", "-l", "443", "--ssl-cert", "/app/ssl/certificate.crt", "--ssl-key", "/app/ssl/private.key", "-s", "build" ]

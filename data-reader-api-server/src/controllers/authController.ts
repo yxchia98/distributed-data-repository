@@ -128,28 +128,29 @@ const getTopicReadAccess = async (req: Request, res: Response) => {
  * Get specific user's read accesses
  * Type: GET
  * InputType: Params
+ * Input: topic_id
  * Returns: boolean error, string message, obj data
  */
 const getUserReadAccess = async (req: OAuthUserRequest, res: Response) => {
     // check for required fields
-    // if (!req.query.user_id) {
-    //     res.status(400).send({
-    //         error: true,
-    //         message: "Error, mandatory fields not set",
-    //         data: {},
-    //     });
-    //     return;
-    // }
-    if (!req.user) {
-        res.status(403).send({
+    if (!req.query.user_id) {
+        res.status(400).send({
             error: true,
-            message: "Error, no user logged in",
-            data: [],
+            message: "Error, mandatory fields not set",
+            data: {},
         });
         return;
     }
-    // const userId: string = <string>req.query.user_id;
-    const userId: string = req.user.id;
+    // if (!req.user) {
+    //     res.status(403).send({
+    //         error: true,
+    //         message: "Error, no user logged in",
+    //         data: [],
+    //     });
+    //     return;
+    // }
+    // const userId: string = <string>req.user.id;
+    const userId: string = <string>req.query.user_id;
 
     try {
         const queryReadAccess = await ReadAccess.findAll({
@@ -218,27 +219,29 @@ const getTopicWriteAccess = async (req: Request, res: Response) => {
  * Get specific user's write accesses
  * Type: GET
  * InputType: Params
+ * Input: user_id
  * Returns: boolean error, string message, obj data
  */
 const getUserWriteAccess = async (req: OAuthUserRequest, res: Response) => {
     // check for required fields
-    // if (!req.query.user_id) {
-    //     res.status(400).send({
-    //         error: true,
-    //         message: "Error, mandatory fields not set",
-    //         data: [],
-    //     });
-    //     return;
-    // }
-    if (!req.user) {
-        res.status(403).send({
+    if (!req.query.user_id) {
+        res.status(400).send({
             error: true,
-            message: "Error, no user logged in",
+            message: "Error, mandatory fields not set",
             data: [],
         });
         return;
     }
-    const userId: string = <string>req.user.id;
+    // if (!req.user) {
+    //     res.status(403).send({
+    //         error: true,
+    //         message: "Error, no user logged in",
+    //         data: [],
+    //     });
+    //     return;
+    // }
+    // const userId: string = <string>req.user.id;
+    const userId: string = <string>req.query.id;
     try {
         const queryReadAccess = await WriteAccess.findAll({
             where: {

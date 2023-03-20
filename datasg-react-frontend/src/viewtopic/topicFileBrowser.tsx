@@ -55,7 +55,7 @@ const TopicFileBrowser: React.FC<TopicFileBrowserProps> = (props) => {
         dispatch(fetchSelectedTopicFiles(findTopic));
     };
     const fetchAccessRedux = () => {
-        dispatch(fetchAccess());
+        dispatch(fetchAccess(userSelector.user.user_id));
     };
     const setCurrentTopicRedux = () => {
         dispatch(setCurrentTopicWithId(props.topic_id));

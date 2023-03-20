@@ -37,7 +37,7 @@ const PublishTopicList = () => {
     };
 
     const fetchAccessRedux = () => {
-        dispatch(fetchAccess());
+        dispatch(fetchAccess(userSelector.user.user_id));
     };
 
     const fetchAgenciesRedux = () => {

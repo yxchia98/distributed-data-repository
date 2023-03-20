@@ -46,7 +46,7 @@ const PublishTopicForm: React.FC = () => {
 
     const fetchPublishTopicFormInfoRedux = () => {
         dispatch(fetchUser());
-        dispatch(fetchAccess());
+        dispatch(fetchAccess(userSelector.user_id));
         dispatch(fetchAgencies());
         dispatch(fetchTopics());
     };
@@ -57,7 +57,6 @@ const PublishTopicForm: React.FC = () => {
     // handle drag events
     const drop = useRef<any>(null);
     useEffect(() => {
-        console.log(drop);
         drop.current.addEventListener("dragover", handleDragOver);
         drop.current.addEventListener("drop", handleDrop);
 

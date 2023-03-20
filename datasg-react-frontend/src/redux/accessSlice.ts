@@ -91,7 +91,7 @@ export const fetchAccessRequests = createAsyncThunk(
     }
 );
 
-export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
+export const fetchAccess = createAsyncThunk("access/fetchAccess", async (userId: string) => {
     let res: AccessState = {
         readAccess: [],
         writeAccess: [],
@@ -103,13 +103,19 @@ export const fetchAccess = createAsyncThunk("access/fetchAccess", async () => {
         const fetchReadAccessConfigurationObject: AxiosRequestConfig = {
             method: "get",
             url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/read`,
-            headers: {},
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            params: {
+                user_id: userId,
+            },
             withCredentials: true,
         };
         const fetchWriteAccessConfigurationObject: AxiosRequestConfig = {
             method: "get",
             url: `${process.env.REACT_APP_DATA_READER_API_URL}auth/write`,
-            headers: {},
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            params: {
+                user_id: userId,
+            },
             withCredentials: true,
         };
         const fetchReadAccessResponse: AxiosResponse<FetchAccessResponse> = await axios(
