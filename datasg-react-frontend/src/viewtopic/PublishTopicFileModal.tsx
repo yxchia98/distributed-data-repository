@@ -9,7 +9,7 @@ import { GrClose } from "react-icons/gr";
 import { useNavigate } from "react-router-dom";
 import axios, { AxiosRequestConfig } from "axios";
 import { CgSpinner } from "react-icons/cg";
-import { FiCheckCircle } from "react-icons/fi";
+import { FiAlertCircle, FiCheckCircle } from "react-icons/fi";
 import { setRefresh } from "../redux/topicFileSlice";
 
 interface PublishTopicFileModalProps {
@@ -28,9 +28,11 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
     const navigate = useNavigate();
     const [topicFileList, setTopicFileList] = useState<FileList | null>(null);
     const [formattedTopicFiles, setFormattedTopicFiles] = useState<Array<File>>([]);
+    const [failedUploads, setFailedUploads] = useState<Array<string>>([]);
     const [referencing, setReferencing] = useState<boolean>(false);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
     const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+    const [isSubmittedWithError, setIsSubmittedWithError] = useState<boolean>(false);
 
     const handleDragOver = (e: { preventDefault: () => void; stopPropagation: () => void }) => {
         e.preventDefault();
@@ -75,18 +77,9 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
         setTopicFileList(null);
         setFormattedTopicFiles([]);
         dispatch(setRefresh(true));
-        // setIsSubmitting(false);
-        // setIsSubmitted(false);
-    };
-    const handleToTopicDetails = () => {
-        return navigate("/viewTopic", {
-            state: {
-                topic_id: props.topicDetails!.topic_id,
-                topic_name: props.topicDetails!.topic_name,
-                agency_id: props.topicDetails!.agency_id,
-                description: props.topicDetails!.description,
-            },
-        });
+        setIsSubmitting(false);
+        setIsSubmitted(false);
+        setIsSubmittedWithError(false);
     };
     useEffect(() => {
         if (props.isOpen) {
@@ -98,30 +91,47 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault(); // 👈️ prevent page refresh
         setIsSubmitting(true);
+        let submitSuccess: boolean = true;
+        let failedUploadArr: Array<string> = [];
         if (!(formattedTopicFiles.length > 0)) {
             setIsSubmitting(false);
             return false;
         }
         try {
-            formattedTopicFiles.forEach(async (file) => {
-                const uploadTopicFileFormData: FormData = new FormData();
-                uploadTopicFileFormData.append("topic_id", props.topicDetails!.topic_id);
-                uploadTopicFileFormData.append("uploaded_file", file);
-                const uploadTopicFileConfigurationObject: AxiosRequestConfig = {
-                    method: "post",
-                    url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/publish`,
-                    data: uploadTopicFileFormData,
-                    headers: { "Content-Type": "multipart/form-data" },
-                };
-                const uploadTopicFileResponse = await axios(uploadTopicFileConfigurationObject);
-            });
+            for (const file of formattedTopicFiles) {
+                try {
+                    const uploadTopicFileFormData: FormData = new FormData();
+                    uploadTopicFileFormData.append("topic_id", props.topicDetails!.topic_id);
+                    uploadTopicFileFormData.append("uploaded_file", file);
+                    const uploadTopicFileConfigurationObject: AxiosRequestConfig = {
+                        method: "post",
+                        url: `${process.env.REACT_APP_DATA_WRITER_API_URL}topic/publish`,
+                        data: uploadTopicFileFormData,
+                        headers: { "Content-Type": "multipart/form-data" },
+                    };
+                    await axios(uploadTopicFileConfigurationObject);
+                } catch (error: any) {
+                    failedUploadArr.push(file.name);
+                    submitSuccess = false;
+                }
+            }
+            if (!submitSuccess) {
+                setFailedUploads(failedUploadArr);
+                setIsSubmitting(false);
+                setIsSubmitted(true);
+                setIsSubmittedWithError(true);
+                return;
+            }
             setIsSubmitting(false);
             setIsSubmitted(true);
-            return true;
+            setIsSubmittedWithError(false);
+            return;
         } catch (error: any) {
             console.log(error.response.data);
             setIsSubmitting(false);
-            return false;
+            setIsSubmitted(true);
+            setIsSubmittedWithError(false);
+            return;
         }
     };
 
@@ -157,65 +167,7 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                         {/* backdrop */}
                         <div className="fixed inset-0 bg-black bg-opacity-50" />
                     </Transition.Child>
-                    {isSubmitted ? (
-                        <div className="fixed inset-0 overflow-y-auto">
-                            <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
-                                <Transition.Child
-                                    as={Fragment}
-                                    enter="ease-out duration-300"
-                                    enterFrom="opacity-0 scale-95"
-                                    enterTo="opacity-100 scale-100"
-                                    leave="ease-in duration-200"
-                                    leaveFrom="opacity-100 scale-100"
-                                    leaveTo="opacity-0 scale-95"
-                                >
-                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
-                                        <div className="flex flex-row justify-between">
-                                            <Dialog.Title
-                                                as="h3"
-                                                className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
-                                            >
-                                                {props.topicDetails?.topic_name}
-                                            </Dialog.Title>
-                                            {/* <button
-                                                type="button"
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-gray-100 mx-1 px-4 py-2 text-sm font-medium text-gray-900 hover:bg-gray-200 focus:outline-none"
-                                                onClick={handleToTopicDetails}
-                                            >
-                                                Topic Details {`>`}
-                                            </button> */}
-                                        </div>
-                                        <div className="mt-1 flex flex-col justify-center rounded-md px-6 pt-5 pb-6 transition">
-                                            <div className="flex justify-center items-center space-y-1 text-center">
-                                                <IconContext.Provider
-                                                    value={{
-                                                        size: "3em",
-                                                        color: "rgb(21 128 61)",
-                                                    }}
-                                                >
-                                                    <div className="transition transition-duration-500">
-                                                        <FiCheckCircle />
-                                                    </div>
-                                                </IconContext.Provider>
-                                            </div>
-                                            <p className="text-center mt-2">
-                                                Successfully published!
-                                            </p>
-                                        </div>
-
-                                        <div className="mt-4 flex justify-center items-center">
-                                            <button
-                                                onClick={handleCloseModal}
-                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
-                                            >
-                                                Yay!
-                                            </button>
-                                        </div>
-                                    </Dialog.Panel>
-                                </Transition.Child>
-                            </div>
-                        </div>
-                    ) : (
+                    {!isSubmitted && (
                         <div className="fixed inset-0 overflow-y-auto">
                             <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
                                 <Transition.Child
@@ -342,6 +294,116 @@ const PublishTopicFileModal: React.FC<PublishTopicFileModalProps> = (props) => {
                                                 </div>
                                             )}
                                         </form>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    )}
+                    {isSubmitted && !isSubmittedWithError && (
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <div className="flex flex-row justify-between">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
+                                            >
+                                                {props.topicDetails?.topic_name}
+                                            </Dialog.Title>
+                                        </div>
+                                        <div className="mt-1 flex flex-col justify-center rounded-md px-6 pt-5 pb-6 transition">
+                                            <div className="flex justify-center items-center space-y-1 text-center">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                        color: "rgb(21 128 61)",
+                                                    }}
+                                                >
+                                                    <div className="transition transition-duration-500">
+                                                        <FiCheckCircle />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <p className="text-center mt-2">
+                                                Successfully published!
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-4 flex justify-center items-center">
+                                            <button
+                                                onClick={handleCloseModal}
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
+                                            >
+                                                Yay!
+                                            </button>
+                                        </div>
+                                    </Dialog.Panel>
+                                </Transition.Child>
+                            </div>
+                        </div>
+                    )}
+                    {isSubmitted && isSubmittedWithError && (
+                        <div className="fixed inset-0 overflow-y-auto">
+                            <div className="flex min-h-full min-w-full items-center justify-center p-4 text-center">
+                                <Transition.Child
+                                    as={Fragment}
+                                    enter="ease-out duration-300"
+                                    enterFrom="opacity-0 scale-95"
+                                    enterTo="opacity-100 scale-100"
+                                    leave="ease-in duration-200"
+                                    leaveFrom="opacity-100 scale-100"
+                                    leaveTo="opacity-0 scale-95"
+                                >
+                                    <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                                        <div className="flex flex-row justify-between">
+                                            <Dialog.Title
+                                                as="h3"
+                                                className="flex items-center justify-center text-center text-lg font-medium leading-6 text-gray-900"
+                                            >
+                                                {props.topicDetails?.topic_name}
+                                            </Dialog.Title>
+                                        </div>
+                                        <div className="mt-1 flex flex-col justify-center rounded-md border-2 border-gray-300 px-6 pt-5 pb-6 transition">
+                                            <div className="flex justify-center items-center space-y-1 text-center">
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "3em",
+                                                    }}
+                                                >
+                                                    <div className="transition transition-duration-500 text-amber-500">
+                                                        <FiAlertCircle />
+                                                    </div>
+                                                </IconContext.Provider>
+                                            </div>
+                                            <p className="text-center mt-2 text-xs text-gray-700">
+                                                {`The following files could not be published:`}
+                                            </p>
+                                            <p className="text-xs text-gray-700 text-center my-2">{`${failedUploads.map(
+                                                (filename) => `${filename}`
+                                            )}`}</p>
+                                            <p className="text-xs text-gray-700 text-center">
+                                                Only CSV files can be published. Please try again
+                                                later.
+                                            </p>
+                                        </div>
+
+                                        <div className="mt-4 flex justify-center items-center">
+                                            <button
+                                                onClick={handleCloseModal}
+                                                className="inline-flex justify-center rounded-md border border-transparent bg-blue-100 mx-1 px-4 py-2 text-sm font-medium text-blue-900 hover:bg-blue-200 focus:outline-none"
+                                            >
+                                                Got it
+                                            </button>
+                                        </div>
                                     </Dialog.Panel>
                                 </Transition.Child>
                             </div>

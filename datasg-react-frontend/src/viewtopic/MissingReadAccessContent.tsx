@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { IconContext } from "react-icons";
 import { BiLock, BiLockOpen } from "react-icons/bi";
+import { googleAuth } from "../common/googleAuth";
 import { useAppSelector } from "../redux/hooks";
 import RequestAccessModal from "./RequestAccessModal";
 
@@ -10,6 +11,7 @@ interface MissingReadAccessContentProps {
 
 const MissingReadAccessContent: React.FC<MissingReadAccessContentProps> = (props) => {
     const topicsSelector = useAppSelector((state) => state.topics).topics;
+    const usersSelector = useAppSelector((state) => state.user);
 
     const [isRequestAccessModalOpen, setIsRequestAccessModalOpen] = useState<boolean>(false);
 
@@ -30,18 +32,41 @@ const MissingReadAccessContent: React.FC<MissingReadAccessContentProps> = (props
                     </div>
                 </IconContext.Provider>
                 <p className="text-xl font-semibold m-1"> Oops!</p>
-                <p className="text-lg m-1"> You don't seem to have access to this topic yet.</p>
-                <button
-                    onClick={handleRequestAccessOnClick}
-                    className="flex justify-center items-center bg-gray-200 rounded-lg shadow-lg p-2 m-1 active:bg-gray-300"
-                >
-                    <IconContext.Provider value={{ size: "1.5em", color: "rgb(55 65 81)" }}>
-                        <div className="m-1">
-                            <BiLockOpen />
-                        </div>
-                    </IconContext.Provider>
-                    <p>Request Access</p>
-                </button>
+                {usersSelector.user.registered && usersSelector.user.loggedIn && (
+                    <>
+                        <p className="text-lg m-1">
+                            You don't seem to have access to this topic yet.
+                        </p>
+
+                        <button
+                            onClick={handleRequestAccessOnClick}
+                            className="flex justify-center items-center bg-gray-200 rounded-lg shadow-lg p-2 m-1 active:bg-gray-300"
+                        >
+                            <IconContext.Provider value={{ size: "1.5em", color: "rgb(55 65 81)" }}>
+                                <div className="m-1">
+                                    <BiLockOpen />
+                                </div>
+                            </IconContext.Provider>
+                            <p>Request Access</p>
+                        </button>
+                    </>
+                )}
+                {(!usersSelector.user.registered || !usersSelector.user.loggedIn) && (
+                    <>
+                        <p className="text-lg m-1">Please login to access to this topic.</p>
+                        <button
+                            onClick={googleAuth}
+                            className="flex justify-center items-center bg-gray-200 rounded-lg shadow-lg p-2 m-1 active:bg-gray-300"
+                        >
+                            <IconContext.Provider value={{ size: "1.5em", color: "rgb(55 65 81)" }}>
+                                <div className="m-1">
+                                    <BiLockOpen />
+                                </div>
+                            </IconContext.Provider>
+                            <p>Log In</p>
+                        </button>
+                    </>
+                )}
             </div>
         </div>
     );
