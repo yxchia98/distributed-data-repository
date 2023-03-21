@@ -6,11 +6,13 @@ import { BiDownload, BiEdit, BiTrash } from "react-icons/bi";
 import { TopicFileType } from "./TopicFileBrowserContent";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import saveAs from "file-saver";
-import { useAppDispatch } from "../redux/hooks";
+import { useAppDispatch, useAppSelector } from "../redux/hooks";
 import { setRefresh } from "../redux/topicFileSlice";
 
 interface TopicFileActionMenuProps {
     file: TopicFileType;
+    downloadable: boolean;
+    deletable: boolean;
     setLoading: Dispatch<SetStateAction<boolean>>;
 }
 

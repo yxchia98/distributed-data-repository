@@ -169,6 +169,8 @@ const TopicFileBrowserContent: React.FC<TopicFileBrowserContentProps> = (props) 
                                             <TopicFileActionMenu
                                                 file={topicFile}
                                                 setLoading={setLoading}
+                                                downloadable={props.readAccess}
+                                                deletable={props.writeAccess}
                                             />
                                         </div>
                                     );

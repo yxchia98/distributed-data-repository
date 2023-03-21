@@ -90,17 +90,18 @@ const certificateAuthority = fs.readFileSync("./ssl/ca_bundle.crt");
 const credentials = { key: privateKey, cert: certificate, ca: certificateAuthority };
 
 // run https server
-// const httpsServer = https.createServer(credentials, app);
-// httpsServer.listen(port, () => {
-//     console.log(`Server running on port ${port}`);
-// });
+// use this in production where SSL cert is used
+const httpsServer = https.createServer(credentials, app);
+httpsServer.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+});
 
 // if you want to revert back to http-based server
 // WARNING: Google OAuth wont work with http-based servers on non-localhost
-const httpServer = http.createServer(app);
-httpServer.listen(port, () => {
-    console.log(`Server running on port ${port}`);
-});
+// const httpServer = http.createServer(app);
+// httpServer.listen(port, () => {
+//     console.log(`Server running on port ${port}`);
+// });
 
 // app.listen(port, () => {
 //     console.log(`listening on port: ${port}`);
