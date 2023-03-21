@@ -197,6 +197,13 @@ paths:
             description: retrieves and returns currently logged in user's read accesses for topics
             tags:
                 - Authentication
+            parameters:
+                - in: query
+                  name: "user_id"
+                  description: The user identifier for the specified user to retrieve all read access
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200": # status code
                     description: Object containing response details, and array of read accesses
@@ -312,6 +319,13 @@ paths:
             description: retrieves and returns currently logged in user's write accesses for topics
             tags:
                 - Authentication
+            parameters:
+                - in: query
+                  name: "user_id"
+                  description: The user identifier for the specified user to retrieve all write access
+                  required: true
+                  schema:
+                      type: string
             responses:
                 "200": # status code
                     description: Object containing response details, and array of write accesses
