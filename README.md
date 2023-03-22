@@ -2,6 +2,10 @@
 
 Smart Distributed Data Repository
 
-## run docker containers
-
-look into docker-setup folder
+## Deployment methods
+look into setups folder
+| Deployment Type                | Folder           |
+|--------------------------------|------------------|
+| Docker                         | /setups/docker/  |
+| AWS ECS                        | /setups/aws-ecs/ |
+| Traditional Server / Localhost | /setups/server/  |
