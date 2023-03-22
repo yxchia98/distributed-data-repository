@@ -7,9 +7,9 @@
 /data-writer-api-server/ssl
 /data-reader-api-server/ssl
 /datasg-react-frontend/ssl
-/docker-setup/.ddr-data-reader-env
-/docker-setup/.ddr-data-writer-env
-/docker-setup/.ddr-react-frontend-env
+/setups/docker/.ddr-data-reader-env
+/setups/docker/.ddr-data-writer-env
+/setups/docker/.ddr-react-frontend-env
 
 /secrets
 
