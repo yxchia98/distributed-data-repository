@@ -195,37 +195,41 @@ const TopicFileActionMenu: React.FC<TopicFileActionMenuProps> = (props) => {
                                 )}
                             </Menu.Item> */}
                         </div>
-                        <div className="px-1 py-1">
-                            <Menu.Item>
-                                {({ active }) => (
-                                    <button
-                                        onClick={handleDeleteOnClick}
-                                        className={`${
-                                            active ? "bg-indigo-500 text-white" : "text-gray-900"
-                                        } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
-                                    >
-                                        {active ? (
-                                            <IconContext.Provider
-                                                value={{
-                                                    size: "1.5em",
-                                                }}
-                                            >
-                                                <BiTrash className="mr-2 h-5 w-5 flex items-centerjustify-center" />
-                                            </IconContext.Provider>
-                                        ) : (
-                                            <IconContext.Provider
-                                                value={{
-                                                    size: "1.5em",
-                                                }}
-                                            >
-                                                <BiTrash className="mr-2 h-5 w-5 flex items-center text-indigo-500 justify-center" />
-                                            </IconContext.Provider>
-                                        )}
-                                        Delete
-                                    </button>
-                                )}
-                            </Menu.Item>
-                        </div>
+                        {props.deletable && (
+                            <div className="px-1 py-1">
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <button
+                                            onClick={handleDeleteOnClick}
+                                            className={`${
+                                                active
+                                                    ? "bg-indigo-500 text-white"
+                                                    : "text-gray-900"
+                                            } group flex w-full items-center rounded-md px-2 py-2 text-sm`}
+                                        >
+                                            {active ? (
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "1.5em",
+                                                    }}
+                                                >
+                                                    <BiTrash className="mr-2 h-5 w-5 flex items-centerjustify-center" />
+                                                </IconContext.Provider>
+                                            ) : (
+                                                <IconContext.Provider
+                                                    value={{
+                                                        size: "1.5em",
+                                                    }}
+                                                >
+                                                    <BiTrash className="mr-2 h-5 w-5 flex items-center text-indigo-500 justify-center" />
+                                                </IconContext.Provider>
+                                            )}
+                                            Delete
+                                        </button>
+                                    )}
+                                </Menu.Item>
+                            </div>
+                        )}
                     </Menu.Items>
                 </Transition>
             </Menu>
