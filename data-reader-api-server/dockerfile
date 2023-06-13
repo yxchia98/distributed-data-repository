@@ -1,5 +1,6 @@
 # use nodejs latest docker image
-FROM --platform=linux/amd64 node:latest
+# FROM --platform=linux/amd64 node:latest
+FROM node:latest
 
 # specify app directory
 WORKDIR /app

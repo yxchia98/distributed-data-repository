@@ -1,5 +1,6 @@
 # use nodejs latest docker image
-FROM --platform=linux/amd64 node:latest
+# FROM --platform=linux/amd64 node:latest
+FROM node:latest
 
 # specify app directory
 WORKDIR /app
@@ -17,4 +18,5 @@ EXPOSE 443
 EXPOSE 8443
 EXPOSE 8080
 EXPOSE 3000
-CMD [ "serve", "-l", "443", "--ssl-cert", "/app/ssl/certificate.crt", "--ssl-key", "/app/ssl/private.key", "-s", "build" ]
+# CMD [ "serve", "-l", "443", "--ssl-cert", "/app/ssl/certificate.crt", "--ssl-key", "/app/ssl/private.key", "-s", "build" ]
+CMD [ "serve", "-l", "443", "-s", "build" ]

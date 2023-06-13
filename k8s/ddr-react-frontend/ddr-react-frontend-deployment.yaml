@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddr-react-frontend-deployment
+  labels:
+    app: ddr-react-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: ddr-react-frontend
+  template:
+    metadata:
+      labels:
+        app: ddr-react-frontend
+    spec:
+      containers:
+      - name: ddr-react-frontend
+        image: yxchia98/ddr-react-frontend:latest
+        env:
+        - name: PORT
+          valueFrom:
+            secretKeyRef:
+              name: react-frontend-secret
+              key: PORT
+        - name: REACT_APP_DATA_READER_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: react-frontend-secret
+              key: REACT_APP_DATA_READER_API_URL
+        - name: REACT_APP_DATA_WRITER_API_URL
+          valueFrom:
+            secretKeyRef:
+              name: react-frontend-secret
+              key: REACT_APP_DATA_WRITER_API_URL
+        - name: REACT_APP_PUBLIC_URL
+          valueFrom:
+            secretKeyRef:
+              name: react-frontend-secret
+              key: REACT_APP_PUBLIC_URL
+        ports:
+        - containerPort: 443
+
