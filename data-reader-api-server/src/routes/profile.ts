@@ -7,10 +7,10 @@ import { Agency } from "../models/agency";
 import { AppUser } from "../models/app_user";
 import { json, Model, Op } from "sequelize";
 import {
-    getAllAgencies,
-    getAllUsers,
-    getSingleAgency,
-    getSingleUser,
+  getAllAgencies,
+  getAllUsers,
+  getSingleAgency,
+  getSingleUser,
 } from "../controllers/profileController";
 dotenv.config();
 

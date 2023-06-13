@@ -5,22 +5,22 @@ metadata:
     cert-manager.io/cluster-issuer: letsencrypt-prod
     ingress.kubernetes.io/force-ssl-redirect: "true"
     kubernetes.io/ingress.class: contour
-    kubernetes.io/tls-acme: "true"  
+    kubernetes.io/tls-acme: "true"
   name: ddr-data-reader-ingress
   namespace: default
 spec:
   rules:
-  - host: datareader.gke.yxchia.me
-    http:
-      paths:
-      - backend:
-          service:
-            name: ddr-data-reader-svc
-            port:
-              number: 8080
-        path: /
-        pathType: Prefix
+    - host: datareader.gke.yxchia.me
+      http:
+        paths:
+          - backend:
+              service:
+                name: ddr-data-reader-svc
+                port:
+                  number: 8080
+            path: /
+            pathType: Prefix
   tls:
-  - hosts:
-    - datareader.gke.yxchia.me
-    secretName: ddr-data-reader-cert
+    - hosts:
+        - datareader.gke.yxchia.me
+      secretName: ddr-data-reader-cert

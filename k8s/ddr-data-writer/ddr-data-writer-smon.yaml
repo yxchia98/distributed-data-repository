@@ -8,9 +8,9 @@ metadata:
 spec:
   namespaceSelector:
     matchNames:
-    - default
+      - default
   selector:
     matchLabels:
       app: ddr-data-writer
   endpoints:
-  - port: dr-data-writer-port
+    - port: ddr-data-writer-port

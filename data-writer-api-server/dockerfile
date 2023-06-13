@@ -1,19 +1,19 @@
 # use nodejs latest docker image
+FROM --platform=linux/amd64 node:bullseye-slim
 # FROM --platform=linux/amd64 node:latest
-FROM node:latest
+# FROM node:latest
 
 # specify app directory
 WORKDIR /app
 
 # copy and install dependencies
-COPY package*.json ./
+COPY ["package.json", "package-lock.json*", "./"]
 RUN npm install
 
 # bundle app source
 COPY . .
 
-EXPOSE 80
-EXPOSE 443
-EXPOSE 8443
-EXPOSE 8080
-CMD [ "npm", "run", "start" ]
+EXPOSE 8080/tcp
+EXPOSE 8080/udp
+
+CMD [ "npm", "run", "start-prod" ]
