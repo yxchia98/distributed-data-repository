@@ -11,6 +11,6 @@ spec:
       - default
   selector:
     matchLabels:
-      app: ddr-data-reader
+      app: ddr-data-reader-svc
   endpoints:
     - port: ddr-data-reader-port
