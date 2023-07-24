@@ -1,0 +1,28 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: domain-gateway
+  namespace: istio-system
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+  # - port:
+  #     number: 80
+  #     name: http
+  #     protocol: HTTP
+  #   hosts:
+  #   - "dummy.gke.yxchia.me"
+  #   - "prometheus.gke.yxchia.me"
+  #   - "grafana.gke.yxchia.me"
+  #   - "alertmanager.gke.yxchia.me"
+  - port:
+      number: 443
+      name: https
+      protocol: HTTPS
+    tls:
+      mode: SIMPLE
+      credentialName: test-domain-cert-prod # This should match the Certificate secretName
+    hosts:
+    - "dummy.gke.1234201.xyz"
+    - "search.1234201.xyz"

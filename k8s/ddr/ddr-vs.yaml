@@ -1,0 +1,48 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ddr-react-frontend-vs
+spec:
+  hosts:
+  - "ddr.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: ddr-react-frontend-svc
+        port:
+          number: 443
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ddr-data-reader-vs
+spec:
+  hosts:
+  - "datareader.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: ddr-data-reader-svc
+        port:
+          number: 8080
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ddr-data-writer-vs
+spec:
+  hosts:
+  - "datawriter.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: ddr-data-writer-svc
+        port:
+          number: 8080
+    

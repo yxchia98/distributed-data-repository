@@ -1,0 +1,53 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: prometheus-vs
+  namespace: monitoring
+spec:
+  hosts:
+  - "prometheus.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: kube-prometheus-stack-prometheus
+        port:
+          number: 9090
+    # - port: 443
+    #   sniHosts:
+    #   - prometheus.gke.yxchia.me
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: alertmanager-vs
+  namespace: monitoring
+spec:
+  hosts:
+  - "alertmanager.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: kube-prometheus-stack-alertmanager
+        port:
+          number: 9093
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: grafana-vs
+  namespace: monitoring
+spec:
+  hosts:
+  - "grafana.gke.yxchia.me"
+  gateways:
+  - istio-system/domain-gateway
+  http:
+  - route:
+    - destination:
+        host: kube-prometheus-stack-grafana
+        port:
+          number: 80

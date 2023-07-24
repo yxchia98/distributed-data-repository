@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dummy-deployment
+  labels:
+    app: dummy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dummy
+  template:
+    metadata:
+      labels:
+        app: dummy
+    spec:
+      containers:
+        - name: dummy-prom-ets
+          image: yxchia98/dummy-prom-ets:gke
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICEURL
+              valueFrom:
+                secretKeyRef:
+                  name: dummy-secret
+                  key: SERVICEURL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dummy-svc
+  labels:
+    app: dummy-svc
+spec:
+  selector:
+    app: dummy
+  ports:
+    - name: dummy-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: dummy-vs
+spec:
+  hosts:
+    - "dummy.gke.yxchia.me"
+  # - "dummy.gke.1234201.xyz"
+  gateways:
+    - istio-system/domain-gateway
+  http:
+    - route:
+        - destination:
+            host: dummy-svc
+            port:
+              number: 8080
+      # fault:
+      #   delay:
+      #     percentage:
+      #       value: 100
+      #     fixedDelay: 1000ms

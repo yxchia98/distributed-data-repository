@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ddr-data-writer-deployment
+  labels:
+    app: ddr-data-writer
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: ddr-data-writer
+  template:
+    metadata:
+      labels:
+        app: ddr-data-writer
+    spec:
+      containers:
+        - name: ddr-data-writer
+          image: yxchia98/ddr-data-writer:gke-1.2
+          env:
+            - name: AWS_RDS_SECRETS
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: AWS_RDS_SECRETS
+            - name: AWS_RDS_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: AWS_RDS_URL
+            - name: AWS_S3_SECRETS
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: AWS_S3_SECRETS
+            - name: CLIENT_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: CLIENT_URL
+            - name: GOOGLE_CALLBACK_URL
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: GOOGLE_CALLBACK_URL
+            - name: GOOGLE_OAUTH_SECRETS
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: GOOGLE_OAUTH_SECRETS
+            - name: PORT
+              valueFrom:
+                secretKeyRef:
+                  name: data-writer-secret
+                  key: PORT
+          ports:
+            - containerPort: 8080

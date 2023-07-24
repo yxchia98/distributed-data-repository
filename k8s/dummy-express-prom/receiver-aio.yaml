@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: receiver-deployment
+  labels:
+    app: receiver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: receiver
+  template:
+    metadata:
+      labels:
+        app: receiver
+    spec:
+      containers:
+        - name: receiver-prom-ets
+          image: yxchia98/dummy-prom-ets:gke
+          ports:
+            - containerPort: 8080
+          env:
+            - name: SERVICEURL
+              valueFrom:
+                secretKeyRef:
+                  name: dummy-secret
+                  key: SERVICEURL
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: receiver-svc
+  labels:
+    app: receiver-svc
+spec:
+  selector:
+    app: receiver
+  ports:
+    - name: receiver-port
+      protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: receiver-vs
+spec:
+  hosts:
+    - "dummy.gke.1234201.xyz"
+  gateways:
+    - istio-system/receiver-gateway
+  http:
+    - route:
+        - destination:
+            host: receiver-svc
+            port:
+              number: 8080
+      fault:
+        delay:
+          percentage:
+            value: 100
+          fixedDelay: 100ms

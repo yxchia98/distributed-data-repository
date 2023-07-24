@@ -1,0 +1,16 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: dummy-vs
+spec:
+  hosts:
+  - "dummy.gke.yxchia.me"
+  gateways:
+  - domain-gateway
+  http:
+  - route:
+    - destination:
+        host: dummy-svc
+        port:
+          number: 8080
+    
